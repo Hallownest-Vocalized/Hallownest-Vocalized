@@ -14,23 +14,21 @@ using System.IO;
 using SFCore.Utils;
 
 namespace HKVocals
-{
-    public class HKVocalsGD
+{ 
+    public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<SaveSettings>, IMenuMod
     {
-        public int testSetting = 0;
-        public int Volume = 50;
-    }
-    public class HKVocalsPD
-    {
-        public bool ZoteOn = true;
-        public bool UnlockedZoteOpt = false;
-    }
-    public partial class HKVocals : FullSettingsMod<HKVocalsPD, HKVocalsGD>, IMenuMod
-    {
+        public static GlobalSettings _globalSettings { get; set; } = new GlobalSettings();
+        public void OnLoadGlobal(GlobalSettings s) => _globalSettings = s;
+        public GlobalSettings OnSaveGlobal() => _globalSettings;
+        public SaveSettings _saveSettings { get; set; } = new SaveSettings();
+        public void OnLoadLocal(SaveSettings s) => _saveSettings = s;
+        public SaveSettings OnSaveLocal() => _saveSettings;
+        
+        public static  List<Func<HealthManager, bool>> HpListeners = new List<Func<HealthManager, bool>>();
         public static Dictionary<AssetBundle, string[]> CustomAudioBundles = new Dictionary<AssetBundle, string[]>();
         public static Dictionary<AudioClip, string> CustomAudioClips = new Dictionary<AudioClip, string>();
         private static readonly List<string> audioExtentions = new List<string>() { ".mp3" };
-        private const bool RemoveOrigNPCSounds = true;
+        public const bool RemoveOrigNPCSounds = true;
 
         private static int[] GetRange(int start, int end)
         {
@@ -39,14 +37,16 @@ namespace HKVocals
                 array[i] = start + i;
             return array;
         }
-        private AudioClip GetAudioFor(string convName) => CustomAudioClips.ContainsValue(convName) ? CustomAudioClips.First(a => a.Value == convName).Key : CustomAudioBundles.Any(a => a.Value.Any(s => s == convName)) ? CustomAudioBundles.First(a => a.Value.Any(s => s == convName)).Key.LoadAsset<AudioClip>(convName) : audioBundle.LoadAsset<AudioClip>(convName.Replace("_generic", "_town_generic"));
-        private void TryPlayAudioFor(string convName) { if (HasAudioFor(convName)) PlayAudioFor(convName); }
-        private bool HasAudioFor(string convName) => CustomAudioBundles.Any(a => a.Value.Contains(convName)) || CustomAudioClips.ContainsValue(convName) || audioNames.Contains(convName.Replace("_GENERIC", "_TOWN_GENERIC"));
-        private void PlayAudioFor(string convName) => PlayAudio(GetAudioFor(convName.ToLower()));
+        public AudioClip GetAudioFor(string convName) => CustomAudioClips.ContainsValue(convName) ? CustomAudioClips.First(a => a.Value == convName).Key : CustomAudioBundles.Any(a => a.Value.Any(s => s == convName)) ? CustomAudioBundles.First(a => a.Value.Any(s => s == convName)).Key.LoadAsset<AudioClip>(convName) : audioBundle.LoadAsset<AudioClip>(convName.Replace("_generic", "_town_generic"));
+        public void TryPlayAudioFor(string convName) { if (HasAudioFor(convName)) PlayAudioFor(convName); }
+        public bool HasAudioFor(string convName) => CustomAudioBundles.Any(a => a.Value.Contains(convName)) || CustomAudioClips.ContainsValue(convName) || audioNames.Contains(convName.Replace("_GENERIC", "_TOWN_GENERIC"));
+        public void PlayAudioFor(string convName) => PlayAudio(GetAudioFor(convName.ToLower()));
         private void PlayAudio(AudioClip clip)
         {
             if (HeroController.instance)
+            {
                 audioSource.transform.position = HeroController.instance.transform.position;
+            }
             audioSource.volume = _globalSettings.Volume / 100f;
             audioSource.PlayOneShot(clip, 1f);
         }
@@ -55,34 +55,35 @@ namespace HKVocals
         public override string GetVersion() => "0.0.0.1";
 
         public List<IMenuMod.MenuEntry> GetMenuData(IMenuMod.MenuEntry? toggleButtonEntry)
-            => new List<IMenuMod.MenuEntry>(){
+        {
+            return new List<IMenuMod.MenuEntry>
+            {
                 new IMenuMod.MenuEntry("test",
-                    new string[] { "On", "Off", "On 2?", "1, 5, or 7"},
+                    new string[] {"On", "Off", "On 2?", "1, 5, or 7"},
                     "description or something",
                     i => _globalSettings.testSetting = i, () => _globalSettings.testSetting),
-                    //i => { }, () => 0)};
+                //i => { }, () => 0)};
                 new IMenuMod.MenuEntry("Volume",
                     GetRange(0, 100).Select(i => i.ToString()).ToArray(),
                     "Controls the Volume of Voice Lines",
-                    i => _globalSettings.Volume = i, () => _globalSettings.Volume)};
+                    i => _globalSettings.Volume = i, () => _globalSettings.Volume)
+            };
+        }
 
-        private AssetBundle audioBundle;
-        private List<string> audioNames = new List<string>();
-        private NonBouncer coroutineSlave;
-        private AudioSource audioSource;
-        private Coroutine autoTextRoutine;
-        private static HKVocals instance;
+        public AssetBundle audioBundle;
+        public List<string> audioNames = new List<string>();
+        public NonBouncer coroutineSlave;
+        public AudioSource audioSource;
+        public Coroutine autoTextRoutine;
+        internal static HKVocals instance;
         public bool ToggleButtonInsideMenu => false;
 
         public override void Initialize()
         {
-            if (_globalSettings == null)
-                _globalSettings = new HKVocalsGD();
             foreach (string s in PlayMakerGlobals.Instance.Events)
             {
                 Log(s);
             }
-            SaveGlobalSettings();
             instance = this;
             //On.AudioManager.ApplyMusicCue += AudioManager_ApplyMusicCue;
             //.AudioManager.ApplyAtmosCue += AudioManager_ApplyAtmosCue;
@@ -94,7 +95,6 @@ namespace HKVocals
             On.EnemyDreamnailReaction.Start += EDNRStart;
             On.EnemyDreamnailReaction.ShowConvo += ShowConvo;
             On.HealthManager.TakeDamage += TakeDamage;
-            ModHooks.AfterSavegameLoadHook += AfterSaveLoad;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += SceneChanged;
 
             Assembly asm = Assembly.GetExecutingAssembly();
@@ -136,12 +136,6 @@ namespace HKVocals
         private void SceneChanged(UnityEngine.SceneManagement.Scene arg0, UnityEngine.SceneManagement.Scene arg1)
         {
             if (arg1.name == "GG_Workshop") coroutineSlave.StartCoroutine(SetUpZoteRoom());
-        }
-
-        private void AfterSaveLoad(SaveGameData obj)
-        {
-            if (_saveSettings == null)
-                _saveSettings = new HKVocalsPD();
         }
 
         private void TakeDamage(On.HealthManager.orig_TakeDamage orig, HealthManager self, HitInstance hitInstance)
@@ -191,11 +185,11 @@ namespace HKVocals
                 foreach (FsmTransition t in self.FsmGlobalTransitions)
                     Log(t.EventName);
             }*/
-            if (SceneFSMEdits.TryGetValue((UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, self.gameObject.name, self.FsmName), out var sceneAction))
+            if (Dictionaries.SceneFSMEdits.TryGetValue((UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, self.gameObject.name, self.FsmName), out var sceneAction))
                 sceneAction(self);
-            if (GoFSMEdits.TryGetValue((self.gameObject.name, self.FsmName), out var goAction))
+            if (Dictionaries.GoFSMEdits.TryGetValue((self.gameObject.name, self.FsmName), out var goAction))
                 goAction(self);
-            if (FSMEdits.TryGetValue(self.FsmName, out var action))
+            if (Dictionaries.FSMChanges.TryGetValue(self.FsmName, out var action))
                 action(self);
             /*if (self.gameObject.name.ToLower().Contains("elderbug"))
             {
@@ -226,13 +220,13 @@ namespace HKVocals
             TryPlayAudioFor(convName);
         }
 
-        private IEnumerator SetUpZoteRoom()
+        public IEnumerator SetUpZoteRoom()
         {
             yield return null;
             //GameObject zoteLever = GameObject.Instantiate(GameObject.Find(BossStatueLever));
         }
 
-        private void CreateDreamDialogue(string convName, string sheetName, string enemyType = "", string enemyVariant = "", GameObject enemy = null)
+        public void CreateDreamDialogue(string convName, string sheetName, string enemyType = "", string enemyVariant = "", GameObject enemy = null)
         {
             PlayMakerFSM fsm = FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value.LocateMyFSM("Display");
             fsm.Fsm.GetFsmString("Convo Title").Value = convName;
@@ -244,7 +238,7 @@ namespace HKVocals
             fsm.SendEvent("DISPLAY DREAM MSG");
         }
 
-        private IEnumerator AutoChangePage(DialogueBox dialogueBox)
+        public IEnumerator AutoChangePage(DialogueBox dialogueBox)
         {
             int newPageNum = dialogueBox.currentPage + 1;
             string oldConvoName = dialogueBox.currentConversation;
@@ -259,111 +253,6 @@ namespace HKVocals
             yield return new WaitForSeconds(1f);
             for (int i = 0; i < 100; i++)
                 source.volume -= volumeChange;
-        }
-
-        public class DreamDialogueAction : FsmStateAction
-        {
-            public string convName { get => convNames[0]; set => convNames = new string[] { value }; }
-            public string sheetName { get => sheetNames[0]; set => sheetNames = new string[] { value }; }
-            public string[] convNames;
-            public string[] sheetNames;
-            public float waitTime = 0;
-            public ConvoMode convoMode = ConvoMode.Once;
-            public int[] convoOccurances = new int[] { 0 };
-            public bool isEnemy = true;
-            private int lastIndex = int.MaxValue;
-            private int realLastIndex = -1;
-            public DreamDialogueAction(string convName, string sheetName)
-            {
-                this.convName = convName;
-                this.sheetName = sheetName;
-            }
-            public DreamDialogueAction(string[] convNames, string sheetName)
-            {
-                this.convNames = convNames;
-                this.sheetName = sheetName;
-            }
-            public DreamDialogueAction(List<(string, string)> Conversations)
-            {
-                convNames = Conversations.Select(tup => tup.Item1).ToArray();
-                sheetNames = Conversations.Select(tup => tup.Item2).ToArray();
-            }
-            public override void OnEnter()
-            {
-                //if (_globalSettings.testSetting == 0)
-                StartShow();
-                if (Fsm != null)
-                    Finish();
-            }
-            private void StartShow()
-            {
-                realLastIndex++;
-                int currentOccurance;
-                if (convoOccurances.Length <= realLastIndex)
-                    currentOccurance = convoOccurances.Last();
-                else
-                    currentOccurance = convoOccurances[realLastIndex];
-                if (currentOccurance == -1)
-                    return;
-                if (waitTime == 0)
-                    ShowDialogue();
-                else
-                    instance.coroutineSlave.StartCoroutine(WaitShowDialogue());
-            }
-            private IEnumerator WaitShowDialogue()
-            {
-                yield return new WaitForSeconds(waitTime);
-                ShowDialogue();
-            }
-            private void ShowDialogue()
-            {
-                switch (convoMode)
-                {
-                    case ConvoMode.Once:
-                        if (lastIndex > convNames.Length - 2)
-                            return;
-                        if (lastIndex == int.MaxValue || lastIndex < -1)
-                            lastIndex = -1;
-                        lastIndex++;
-                        break;
-                    case ConvoMode.Repeat:
-                        if (lastIndex == int.MaxValue || lastIndex > convNames.Length - 2 || lastIndex < -1)
-                            lastIndex = -1;
-                        lastIndex++;
-                        break;
-                    case ConvoMode.Random:
-                        lastIndex = UnityEngine.Random.Range(0, convNames.Length);
-                        break;
-                }
-                instance.CreateDreamDialogue(convNames.Length > lastIndex ? convNames[lastIndex] : convNames.Last(), sheetNames.Length == 0 ? "Enemy Dreams" : sheetNames.Length > lastIndex ? sheetNames[lastIndex] : sheetNames.Last(), "", "", isEnemy ? Owner : null);
-            }
-            public enum ConvoMode
-            {
-                Once,
-                Repeat,
-                Random
-            }
-        }
-        public class ExDNailReaction : MonoBehaviour
-        {
-            internal string Variation = "";
-            internal string PDName = "";
-            private EnemyDeathEffects ede;
-            private void Awake()
-            {
-                ede = GetComponent<EnemyDeathEffects>();
-                if (ede)
-                {
-                    PDName = ede.GetAttr<EnemyDeathEffects, string>("playerDataName");
-                    Variation = EnemyVariants.ContainsKey(PDName) ? EnemyVariants[PDName][UnityEngine.Random.Range(0, EnemyVariants[PDName].Length)] : "";
-                }
-            }
-            private void OnDestroy()
-            {
-                PlayMakerFSM fsm = FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value.LocateMyFSM("Display");
-                if (fsm.FsmVariables.GetFsmGameObject("Last Enemy").Value == gameObject)
-                    fsm.SendEvent("CANCEL ENEMY DREAM");
-            }
         }
     }
 }

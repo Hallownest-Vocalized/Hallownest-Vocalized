@@ -12,15 +12,22 @@ using USceneManager = UnityEngine.SceneManagement.SceneManager;
 
 namespace HKVocals
 {
-    public partial class HKVocals
+    public class FSMEdits
     {
-        private static void AddHPDialogue(HealthManager hm, DreamDialogueAction action, int hp)
+        public static void AddHPDialogue(HealthManager hm, DreamDialogueAction action, int hp)
         {
             action.Owner = hm.gameObject;
-            instance.HpListeners.Add(self => { if (self == hm && self.hp >= hp) { action.OnEnter(); return true; } return false; });
+            HKVocals.HpListeners.Add(self =>
+            {
+                if (self == hm && self.hp >= hp)
+                {
+                    action.OnEnter(); 
+                    return true;
+                } 
+                return false;
+            });
         }
-        private readonly List<Func<HealthManager, bool>> HpListeners = new List<Func<HealthManager, bool>>();
-        private static void BoxOpenDream(PlayMakerFSM fsm)
+        public static void BoxOpenDream(PlayMakerFSM fsm)
         {
             //fsm.transform.Log();
             PlayMakerFSM msgFSM = fsm.transform.Find("Dream Msg").gameObject.LocateMyFSM("Display");
@@ -35,31 +42,41 @@ namespace HKVocals
                     msgFSM.FsmVariables.FindFsmString("Enemy Type"),
                     msgFSM.FsmVariables.FindFsmString("Enemy Variant")
                 };
-                if (instance.HasAudioFor(ConvoStrings[0].Value + "_" + ConvoStrings[1].Value + "_" + ConvoStrings[2].Value + "_0"))
-                    instance.PlayAudioFor(ConvoStrings[0].Value + "_" + ConvoStrings[1].Value + "_" + ConvoStrings[2].Value + "_0");
-                else if (instance.HasAudioFor(ConvoStrings[0].Value + "_" + ConvoStrings[1].Value + "_0"))
-                    instance.PlayAudioFor(ConvoStrings[0].Value + "_" + ConvoStrings[1].Value + "_0");
-                else if (instance.HasAudioFor(ConvoStrings[0].Value + "_0"))
-                    instance.PlayAudioFor(ConvoStrings[0].Value + "_0");
+                if (HKVocals.instance.HasAudioFor(ConvoStrings[0].Value + "_" + ConvoStrings[1].Value + "_" + ConvoStrings[2].Value + "_0"))
+                {
+                    HKVocals.instance.PlayAudioFor(ConvoStrings[0].Value + "_" + ConvoStrings[1].Value + "_" + ConvoStrings[2].Value + "_0");
+                }
+                else if (HKVocals.instance.HasAudioFor(ConvoStrings[0].Value + "_" + ConvoStrings[1].Value + "_0"))
+                {
+                    HKVocals.instance.PlayAudioFor(ConvoStrings[0].Value + "_" + ConvoStrings[1].Value + "_0");
+                }
+                else if (HKVocals.instance.HasAudioFor(ConvoStrings[0].Value + "_0"))
+                {
+                    HKVocals.instance.PlayAudioFor(ConvoStrings[0].Value + "_0");
+                }
                 ConvoStrings[1].Value = "";
                 ConvoStrings[2].Value = "";
                 msgFSM.FsmVariables.FindFsmBool("Is Enemy").Value = false;
             });
             msgFSM.CopyState("Display Text", "Display Text Enemy");
-            msgFSM.InsertAction("Display Text", new BoolTest() { 
+            msgFSM.InsertAction("Display Text", new BoolTest()
+            { 
                 boolVariable = fsm.FsmVariables.FindFsmBool("Is Enemy"), 
-                isTrue = new FsmEvent("IS ENEMY") }, 0);
+                isTrue = new FsmEvent("IS ENEMY") 
+            }, 0);
             msgFSM.AddTransition("Display Text", "IS ENEMY", "Display Text Enemy");
-            msgFSM.AddAction("Display Text Enemy", new GameObjectIsNull() { 
+            msgFSM.AddAction("Display Text Enemy", new GameObjectIsNull()
+            { 
                 everyFrame = true, 
                 gameObject = fsm.FsmVariables.FindFsmGameObject("Last Enemy"), 
-                isNull = new FsmEvent("ENEMY DEAD") });
+                isNull = new FsmEvent("ENEMY DEAD") 
+            });
             msgFSM.AddTransition("Display Text Enemy", "ENEMY DEAD", "Text Down");
-            msgFSM.AddMethod("Text Down", instance.audioSource.Stop);
+            msgFSM.AddMethod("Text Down", HKVocals.instance.audioSource.Stop);
         }
-        private static void ConversationControl(PlayMakerFSM fsm)
+        public static void ConversationControl(PlayMakerFSM fsm)
         {
-            if (RemoveOrigNPCSounds /*&& _globalSettings.testSetting == 0*/)
+            if (HKVocals.RemoveOrigNPCSounds /*&& _globalSettings.testSetting == 0*/)
             {
                 foreach (FsmState state in fsm.FsmStates)
                 {
@@ -68,20 +85,20 @@ namespace HKVocals
                 }
             }
         }
-        private static void FalseyControl(PlayMakerFSM fsm)
+        public static void FalseyControl(PlayMakerFSM fsm)
         {
-            instance.Log("Falsey Control Activated");
+            HKVocals.instance.Log("Falsey Control Activated");
             fsm.InsertAction("Start Fall", new DreamDialogueAction("FALSE_KNIGHT_1", "Enemy Dreams") { waitTime = 10 }, 0);
             fsm.InsertAction("Recover", new DreamDialogueAction(new string[] { "FALSE_KNIGHT_2", "FALSE_KNIGHT_3" }, "Enemy Dreams") { waitTime = 6, convoOccurances = new int[] { 0, 0, -1 } }, 0);
             fsm.MakeLog();
         }
-        private static void LurkerControl(PlayMakerFSM fsm)
+        public static void LurkerControl(PlayMakerFSM fsm)
         {
             DreamDialogueAction action = new DreamDialogueAction(new string[] { "LURKER_1", "LURKER_2", "LURKER_3" }, "Enemy Dreams") { waitTime = 3f, convoMode = DreamDialogueAction.ConvoMode.Random, convoOccurances = new int[] { -1, 0 } };
             fsm.InsertMethod("Aleart Anim", () => action.convoOccurances[0] = 0, 0);
             fsm.InsertAction("Hop Antic", action, 0);
         }
-        private static void RadianceControl(PlayMakerFSM fsm)
+        public static void RadianceControl(PlayMakerFSM fsm)
         {
             if (BossSequenceController.IsInSequence)
             {
@@ -91,7 +108,7 @@ namespace HKVocals
                 fsm.InsertAction("Ascend Tele", new DreamDialogueAction("RADIANCE_6", "Enemy Dreams") { waitTime = 5f }, 0);
             }
         }
-        private static void HornetControl(PlayMakerFSM fsm)
+        public static void HornetControl(PlayMakerFSM fsm)
         {
             if ((!USceneManager.GetActiveScene().name.Contains("GG") && fsm.gameObject.name.Contains("1")) || (BossSequenceController.IsInSequence && fsm.gameObject.name.Contains("2")))
             {
@@ -102,23 +119,23 @@ namespace HKVocals
                 AddHPDialogue(hm, new DreamDialogueAction("HORNET_" + namePart + "_3", "Enemy Dreams"), hm.hp / 4);
             }
         }
-        private static void NailmasterControl(PlayMakerFSM fsm)
+        public static void NailmasterControl(PlayMakerFSM fsm)
         {
             if (!BossSequenceController.IsInSequence)
             {
-                instance.Log("Oro Control Activated");
+                HKVocals.instance.Log("Oro Control Activated");
                 AddHPDialogue(fsm.GetComponent<HealthManager>(), new DreamDialogueAction("ORO_1", "Enemy Dreams"), 150);
-                fsm.AddMethod("Death Start", () => { if ((instance.audioSource.clip?.name.Contains("ORO")).GetValueOrDefault()) instance.audioSource.Stop(); });
+                fsm.AddMethod("Death Start", () => { if ((HKVocals.instance.audioSource.clip?.name.Contains("ORO")).GetValueOrDefault()) HKVocals.instance.audioSource.Stop(); });
                 IEnumerator DreamDialogue()
                 {
                     yield return new WaitForSeconds(1f);
-                    instance.CreateDreamDialogue("MATO_1", "Enemy Dreams");
-                    yield return new WaitForSeconds(instance.GetAudioFor("MATO_1_0").length + 0.5f);
-                    instance.CreateDreamDialogue("ORO_2", "Enemy Dreams");
-                    yield return new WaitForSeconds(instance.GetAudioFor("ORO_2_0").length + 0.5f);
-                    instance.CreateDreamDialogue("MATO_2", "Enemy Dreams");
+                    HKVocals.instance.CreateDreamDialogue("MATO_1", "Enemy Dreams");
+                    yield return new WaitForSeconds(HKVocals.instance.GetAudioFor("MATO_1_0").length + 0.5f);
+                    HKVocals.instance.CreateDreamDialogue("ORO_2", "Enemy Dreams");
+                    yield return new WaitForSeconds(HKVocals.instance.GetAudioFor("ORO_2_0").length + 0.5f);
+                    HKVocals.instance.CreateDreamDialogue("MATO_2", "Enemy Dreams");
                 }
-                fsm.AddMethod("Reactivate", () => instance.coroutineSlave.StartCoroutine(DreamDialogue()));
+                fsm.AddMethod("Reactivate", () => HKVocals.instance.coroutineSlave.StartCoroutine(DreamDialogue()));
                 fsm.MakeLog();
             }
         }
