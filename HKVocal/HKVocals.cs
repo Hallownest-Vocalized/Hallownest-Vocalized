@@ -43,25 +43,13 @@ namespace HKVocals
         public void PlayAudioFor(string convName) => PlayAudio(GetAudioFor(convName.ToLower()));
         private void PlayAudio(AudioClip clip)
         {
-            if (HeroController.instance)
+            if (!audioSource.transform.parent)
             {
-                audioSource.transform.position = HeroController.instance.transform.position;
+                audioSource.transform.parent = HeroController.instance.transform;
+                audioSource.transform.localPosition = Vector3.zero;
             }
-            IEnumerable<GameObject> pooledObjects;
-            if (ObjectPool.instance.startupPools.Any(o => o.prefab.name == "Audio Player Actor"))
-            {
-                var audioplayeractor = ObjectPool.instance.startupPools.First(o => o.prefab.name == "Audio Player Actor").prefab.GetComponent<AudioSource>();
-                Log(audioplayeractor + "  Startup Pool");
-                Log(audioplayeractor.outputAudioMixerGroup);
-                audioSource.outputAudioMixerGroup = audioplayeractor.outputAudioMixerGroup;
-            }
-            else if ((pooledObjects = ObjectPool.instance.GetAttr<ObjectPool, Dictionary<GameObject, List<GameObject>>>("pooledObjects").Keys).Any(o => o.name == "Audio Player Actor"))
-            {
-                var audioplayeractor = pooledObjects.First(o => o.name == "Audio Player Actor").GetComponent<AudioSource>();
-                Log(audioplayeractor + "  Object Pool");
-                Log(audioplayeractor.outputAudioMixerGroup);
-                audioSource.outputAudioMixerGroup = audioplayeractor.outputAudioMixerGroup;
-            }
+            if (!audioSource.outputAudioMixerGroup) // might need to be rewritten if this changes, don't think it does
+                audioSource.outputAudioMixerGroup = ObjectPool.instance.startupPools.First(o => o.prefab.name == "Audio Player Actor").prefab.GetComponent<AudioSource>().outputAudioMixerGroup;
             audioSource.volume = _globalSettings.Volume / 100f;
             audioSource.PlayOneShot(clip, 1f);
         }
