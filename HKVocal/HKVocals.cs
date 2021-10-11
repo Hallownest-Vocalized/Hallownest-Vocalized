@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,11 +11,14 @@ using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using System.Collections;
 using System.IO;
+using Modding.Menu;
+using Modding.Menu.Config;
 using SFCore.Utils;
+using UnityEngine.UI;
 
 namespace HKVocals
 { 
-    public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<SaveSettings>, IMenuMod
+    public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<SaveSettings>, ICustomMenuMod
     {
         public static GlobalSettings _globalSettings { get; set; } = new GlobalSettings();
         public void OnLoadGlobal(GlobalSettings s) => _globalSettings = s;
@@ -57,22 +60,6 @@ namespace HKVocals
         public HKVocals() : base("Hollow Knight Vocalized") { }
         public override string GetVersion() => "0.0.0.1";
 
-        public List<IMenuMod.MenuEntry> GetMenuData(IMenuMod.MenuEntry? toggleButtonEntry)
-        {
-            return new List<IMenuMod.MenuEntry>
-            {
-                new IMenuMod.MenuEntry("test",
-                    new string[] {"On", "Off", "On 2?", "1, 5, or 7"},
-                    "description or something",
-                    i => _globalSettings.testSetting = i, () => _globalSettings.testSetting),
-                //i => { }, () => 0)};
-                new IMenuMod.MenuEntry("Volume",
-                    GetRange(0, 100).Select(i => i.ToString()).ToArray(),
-                    "Controls the Volume of Voice Lines",
-                    i => _globalSettings.Volume = i, () => _globalSettings.Volume)
-            };
-        }
-
         public AssetBundle audioBundle;
         public List<string> audioNames = new List<string>();
         public NonBouncer coroutineSlave;
@@ -80,6 +67,61 @@ namespace HKVocals
         public Coroutine autoTextRoutine;
         internal static HKVocals instance;
         public bool ToggleButtonInsideMenu => false;
+        
+        public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
+        {
+            var builder = new MenuBuilder(UIManager.instance.UICanvas.gameObject, "HKVocal")
+                .CreateTitle("HK Vocal", MenuTitleStyle.vanillaStyle)
+                .CreateContentPane(RectTransformData.FromSizeAndPos(
+                    new RelVector2(new Vector2(1920f, 903f)),
+                    new AnchoredPosition(
+                        new Vector2(0.5f, 0.5f),
+                        new Vector2(0.5f, 0.5f),
+                        new Vector2(0f, -60f)
+                    )
+                ))
+                .CreateControlPane(RectTransformData.FromSizeAndPos(
+                    new RelVector2(new Vector2(1920f, 259f)),
+                    new AnchoredPosition(
+                        new Vector2(0.5f, 0.5f),
+                        new Vector2(0.5f, 0.5f),
+                        new Vector2(0f, -502f)
+                    )
+                ))
+                .SetDefaultNavGraph(new ChainedNavGraph())
+                .AddContent(
+                    RegularGridLayout.CreateVerticalLayout(105f),
+                    c =>
+                    {
+                        c.AddTextPanel
+                        ("AudioMenuText",
+                            new RelVector2(new Vector2(500,200)),
+                            new TextPanelConfig
+                            {
+                                Text = "To change Volume go to audio menu",
+                                Size = 46,
+                                Anchor = TextAnchor.MiddleCenter,
+                                Font = TextPanelConfig.TextFont.TrajanRegular
+                            });
+                    }).AddControls(
+                    new SingleContentLayout(new AnchoredPosition(
+                        new Vector2(0.5f, 0.5f),
+                        new Vector2(0.5f, 0.5f),
+                        new Vector2(0f, -64f)
+                    )), c => c.AddMenuButton(
+                        "BackButton",
+                        new MenuButtonConfig
+                        {
+                            Label = "Back",
+                            CancelAction = _ => UIManager.instance.UIGoToDynamicMenu(modListMenu),
+                            SubmitAction = _ => UIManager.instance.UIGoToDynamicMenu(modListMenu),
+                            Style = MenuButtonStyle.VanillaStyle,
+                            Proceed = true
+                        })).Build();
+
+            return builder;
+
+        }
 
         public override void Initialize()
         {
@@ -91,6 +133,8 @@ namespace HKVocals
             On.EnemyDreamnailReaction.ShowConvo += ShowConvo;
             On.HealthManager.TakeDamage += TakeDamage;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += SceneChanged;
+            UIManager.EditMenus += AddAudioOption;
+            ModHooks.LanguageGetHook += AddKey;
 
             Assembly asm = Assembly.GetExecutingAssembly();
             audioBundle = AssetBundle.LoadFromStream(asm.GetManifestResourceStream("HKVocals.audiobundle"));
@@ -110,6 +154,45 @@ namespace HKVocals
             coroutineSlave = coroutineGO.AddComponent<NonBouncer>();
             GameObject.DontDestroyOnLoad(audioGO);
             GameObject.DontDestroyOnLoad(coroutineGO);
+        }
+        
+        private string AddKey(string key, string sheettitle, string orig)
+        {
+            if (key == AudioSliderKey) return AudioSliderText;
+            return orig;
+        }
+
+        private static string AudioSliderKey = "HKVOCALS_VOL";
+        private static string AudioSliderText = "HK Vocals Volume: ";
+        private void AddAudioOption()
+        {
+            GameObject MusicSlider = UIManager.instance.gameObject.transform.Find("UICanvas/AudioMenuScreen/Content/MusicVolume/MusicSlider").gameObject;
+
+
+            var VolumeSlider = GameObject.Instantiate(MusicSlider, MusicSlider.transform.parent);
+
+            MenuAudioSlider VolumeSlider_MenuAudioSlider = VolumeSlider.GetComponent<MenuAudioSlider>();
+            Slider VolumeSlider_Slider = VolumeSlider.GetComponent<Slider>();
+            
+            VolumeSlider.transform.position += new Vector3(0, -0.6f, 0f);
+            VolumeSlider.name = "HkVocalsSlider";
+
+            Action<float> StoreValue = f =>
+            {
+                VolumeSlider_MenuAudioSlider.UpdateTextValue(f);
+                _globalSettings.Volume = (int)f;
+            };
+
+            var SliderEvent = new Slider.SliderEvent();
+            SliderEvent.AddListener(StoreValue.Invoke);
+
+            VolumeSlider_Slider.onValueChanged = SliderEvent ;
+
+            VolumeSlider.transform.Find("Label").GetComponent<AutoLocalizeTextUI>().textKey = AudioSliderKey;
+            VolumeSlider.SetActive(true);
+            
+            VolumeSlider_MenuAudioSlider.UpdateTextValue(_globalSettings.Volume);
+            VolumeSlider_Slider.value = _globalSettings.Volume;
         }
 
         private void SceneChanged(UnityEngine.SceneManagement.Scene arg0, UnityEngine.SceneManagement.Scene arg1)
