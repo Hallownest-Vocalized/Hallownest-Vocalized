@@ -47,6 +47,21 @@ namespace HKVocals
             {
                 audioSource.transform.position = HeroController.instance.transform.position;
             }
+            IEnumerable<GameObject> pooledObjects;
+            if (ObjectPool.instance.startupPools.Any(o => o.prefab.name == "Audio Player Actor"))
+            {
+                var audioplayeractor = ObjectPool.instance.startupPools.First(o => o.prefab.name == "Audio Player Actor").prefab.GetComponent<AudioSource>();
+                Log(audioplayeractor + "  Startup Pool");
+                Log(audioplayeractor.outputAudioMixerGroup);
+                audioSource.outputAudioMixerGroup = audioplayeractor.outputAudioMixerGroup;
+            }
+            else if ((pooledObjects = ObjectPool.instance.GetAttr<ObjectPool, Dictionary<GameObject, List<GameObject>>>("pooledObjects").Keys).Any(o => o.name == "Audio Player Actor"))
+            {
+                var audioplayeractor = pooledObjects.First(o => o.name == "Audio Player Actor").GetComponent<AudioSource>();
+                Log(audioplayeractor + "  Object Pool");
+                Log(audioplayeractor.outputAudioMixerGroup);
+                audioSource.outputAudioMixerGroup = audioplayeractor.outputAudioMixerGroup;
+            }
             audioSource.volume = _globalSettings.Volume / 100f;
             audioSource.PlayOneShot(clip, 1f);
         }
@@ -80,15 +95,7 @@ namespace HKVocals
 
         public override void Initialize()
         {
-            foreach (string s in PlayMakerGlobals.Instance.Events)
-            {
-                Log(s);
-            }
             instance = this;
-            //On.AudioManager.ApplyMusicCue += AudioManager_ApplyMusicCue;
-            //.AudioManager.ApplyAtmosCue += AudioManager_ApplyAtmosCue;
-            //var infos = (MusicCue.MusicChannelInfo[])musicCue.GetType().GetField("channelInfos", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(musicCue);
-            //On.DialogueBox.SetConversation += SetConversation;
             On.DialogueBox.ShowPage += ShowPage;
             On.PlayMakerFSM.Awake += FSMAwake;
             On.HutongGames.PlayMaker.Actions.AudioPlayerOneShot.DoPlayRandomClip += PlayRandomClip;
@@ -115,22 +122,6 @@ namespace HKVocals
             coroutineSlave = coroutineGO.AddComponent<NonBouncer>();
             GameObject.DontDestroyOnLoad(audioGO);
             GameObject.DontDestroyOnLoad(coroutineGO);
-        }
-
-        private void AudioManager_ApplyAtmosCue(On.AudioManager.orig_ApplyAtmosCue orig, AudioManager self, AtmosCue atmosCue, float transitionTime)
-        {
-            Log(atmosCue.Snapshot.name);
-            orig(self, atmosCue, transitionTime);
-        }
-
-        private void AudioManager_ApplyMusicCue(On.AudioManager.orig_ApplyMusicCue orig, AudioManager self, MusicCue musicCue, float delayTime, float transitionTime, bool applySnapshot)
-        {
-            var infos = (MusicCue.MusicChannelInfo[])musicCue.GetType().GetField("channelInfos", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(musicCue);
-            foreach (MusicCue.MusicChannelInfo mcmci in infos)
-            {
-                Log(mcmci.Clip.name);
-            }
-            orig(self, musicCue, delayTime, transitionTime, applySnapshot);
         }
 
         private void SceneChanged(UnityEngine.SceneManagement.Scene arg0, UnityEngine.SceneManagement.Scene arg1)
