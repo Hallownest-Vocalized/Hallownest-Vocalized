@@ -1,9 +1,8 @@
-﻿namespace HKVocals
+namespace HKVocals
 {
     public class GlobalSettings
     {
-        public int testSetting = 0;
-        public int Volume = 50;
+        public int Volume = 10;
     }
     public class SaveSettings
     {
