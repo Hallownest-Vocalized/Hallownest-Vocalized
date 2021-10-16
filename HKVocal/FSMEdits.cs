@@ -135,9 +135,46 @@ namespace HKVocals
                     yield return new WaitForSeconds(HKVocals.instance.GetAudioFor("ORO_2_0").length + 0.5f);
                     HKVocals.instance.CreateDreamDialogue("MATO_2", "Enemy Dreams");
                 }
-                fsm.AddMethod("Reactivate", () => HKVocals.instance.coroutineSlave.StartCoroutine(DreamDialogue()));
+                fsm.AddMethod("Reactivate", () => GameManager.instance.StartCoroutine(DreamDialogue()));
                 fsm.MakeLog();
             }
+        }
+
+        public static void JarCollectorControl(PlayMakerFSM fsm)
+        {
+            //fsm.MakeLog();
+            HKVocals.instance.Log("Collector");
+            fsm.InsertAction("Slam", new DreamDialogueAction(new string[]{"JAR_COLLECTOR_1","JAR_COLLECTOR_2","JAR_COLLECTOR_3" }, "Enemy Dreams") {convoMode = DreamDialogueAction.ConvoMode.Random, chance = 0.4f}, 0);
+        }
+
+        public static void DreamMageLord(PlayMakerFSM fsm)
+        {
+            fsm.MakeLog();
+            HealthManager hm = fsm.GetComponent<HealthManager>();
+            AddHPDialogue(hm, new DreamDialogueAction("MAGELORD_D_2", "Enemy Dreams"), (int)(hm.hp * 2f/3f));
+            AddHPDialogue(hm, new DreamDialogueAction("MAGELORD_D_3", "Enemy Dreams"), (int)(hm.hp * 1f/3f));
+        }
+
+        public static void DreamMageLordPhase2(PlayMakerFSM fsm)
+        {
+            //i chose music cuz its after the wait and its just when tyrant dives
+            fsm.InsertAction("Music", new DreamDialogueAction("MAGELORD_D_1","Enemy Dreams"), 0);
+        }
+
+        public static void GreyPrinceControl(PlayMakerFSM fsm)
+        {
+            GameManager.instance.StartCoroutine(AddLoopDialogue(20,new string[]{"GREY_PRINCE_1", "GREY_PRINCE_2"},"",fsm.gameObject));
+        }
+
+        private static IEnumerator AddLoopDialogue(float time, string[] convNames, string sheetNames, GameObject go)
+        {
+            while (go.activeInHierarchy)
+            {
+                yield return new WaitForSeconds(time);
+                var x = new DreamDialogueAction(convNames, sheetNames){convoMode = DreamDialogueAction.ConvoMode.Random};
+                x.OnEnter();
+            }
+            yield break;
         }
     }
 }

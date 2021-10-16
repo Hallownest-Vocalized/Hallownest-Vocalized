@@ -16,6 +16,7 @@ namespace HKVocals
             public ConvoMode convoMode = ConvoMode.Once;
             public int[] convoOccurances = new int[] { 0 };
             public bool isEnemy = true;
+            public float chance = 1; //between 0 and 1 like probability
             private int lastIndex = int.MaxValue;
             private int realLastIndex = -1;
             public DreamDialogueAction(string convName, string sheetName)
@@ -35,10 +36,19 @@ namespace HKVocals
             }
             public override void OnEnter()
             {
-                //if (_globalSettings.testSetting == 0)
-                StartShow();
+                if (chance == 1f)
+                {
+                    StartShow();
+                }
+                else if (Random.value <= chance)
+                {
+                    StartShow();
+                }
+                
                 if (Fsm != null)
+                {
                     Finish();
+                }
             }
             private void StartShow()
             {
@@ -63,7 +73,7 @@ namespace HKVocals
                 }
                 else
                 {
-                    HKVocals.instance.coroutineSlave.StartCoroutine(WaitShowDialogue());
+                    GameManager.instance.StartCoroutine(WaitShowDialogue());
                 }
             }
             private IEnumerator WaitShowDialogue()

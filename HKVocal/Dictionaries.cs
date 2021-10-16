@@ -28,13 +28,23 @@ namespace HKVocals
             { ("Hornet Boss 1", "Control"), FSMEdits.HornetControl },
             { ("Hornet Boss 2", "Control"), FSMEdits.HornetControl },
             { ("Oro", "nailmaster"), FSMEdits.NailmasterControl },
-            { ("Mato", "nailmaster"), fsm => fsm.AddMethod("Death Start", () => { if (HKVocals.instance.audioSource.clip.name.Contains("MATO")) HKVocals.instance.audioSource.Stop(); }) }
+            { ("Mato", "nailmaster"), fsm => fsm.AddMethod("Death Start", () => { if (HKVocals.instance.audioSource.clip.name.Contains("MATO")) HKVocals.instance.audioSource.Stop(); }) },
+            { ("Jar Collector", "Control"), FSMEdits.JarCollectorControl},
+            { ("Dream Mage Lord Phase2" , "Mage Lord 2"), FSMEdits.DreamMageLordPhase2 },
+            { ("Dream Mage Lord" , "Mage Lord"), FSMEdits.DreamMageLord },
+            { ("Grey Prince" , "Control"), FSMEdits.GreyPrinceControl },
         };
         public static readonly Dictionary<string, Action<PlayMakerFSM>> FSMChanges = new Dictionary<string, Action<PlayMakerFSM>>()
         {
             { "Conversation Control", FSMEdits.ConversationControl },
             { "FalseyControl", FSMEdits.FalseyControl },
             { "LurkerControl", FSMEdits.LurkerControl }
+        };
+        
+        //probably needs to be changed. just a placeholder
+        public static readonly List<string> NoAudioMixer = new List<string>()
+        {
+            //menderbug
         };
     }
 }
