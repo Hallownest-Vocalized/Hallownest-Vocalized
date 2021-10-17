@@ -14,19 +14,7 @@ namespace HKVocals
 {
     public class FSMEdits
     {
-        public static void AddHPDialogue(HealthManager hm, DreamDialogueAction action, int hp)
-        {
-            action.Owner = hm.gameObject;
-            HKVocals.HpListeners.Add(self =>
-            {
-                if (self == hm && self.hp >= hp)
-                {
-                    action.OnEnter(); 
-                    return true;
-                } 
-                return false;
-            });
-        }
+        
         public static void BoxOpenDream(PlayMakerFSM fsm)
         {
             //fsm.transform.Log();
@@ -114,9 +102,9 @@ namespace HKVocals
             {
                 string namePart = BossSequenceController.IsInSequence ? "GG" : "GREENPATH";
                 HealthManager hm = fsm.GetComponent<HealthManager>();
-                AddHPDialogue(hm, new DreamDialogueAction("HORNET_" + namePart + "_1", "Enemy Dreams"), (3 * hm.hp) / 4);
-                AddHPDialogue(hm, new DreamDialogueAction("HORNET_" + namePart + "_2", "Enemy Dreams"), hm.hp / 2);
-                AddHPDialogue(hm, new DreamDialogueAction("HORNET_" + namePart + "_3", "Enemy Dreams"), hm.hp / 4);
+                FSMEditUtils.AddHPDialogue(hm, new DreamDialogueAction("HORNET_" + namePart + "_1", "Enemy Dreams"), (3 * hm.hp) / 4);
+                FSMEditUtils.AddHPDialogue(hm, new DreamDialogueAction("HORNET_" + namePart + "_2", "Enemy Dreams"), hm.hp / 2);
+                FSMEditUtils.AddHPDialogue(hm, new DreamDialogueAction("HORNET_" + namePart + "_3", "Enemy Dreams"), hm.hp / 4);
             }
         }
         public static void NailmasterControl(PlayMakerFSM fsm)
@@ -124,7 +112,7 @@ namespace HKVocals
             if (!BossSequenceController.IsInSequence)
             {
                 HKVocals.instance.Log("Oro Control Activated");
-                AddHPDialogue(fsm.GetComponent<HealthManager>(), new DreamDialogueAction("ORO_1", "Enemy Dreams"), 150);
+                FSMEditUtils.AddHPDialogue(fsm.GetComponent<HealthManager>(), new DreamDialogueAction("ORO_1", "Enemy Dreams"), 150);
                 fsm.AddMethod("Death Start", () => { if ((HKVocals.instance.audioSource.clip?.name.Contains("ORO")).GetValueOrDefault()) HKVocals.instance.audioSource.Stop(); });
                 IEnumerator DreamDialogue()
                 {
@@ -151,8 +139,8 @@ namespace HKVocals
         {
             fsm.MakeLog();
             HealthManager hm = fsm.GetComponent<HealthManager>();
-            AddHPDialogue(hm, new DreamDialogueAction("MAGELORD_D_2", "Enemy Dreams"), (int)(hm.hp * 2f/3f));
-            AddHPDialogue(hm, new DreamDialogueAction("MAGELORD_D_3", "Enemy Dreams"), (int)(hm.hp * 1f/3f));
+            FSMEditUtils.AddHPDialogue(hm, new DreamDialogueAction("MAGELORD_D_2", "Enemy Dreams"), (int)(hm.hp * 2f/3f));
+            FSMEditUtils.AddHPDialogue(hm, new DreamDialogueAction("MAGELORD_D_3", "Enemy Dreams"), (int)(hm.hp * 1f/3f));
         }
 
         public static void DreamMageLordPhase2(PlayMakerFSM fsm)
@@ -163,18 +151,14 @@ namespace HKVocals
 
         public static void GreyPrinceControl(PlayMakerFSM fsm)
         {
-            GameManager.instance.StartCoroutine(AddLoopDialogue(20,new string[]{"GREY_PRINCE_1", "GREY_PRINCE_2"},"",fsm.gameObject));
-        }
+            /*
+             * say dialogue every 20 seconds
+             * GameManager.instance.StartCoroutine(FSMEditUtils.AddLoopDialogue(20,new string[]{"GREY_PRINCE_1", "GREY_PRINCE_2"},"",fsm.gameObject));
+            */
+            string[] GPZDialogues = {"GREY_PRINCE_1", "GREY_PRINCE_2", "GREY_PRINCE_3", "GREY_PRINCE_4", "GREY_PRINCE_5",};
+            fsm.InsertAction("Jump", new DreamDialogueAction(GPZDialogues, "Enemy Dreams"){convoMode = DreamDialogueAction.ConvoMode.Random},0);
+            fsm.InsertAction("Spit Dir", new DreamDialogueAction(GPZDialogues, "Enemy Dreams"){convoMode = DreamDialogueAction.ConvoMode.Random},0);
 
-        private static IEnumerator AddLoopDialogue(float time, string[] convNames, string sheetNames, GameObject go)
-        {
-            while (go.activeInHierarchy)
-            {
-                yield return new WaitForSeconds(time);
-                var x = new DreamDialogueAction(convNames, sheetNames){convoMode = DreamDialogueAction.ConvoMode.Random};
-                x.OnEnter();
-            }
-            yield break;
         }
     }
 }
