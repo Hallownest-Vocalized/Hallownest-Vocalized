@@ -33,6 +33,11 @@ namespace HKVocals
             { ("Dream Mage Lord Phase2" , "Mage Lord 2"), FSMEdits.DreamMageLordPhase2 },
             { ("Dream Mage Lord" , "Mage Lord"), FSMEdits.DreamMageLord },
             { ("Grey Prince" , "Control"), FSMEdits.GreyPrinceControl },
+            { ("Enemy List" , "Item List Control"), FSMEdits.JournalText },
+            { ("Inv" , "Update Text"), FSMEdits.InventoryText },
+            {("Charms", "Update Text"), FSMEdits.CharmText},
+            {("Item List", "Item List Control"), FSMEdits.ShopText},
+            
         };
         public static readonly Dictionary<string, Action<PlayMakerFSM>> FSMChanges = new Dictionary<string, Action<PlayMakerFSM>>()
         {

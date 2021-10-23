@@ -72,6 +72,9 @@ namespace HKVocals
             audioSource.PlayOneShot(clip, 1f);
         }
 
+        public bool IsPlaying() => audioSource.isPlaying;
+
+
         public HKVocals() : base("Hollow Knight Vocalized") { }
         public override string GetVersion() => "0.0.0.1";
 

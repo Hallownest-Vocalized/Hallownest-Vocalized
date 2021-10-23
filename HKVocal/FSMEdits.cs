@@ -78,7 +78,7 @@ namespace HKVocals
             HKVocals.instance.Log("Falsey Control Activated");
             fsm.InsertAction("Start Fall", new DreamDialogueAction("FALSE_KNIGHT_1", "Enemy Dreams") { waitTime = 10 }, 0);
             fsm.InsertAction("Recover", new DreamDialogueAction(new string[] { "FALSE_KNIGHT_2", "FALSE_KNIGHT_3" }, "Enemy Dreams") { waitTime = 6, convoOccurances = new int[] { 0, 0, -1 } }, 0);
-            fsm.MakeLog();
+           // fsm.MakeLog();
         }
         public static void LurkerControl(PlayMakerFSM fsm)
         {
@@ -124,7 +124,7 @@ namespace HKVocals
                     HKVocals.instance.CreateDreamDialogue("MATO_2", "Enemy Dreams");
                 }
                 fsm.AddMethod("Reactivate", () => GameManager.instance.StartCoroutine(DreamDialogue()));
-                fsm.MakeLog();
+                //fsm.MakeLog();
             }
         }
 
@@ -137,7 +137,7 @@ namespace HKVocals
 
         public static void DreamMageLord(PlayMakerFSM fsm)
         {
-            fsm.MakeLog();
+            //fsm.MakeLog();
             HealthManager hm = fsm.GetComponent<HealthManager>();
             FSMEditUtils.AddHPDialogue(hm, new DreamDialogueAction("MAGELORD_D_2", "Enemy Dreams"), (int)(hm.hp * 2f/3f));
             FSMEditUtils.AddHPDialogue(hm, new DreamDialogueAction("MAGELORD_D_3", "Enemy Dreams"), (int)(hm.hp * 1f/3f));
@@ -160,5 +160,50 @@ namespace HKVocals
             fsm.InsertAction("Spit Dir", new DreamDialogueAction(GPZDialogues, "Enemy Dreams"){convoMode = DreamDialogueAction.ConvoMode.Random},0);
 
         }
+
+        public static void FSMLogger(PlayMakerFSM fsm)
+        {
+            fsm.MakeLog();
+        }
+
+        public static void CharmText(PlayMakerFSM fsm)
+        {
+            fsm.InsertMethod("Change Text",() =>
+            {
+                fsm.PlayAudioFromFsmString("Convo Desc");
+            },4);
+        }
+        public static void InventoryText(PlayMakerFSM fsm)
+        {
+            fsm.InsertMethod("Change Text",() =>
+            {
+                fsm.PlayAudioFromFsmString("Convo Desc");
+            },5);
+        }
+        public static void JournalText(PlayMakerFSM fsm)
+        {
+            fsm.InsertMethod("Get Details",() =>
+            {
+                fsm.PlayAudioFromFsmString("Item Desc Convo");
+            },9);
+            fsm.InsertMethod("Get Details",() =>
+            {
+                fsm.PlayAudioFromFsmString("Item Notes Convo");
+            },6);
+        }
+        public static void ShopText(PlayMakerFSM fsm)
+        {
+            fsm.InsertMethod("Get Details Init",() =>
+            {
+                fsm.PlayAudioFromFsmString("Item Desc Convo");
+            },10);
+            fsm.InsertMethod("Get Details",() =>
+            {
+                fsm.PlayAudioFromFsmString("Item Desc Convo");
+            },7);
+        }
+
+        
+        
     }
 }

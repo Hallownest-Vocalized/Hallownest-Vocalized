@@ -5,31 +5,37 @@ namespace HKVocals
 {
     public static class FSMEditUtils
     {
-    public static void AddHPDialogue(HealthManager hm, DreamDialogueAction action, int hp)
-    {
-        action.Owner = hm.gameObject;
-        HKVocals.HpListeners.Add(self =>
+        public static void AddHPDialogue(HealthManager hm, DreamDialogueAction action, int hp)
         {
-            if (self == hm && self.hp >= hp)
+            action.Owner = hm.gameObject;
+            HKVocals.HpListeners.Add(self =>
             {
-                action.OnEnter();
-                return true;
-            }
+                if (self == hm && self.hp >= hp)
+                {
+                    action.OnEnter();
+                    return true;
+                }
 
-            return false;
-        });
-    }
-
-    public static IEnumerator AddLoopDialogue(float time, string[] convNames, string sheetNames, GameObject go)
-    {
-        while (go.activeInHierarchy)
-        {
-            yield return new WaitForSeconds(time);
-            var x = new DreamDialogueAction(convNames, sheetNames) {convoMode = DreamDialogueAction.ConvoMode.Random};
-            x.OnEnter();
+                return false;
+            });
         }
 
-        yield break;
-    }
+        public static IEnumerator AddLoopDialogue(float time, string[] convNames, string sheetNames, GameObject go)
+        {
+            while (go.activeInHierarchy)
+            {
+                yield return new WaitForSeconds(time);
+                var x = new DreamDialogueAction(convNames, sheetNames)
+                    {convoMode = DreamDialogueAction.ConvoMode.Random};
+                x.OnEnter();
+            }
+
+            yield break;
+        }
+
+        public static void PlayAudioFromFsmString(this PlayMakerFSM fsm, string audiokey)
+        {
+            HKVocals.instance.PlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value);
+        }
     }
 }
