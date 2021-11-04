@@ -8,15 +8,16 @@ using UnityEngine;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using System.Collections;
+using Object = UnityEngine.Object;
 using USceneManager = UnityEngine.SceneManagement.SceneManager;
 
 namespace HKVocals
 {
     public class FSMEdits
-    {
-        
+    { 
         public static void BoxOpenDream(PlayMakerFSM fsm)
         {
+            
             //fsm.transform.Log();
             PlayMakerFSM msgFSM = fsm.transform.Find("Dream Msg").gameObject.LocateMyFSM("Display");
             msgFSM.AddGameObjectVariable("Last Enemy");
@@ -161,49 +162,145 @@ namespace HKVocals
 
         }
 
-        public static void FSMLogger(PlayMakerFSM fsm)
-        {
-            fsm.MakeLog();
-        }
-
         public static void CharmText(PlayMakerFSM fsm)
         {
-            fsm.InsertMethod("Change Text",() =>
-            {
-                fsm.PlayAudioFromFsmString("Convo Desc");
-            },4);
-        }
-        public static void InventoryText(PlayMakerFSM fsm)
-        {
-            fsm.InsertMethod("Change Text",() =>
-            {
-                fsm.PlayAudioFromFsmString("Convo Desc");
-            },5);
-        }
-        public static void JournalText(PlayMakerFSM fsm)
-        {
-            fsm.InsertMethod("Get Details",() =>
-            {
-                fsm.PlayAudioFromFsmString("Item Desc Convo");
-            },9);
-            fsm.InsertMethod("Get Details",() =>
-            {
-                fsm.PlayAudioFromFsmString("Item Notes Convo");
-            },6);
-        }
-        public static void ShopText(PlayMakerFSM fsm)
-        {
-            fsm.InsertMethod("Get Details Init",() =>
-            {
-                fsm.PlayAudioFromFsmString("Item Desc Convo");
-            },10);
-            fsm.InsertMethod("Get Details",() =>
-            {
-                fsm.PlayAudioFromFsmString("Item Desc Convo");
-            },7);
+            fsm.InsertMethod("Change Text", () => { fsm.PlayAudioFromFsmString("Convo Desc"); }, 4);
         }
 
+        public static void InventoryText(PlayMakerFSM fsm)
+        {
+            fsm.InsertMethod("Change Text", () => { fsm.PlayAudioFromFsmString("Convo Desc"); }, 5);
+        }
+
+        public static void JournalText(PlayMakerFSM fsm)
+        {
+            fsm.InsertMethod("Get Details", () => { fsm.PlayAudioFromFsmString("Item Desc Convo"); }, 9);
+            fsm.InsertMethod("Get Details", () => { fsm.PlayAudioFromFsmString("Item Notes Convo"); }, 6);
+        }
+
+        public static void ShopText(PlayMakerFSM fsm)
+        {
+            fsm.InsertMethod("Get Details Init", () => { fsm.PlayAudioFromFsmString("Item Desc Convo"); }, 10);
+            fsm.InsertMethod("Get Details", () => { fsm.PlayAudioFromFsmString("Item Desc Convo"); }, 7);
+        }
+
+        private static string[] ZoteDialogues = new[] {"ZOTE_1", "ZOTE_2", "ZOTE_3",};
+        public static void EternalOrdeal_Normal(PlayMakerFSM fsm)
+        {
+            if (GameManager.instance.nextSceneName.Contains("GG_Mighty_Zote") || GameManager.instance.sceneName.Contains("GG_Mighty_Zote"))
+            {
+                fsm.InsertMethod("Tumble Out", () =>
+                {
+                    if (UnityEngine.Random.value <= 0.4f)
+                    {
+                        int loc = UnityEngine.Random.Range(1, 4);
+                        HKVocals.instance.PlayAudioFor(ZoteDialogues[loc], GetZoteAudioPlayer());
+                    }
+                }, 0);
+            }
+            
+        }
+
+        public static void EternalOrdeal_Balloon(PlayMakerFSM fsm)
+        {
+            if (GameManager.instance.nextSceneName.Contains("GG_Mighty_Zote") || GameManager.instance.sceneName.Contains("GG_Mighty_Zote"))
+            {
+                fsm.InsertMethod("Appear", () =>
+                {
+                    if (UnityEngine.Random.value <= 0.4f)
+                    {
+                        int loc = UnityEngine.Random.Range(1, 4);
+                        HKVocals.instance.PlayAudioFor(ZoteDialogues[loc], GetZoteAudioPlayer());
+                    }
+                },0);
+            }
+            
+        }
+        
+        public static void EternalOrdeal_Zoteling(PlayMakerFSM fsm)
+        {
+            if (GameManager.instance.nextSceneName.Contains("GG_Mighty_Zote") || GameManager.instance.sceneName.Contains("GG_Mighty_Zote"))
+            {
+                fsm.InsertMethod("Ball", () =>
+                {
+                    if (UnityEngine.Random.value <= 0.4f)
+                    {
+                        int loc = UnityEngine.Random.Range(1, 4);
+                        HKVocals.instance.PlayAudioFor(ZoteDialogues[loc], GetZoteAudioPlayer());
+                    }
+                },0);
+            }
+            
+        }
+        public static void EternalOrdeal_Other(PlayMakerFSM fsm)
+        {
+            if (GameManager.instance.nextSceneName.Contains("GG_Mighty_Zote") || GameManager.instance.sceneName.Contains("GG_Mighty_Zote"))
+            {
+                fsm.InsertMethod("Antic", () =>
+                    {
+                        if (UnityEngine.Random.value <= 0.4f)
+                        {
+                            int loc = UnityEngine.Random.Range(1, 4);
+                            HKVocals.instance.PlayAudioFor(ZoteDialogues[loc], GetZoteAudioPlayer());
+                        }
+                    }, 0);
+            }
+            
+        }
+
+        public static void EternalOrdeal_Thwomp(PlayMakerFSM fsm)
+        {
+            if (GameManager.instance.nextSceneName.Contains("GG_Mighty_Zote") || GameManager.instance.sceneName.Contains("GG_Mighty_Zote"))
+            {
+                fsm.InsertMethod("Antic Shake", () =>
+                {
+                    if (UnityEngine.Random.value <= 0.4f)
+                    {
+                        int loc = UnityEngine.Random.Range(1, 4);
+                        HKVocals.instance.PlayAudioFor(ZoteDialogues[loc], GetZoteAudioPlayer());
+                    }
+                }, 0);
+            }
+
+        }
+
+        //for grub do normal edit and set bool in uscene manager and the check for dnails
         
         
+        public static List<AudioSource> ZoteAudioPlayers = new List<AudioSource>();
+        public static string ZoteAudioPlayer = "HKVocal ZoteAudioPlayer";
+
+        public static AudioSource GetZoteAudioPlayer()
+        {
+            AudioSource asrc =  ZoteAudioPlayers.FirstOrDefault(p => !p.isPlaying);
+
+            if (asrc == null)
+            {
+                AddZoteAudioPlayer();
+                asrc =  ZoteAudioPlayers.FirstOrDefault(p => !p.isPlaying);
+            }
+
+            return asrc;
+        }
+
+        public static void DeleteZoteAudioPlayers()
+        {
+            if (ZoteAudioPlayers.Count == 0) return;
+            
+            foreach (AudioSource asrc in ZoteAudioPlayers)
+            {
+                Object.Destroy(asrc);
+            }
+            ZoteAudioPlayers.Clear();
+        }
+
+        public static void AddZoteAudioPlayer()
+        {
+            GameObject go = new GameObject(ZoteAudioPlayer);
+            AudioSource asrc = go.AddComponent<AudioSource>();
+            ZoteAudioPlayers.Add(asrc);
+            Object.DontDestroyOnLoad(go);
+        }
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace HKVocals
@@ -29,8 +30,6 @@ namespace HKVocals
                     {convoMode = DreamDialogueAction.ConvoMode.Random};
                 x.OnEnter();
             }
-
-            yield break;
         }
 
         public static void PlayAudioFromFsmString(this PlayMakerFSM fsm, string audiokey)

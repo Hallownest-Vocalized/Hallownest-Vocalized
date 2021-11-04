@@ -38,12 +38,30 @@ namespace HKVocals
             {("Charms", "Update Text"), FSMEdits.CharmText},
             {("Item List", "Item List Control"), FSMEdits.ShopText},
             
+            {("Zote Boss", "Control"), FSMEdits.EternalOrdeal_Normal},
+            {("Zote Crew Normal (1)", "Control"), FSMEdits.EternalOrdeal_Normal},
+            {("Zote Crew Normal (2)", "Control"), FSMEdits.EternalOrdeal_Normal},
+            {("Zote Crew Normal (3)", "Control"), FSMEdits.EternalOrdeal_Normal},
+            {("Zote Crew Normal (4)", "Control"), FSMEdits.EternalOrdeal_Normal},
+            {("Zote Crew Fat (1)", "Control"), FSMEdits.EternalOrdeal_Normal},
+            {("Zote Crew Fat (2)", "Control"), FSMEdits.EternalOrdeal_Normal},
+            {("Zote Crew Fat (3)", "Control"), FSMEdits.EternalOrdeal_Normal},
+            {("Zote Crew Tall (1)", "Control"), FSMEdits.EternalOrdeal_Normal},
+            {("Zote Crew Tall", "Control"), FSMEdits.EternalOrdeal_Normal},
+            {("Zote Balloon (1)", "Control"), FSMEdits.EternalOrdeal_Balloon},
+            {("Zote Balloon Ordeal", "Control"), FSMEdits.EternalOrdeal_Balloon},
+            {("Ordeal Zoteling", "Control"), FSMEdits.EternalOrdeal_Zoteling},
+            {("Ordeal Zoteling (1)", "Control"), FSMEdits.EternalOrdeal_Zoteling},
+            {("Zote Fluke", "Control"), FSMEdits.EternalOrdeal_Other},
+            {("Zote Salubra", "Control"), FSMEdits.EternalOrdeal_Other},
+            {("Zote Turret", "Control"), FSMEdits.EternalOrdeal_Other},
+            {("Zote Thwomp", "Control"), FSMEdits.EternalOrdeal_Thwomp},
         };
         public static readonly Dictionary<string, Action<PlayMakerFSM>> FSMChanges = new Dictionary<string, Action<PlayMakerFSM>>()
         {
             { "Conversation Control", FSMEdits.ConversationControl },
             { "FalseyControl", FSMEdits.FalseyControl },
-            { "LurkerControl", FSMEdits.LurkerControl }
+            { "LurkerControl", FSMEdits.LurkerControl },
         };
         
         //probably needs to be changed. just a placeholder
