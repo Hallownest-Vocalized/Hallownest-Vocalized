@@ -7,6 +7,7 @@ using System.Reflection;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using System.Collections;
+using System.Diagnostics;
 using System.IO;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
@@ -22,12 +23,6 @@ namespace HKVocals
         public void OnLoadLocal(SaveSettings s) => _saveSettings = s;
         public SaveSettings OnSaveLocal() => _saveSettings;
         
-        public static  List<Func<HealthManager, bool>> HpListeners = new List<Func<HealthManager, bool>>();
-        public static Dictionary<AssetBundle, string[]> CustomAudioBundles = new Dictionary<AssetBundle, string[]>();
-        public static Dictionary<AudioClip, string> CustomAudioClips = new Dictionary<AudioClip, string>();
-        private static readonly List<string> audioExtentions = new List<string>() { ".mp3" };
-        public static string AudioSliderKey = "HKVOCALS_VOL";
-        private static string AudioSliderText = "HK Vocals Volume: ";
         public const bool RemoveOrigNPCSounds = true;
 
         private static int[] GetRange(int start, int end)
@@ -37,48 +32,61 @@ namespace HKVocals
                 array[i] = start + i;
             return array;
         }
-        public AudioClip GetAudioFor(string convName) => CustomAudioClips.ContainsValue(convName) ? CustomAudioClips.First(a => a.Value == convName).Key : CustomAudioBundles.Any(a => a.Value.Any(s => s == convName)) ? CustomAudioBundles.First(a => a.Value.Any(s => s == convName)).Key.LoadAsset<AudioClip>(convName) : audioBundle.LoadAsset<AudioClip>(convName.Replace("_generic", "_town_generic"));
+        public AudioClip GetAudioFor(string convName) => 
+            Dictionaries.CustomAudioClips.ContainsValue(convName) ? 
+                Dictionaries.CustomAudioClips.First(a => a.Value == convName).Key : 
+                Dictionaries.CustomAudioBundles.Any(a => a.Value.Any(s => s == convName)) ? 
+                    Dictionaries.CustomAudioBundles.First(a => a.Value.Any(s => s == convName)).Key.LoadAsset<AudioClip>(convName) : 
+                    audioBundle.LoadAsset<AudioClip>(convName.Replace("_generic", "_town_generic"));
 
-        public void TryPlayAudioFor(string convName)
+        public void TryPlayAudioFor(string convName, float removeTime = 0f)
         {
             if (HasAudioFor(convName))
             {
-                PlayAudioFor(convName);
+                if (removeTime == 0f)
+                {
+                    PlayAudioFor(convName);
+                }
+                else
+                {
+                    PlayAudioForWithTrim(convName, removeTime);
+                }
             }
-            
+
         }
-        public bool HasAudioFor(string convName) => CustomAudioBundles.Any(a => a.Value.Contains(convName)) || CustomAudioClips.ContainsValue(convName) || audioNames.Contains(convName.Replace("_GENERIC", "_TOWN_GENERIC"));
-        public void PlayAudioFor(string convName) => PlayAudio(GetAudioFor(convName.ToLower()));
+        public bool HasAudioFor(string convName) => 
+            Dictionaries.CustomAudioBundles.Any(a => a.Value.Contains(convName)) || 
+            Dictionaries.CustomAudioClips.ContainsValue(convName) ||
+            audioNames.Contains(convName.Replace("_GENERIC", "_TOWN_GENERIC"));
+        public void PlayAudioFor(string convName) => PlayAudio(GetAudioFor(convName.ToLower())); 
+        public void PlayAudioForWithTrim(string convName, float removeTime) => PlayAudioWithTrim(GetAudioFor(convName.ToLower()), removeTime);
         public void PlayAudioFor(string convName, AudioSource asrc) => PlayAudio(GetAudioFor(convName.ToLower()), asrc);
-        private void PlayAudio(AudioClip clip)
+        
+        public void PlayAudioWithTrim(AudioClip clip, float removeTime, AudioSource asrc = null)
         {
-            if (audioSource == null)
+            int remove =(int) (clip.frequency * removeTime);
+            int size = clip.samples - remove;
+            float[] samples = new float[size * clip.channels];
+            clip.GetData(samples, remove);
+
+            AudioClip newclip = AudioClip.Create(clip.name, size , clip.channels, clip.frequency, false);
+            newclip.SetData(samples, 0);
+                    
+            PlayAudio(newclip, asrc);
+        }
+        private void PlayAudio(AudioClip clip, AudioSource asrc = null)
+        {
+            //if supplied is null, use default
+            if (asrc == null)
+            {
+                asrc = audioSource;
+            }
+            //if its still null create new audio source go
+            if (asrc == null)
             {
                 CreateAudioSource();
             }
 
-            if (HeroController.instance != null)
-            {
-                audioSource.transform.localPosition = HeroController.instance.transform.localPosition;
-            }
-
-            if (Dictionaries.NoAudioMixer.Contains(clip.name))
-            {
-                audioSource.outputAudioMixerGroup = null;
-            }
-            else if (!audioSource.outputAudioMixerGroup) // might need to be rewritten if this changes, don't think it does
-            {
-                audioSource.outputAudioMixerGroup = ObjectPool.instance.startupPools.First(o => o.prefab.name == "Audio Player Actor").prefab.GetComponent<AudioSource>().outputAudioMixerGroup;
-            }
-            
-            audioSource.volume = _globalSettings.Volume/10f;
-            audioSource.PlayOneShot(clip, 1f);
-        }
-        
-        private void PlayAudio(AudioClip clip, AudioSource asrc)
-        {
-            if (asrc == null) return;
-            
             if (HeroController.instance != null)
             {
                 asrc.transform.localPosition = HeroController.instance.transform.localPosition;
@@ -94,12 +102,19 @@ namespace HKVocals
             }
             
             asrc.volume = _globalSettings.Volume/10f;
-            asrc.PlayOneShot(clip, 1f);
+
+            if (Dictionaries.SpecialAudios.Keys.Contains(clip.name))
+            {
+                asrc.PlayOneShot(clip, Dictionaries.SpecialAudios[clip.name]);
+            }
+            else
+            {
+                asrc.PlayOneShot(clip, 1f);
+            }
         }
 
         public bool IsPlaying() => audioSource.isPlaying;
-
-
+        
         public HKVocals() : base("Hollow Knight Vocalized") { }
         public override string GetVersion() => "0.0.0.1";
 
@@ -111,140 +126,71 @@ namespace HKVocals
         public bool ToggleButtonInsideMenu => false;
         public bool IsGrubRoom = false;
         public string GrubRoom = "Crossroads_48";
-        private static GameObject ZoteLever;
 
         public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates) => ModMenu.CreateModMenuScreen(modListMenu);
-
+        
         public override void Initialize()
         {
             instance = this;
             On.DialogueBox.ShowPage += ShowPage;
+            On.DialogueBox.ShowNextPage += StopConvo_NextPage;
+            On.DialogueBox.HideText += StopConvo_HideText;
             On.PlayMakerFSM.Awake += FSMAwake;
             On.HutongGames.PlayMaker.Actions.AudioPlayerOneShot.DoPlayRandomClip += PlayRandomClip;
             On.EnemyDreamnailReaction.Start += EDNRStart;
             On.EnemyDreamnailReaction.ShowConvo += ShowConvo;
             On.HealthManager.TakeDamage += TakeDamage;
             UIManager.EditMenus +=  ModMenu.AddAudioSlider;
-            ModHooks.LanguageGetHook += AddKey;
-            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += SceneChange;
-            On.BossStatueLever.OnTriggerEnter2D += UseZoteLever;
-            ModHooks.HeroUpdateHook += () =>
-            {
-                //do not question this code please
-                if (InputHandler.Instance.inputActions.pause.WasPressed)
-                {
-                    Log("Break");
-                }
-            };
+            
+            
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += EternalOrdeal.DeleteZoteAudioPlayersOnSceneChange;
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += ZoteLever.SetZoteLever;
+            On.BossStatueLever.OnTriggerEnter2D += ZoteLever.UseZoteLever;
 
             Assembly asm = Assembly.GetExecutingAssembly();
             audioBundle = AssetBundle.LoadFromStream(asm.GetManifestResourceStream("HKVocals.audiobundle"));
             string[] allAssetNames = audioBundle.GetAllAssetNames();
             for (int i = 0; i < allAssetNames.Length; i++)
             {
-                if (audioExtentions.Any(ext => allAssetNames[i].EndsWith(ext)))
+                if (Dictionaries.audioExtentions.Any(ext => allAssetNames[i].EndsWith(ext)))
                 {
                     audioNames.Add(Path.GetFileNameWithoutExtension(allAssetNames[i]).ToUpper());
                 }
                 #if DEBUG
-                Log("Object in audiobundle: " + allAssetNames[i] + Path.GetFileNameWithoutExtension(allAssetNames[i]).ToUpper().Replace("KNGHT", "KNIGHT").Replace("_TOWN_GENERIC", "_GENERIC"));
+                Log($"Object in audiobundle: {allAssetNames[i]} {Path.GetFileNameWithoutExtension(allAssetNames[i])?.ToUpper().Replace("KNGHT", "KNIGHT").Replace("_TOWN_GENERIC", "_GENERIC")}");
                 #endif
             }
 
             CreateAudioSource();
         }
 
-        private void UseZoteLever(On.BossStatueLever.orig_OnTriggerEnter2D orig, BossStatueLever self, Collider2D collision)
+        private void StopConvo_HideText(On.DialogueBox.orig_HideText orig, DialogueBox self)
         {
-            if (self.gameObject.name != "ZoteLever")
-            {
-                orig(self, collision);
-            }
-            else
-            {
-                if (ZoteLever == null) return;
-
-                if (!ZoteLever.activeInHierarchy || (!collision.CompareTag("Nail Attack"))) return;
-
-                BossStatueLever ZoteLeverComponent = ZoteLever.GetComponent<BossStatueLever>();
-                
-                
-                if(ReflectionHelper.GetField<BossStatueLever, bool>(ZoteLeverComponent, "canToggle") == false) return;
-                
-                ReflectionHelper.SetField(ZoteLeverComponent, "canToggle", false);
-                
-                ReflectionHelper.GetField<BossStatueLever, AudioEvent>(ZoteLeverComponent, "switchSound")
-                    .SpawnAndPlayOneShot(FSMEdits.GetZoteAudioPlayer(), HeroController.instance.transform.position);
-                
-                GameManager.instance.FreezeMoment(1);
-                GameCameras.instance.cameraShakeFSM.SendEvent("EnemyKillShake");
-
-                GameObject strikeNailPrefab =
-                    ReflectionHelper.GetField<BossStatueLever, GameObject>(ZoteLeverComponent, "strikeNailPrefab");
-                Transform hitOrigin =
-                    ReflectionHelper.GetField<BossStatueLever, Transform>(ZoteLeverComponent, "hitOrigin");
-                
-
-                if (strikeNailPrefab && hitOrigin)
-                {
-                    strikeNailPrefab.Spawn(hitOrigin.transform.position);
-                }
-
-                if (!ZoteLeverComponent.leverAnimator) return;
-                
-                ZoteLeverComponent.leverAnimator.Play("Hit");
-
-                _globalSettings.OrdealZoteSpeak = !_globalSettings.OrdealZoteSpeak;
-
-                GameManager.instance.StartCoroutine(EnableToggle());
-
-                IEnumerator EnableToggle()
-                {
-                    yield return new WaitForSeconds(1f);
-                    ReflectionHelper.SetField(ZoteLeverComponent, "canToggle", true);
-                    ZoteLeverComponent.leverAnimator.Play("Shine");
-                }
-            }
+            audioSource.Stop();
+            orig(self);
         }
-        
-        private void SceneChange(Scene from, Scene to)
+
+        private void StopConvo_NextPage(On.DialogueBox.orig_ShowNextPage orig, DialogueBox self)
         {
-            FSMEdits.DeleteZoteAudioPlayers();
-            if (to.name == "GG_Workshop")
-            {
-                ZoteLever = GameObject.Instantiate(
-                    GameObject.Find("GG_Statue_MantisLords/alt_lever/GG_statue_switch_lever"));
-
-                ZoteLever.transform.position = new Vector3(196.8f, 63.5f, 1);
-                ZoteLever.name = "ZoteLever";
-                ZoteLever.GetComponent<BossStatueLever>().SetOwner(null);
-            }
-
-            IsGrubRoom = (to.name == GrubRoom);
+            audioSource.Stop();
+            orig(self);
         }
 
         private void CreateAudioSource()
         {
             GameObject audioGO = new GameObject("HK Vocals Audio");
             audioSource = audioGO.AddComponent<AudioSource>();
-            GameObject.DontDestroyOnLoad(audioGO);
-        }
-        
-        private string AddKey(string key, string sheettitle, string orig)
-        {
-            //We change the key of the object we clone so we also need to tell game what the new key should return
-            if (key == AudioSliderKey) return AudioSliderText;
-            return orig;
+            Object.DontDestroyOnLoad(audioGO);
         }
 
         private void TakeDamage(On.HealthManager.orig_TakeDamage orig, HealthManager self, HitInstance hitInstance)
         {
             orig(self, hitInstance);
-            for (int i = 0; i < HpListeners.Count; i++)
+            for (int i = 0; i < Dictionaries.HpListeners.Count; i++)
             {
-                if (HpListeners[i](self))
+                if (Dictionaries.HpListeners[i](self))
                 {
-                    HpListeners.RemoveAt(i);
+                    Dictionaries.HpListeners.RemoveAt(i);
                     i--;
                 }
             }
@@ -304,7 +250,16 @@ namespace HKVocals
             orig(self, pageNum);
             //Log("Started Conversation " + self.currentConversation + "_" + self.currentPage);
             //if (_globalSettings.testSetting == 0)
-            TryPlayAudioFor(self.currentConversation + "_" + (self.currentPage - 1));
+            if (self.currentPage - 1 == 0)
+            {
+                Log("Playing 1st");
+                TryPlayAudioFor(self.currentConversation + "_" + (self.currentPage - 1), 37f/60f);
+            }
+            else
+            {
+                Log("Playing later");
+                TryPlayAudioFor(self.currentConversation + "_" + (self.currentPage - 1), 3f/4f);
+            }
             if (audioSource.isPlaying)
             {
                 if (autoTextRoutine != null)
@@ -340,7 +295,8 @@ namespace HKVocals
         {
             int newPageNum = dialogueBox.currentPage + 1;
             string oldConvoName = dialogueBox.currentConversation;
-            yield return new WaitWhile(() => audioSource.isPlaying && dialogueBox && dialogueBox.currentPage < newPageNum && dialogueBox.currentConversation == oldConvoName);
+            yield return new WaitWhile(() => IsPlaying() && dialogueBox && dialogueBox.currentPage < newPageNum && dialogueBox.currentConversation == oldConvoName);
+            yield return new WaitForSeconds(1f/6f);//wait additional 1/6th second
             if (dialogueBox && dialogueBox.currentPage < newPageNum && dialogueBox.currentConversation == oldConvoName)
                 dialogueBox.ShowNextPage();
         }
