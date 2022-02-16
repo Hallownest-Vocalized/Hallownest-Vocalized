@@ -11,7 +11,7 @@
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <HollowKnightFolder>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed</HollowKnightFolder>
+    <HollowKnightFolder>C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed</HollowKnightFolder>
     <ModsDirectory>C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\HKVocals</ModsDirectory>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -128,6 +128,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DreamDialogueAction.cs" />
+    <Compile Include="EasterEggs\EternalOrdeal.cs" />
+    <Compile Include="EasterEggs\GrubRoom.cs" />
+    <Compile Include="EasterEggs\ZoteLever.cs" />
     <Compile Include="ExDNailReaction.cs" />
     <Compile Include="Dictionaries.cs" />
     <Compile Include="FSMEdits.cs" />
@@ -142,6 +145,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="CopyMod" AfterTargets="PostBuildEvent">
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModsDirectory)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(ModsDirectory)" SkipUnchangedFiles="true" />
   </Target>
 </Project>

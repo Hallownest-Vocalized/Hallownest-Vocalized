@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using On.HutongGames.PlayMaker;
 using UnityEngine;
 
 namespace HKVocals
@@ -9,7 +10,7 @@ namespace HKVocals
         public static void AddHPDialogue(HealthManager hm, DreamDialogueAction action, int hp)
         {
             action.Owner = hm.gameObject;
-            HKVocals.HpListeners.Add(self =>
+            Dictionaries.HpListeners.Add(self =>
             {
                 if (self == hm && self.hp >= hp)
                 {
@@ -34,7 +35,31 @@ namespace HKVocals
 
         public static void PlayAudioFromFsmString(this PlayMakerFSM fsm, string audiokey)
         {
-            HKVocals.instance.PlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value);
+            HKVocals.instance.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value);
         }
+
+        public static void PlayUIText(this PlayMakerFSM fsm, string audiokey)
+        {
+            //when the UI updates and new text has to be played, no other text can be selected so it makes sense to stop all audio
+            HKVocals.instance.audioSource.Stop();
+            Modding.Logger.Log("Stopping UI audio");
+
+            if (UITextRoutine != null)
+            {
+                GameManager.instance.StopCoroutine(UITextRoutine);
+                Modding.Logger.Log("Stopping UI routine");
+            }
+
+            UITextRoutine = GameManager.instance.StartCoroutine(PlayAudioAfter1SecondDelay());
+            
+            IEnumerator PlayAudioAfter1SecondDelay()
+            {
+                yield return new WaitForSeconds(1);
+                Modding.Logger.Log("Playing Audio");
+                fsm.PlayAudioFromFsmString(audiokey);
+            }
+        }
+
+        private static Coroutine UITextRoutine;
     }
 }

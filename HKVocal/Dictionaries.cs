@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace HKVocals
 {
@@ -38,24 +39,24 @@ namespace HKVocals
             {("Charms", "Update Text"), FSMEdits.CharmText},
             {("Item List", "Item List Control"), FSMEdits.ShopText},
             
-            {("Zote Boss", "Control"), FSMEdits.EternalOrdeal_Normal},
-            {("Zote Crew Normal (1)", "Control"), FSMEdits.EternalOrdeal_Normal},
-            {("Zote Crew Normal (2)", "Control"), FSMEdits.EternalOrdeal_Normal},
-            {("Zote Crew Normal (3)", "Control"), FSMEdits.EternalOrdeal_Normal},
-            {("Zote Crew Normal (4)", "Control"), FSMEdits.EternalOrdeal_Normal},
-            {("Zote Crew Fat (1)", "Control"), FSMEdits.EternalOrdeal_Normal},
-            {("Zote Crew Fat (2)", "Control"), FSMEdits.EternalOrdeal_Normal},
-            {("Zote Crew Fat (3)", "Control"), FSMEdits.EternalOrdeal_Normal},
-            {("Zote Crew Tall (1)", "Control"), FSMEdits.EternalOrdeal_Normal},
-            {("Zote Crew Tall", "Control"), FSMEdits.EternalOrdeal_Normal},
-            {("Zote Balloon (1)", "Control"), FSMEdits.EternalOrdeal_Balloon},
-            {("Zote Balloon Ordeal", "Control"), FSMEdits.EternalOrdeal_Balloon},
-            {("Ordeal Zoteling", "Control"), FSMEdits.EternalOrdeal_Zoteling},
-            {("Ordeal Zoteling (1)", "Control"), FSMEdits.EternalOrdeal_Zoteling},
-            {("Zote Fluke", "Control"), FSMEdits.EternalOrdeal_Other},
-            {("Zote Salubra", "Control"), FSMEdits.EternalOrdeal_Other},
-            {("Zote Turret", "Control"), FSMEdits.EternalOrdeal_Other},
-            {("Zote Thwomp", "Control"), FSMEdits.EternalOrdeal_Thwomp},
+            {("Zote Boss", "Control"), EternalOrdeal.EternalOrdeal_Normal},
+            {("Zote Crew Normal (1)", "Control"), EternalOrdeal.EternalOrdeal_Normal},
+            {("Zote Crew Normal (2)", "Control"), EternalOrdeal.EternalOrdeal_Normal},
+            {("Zote Crew Normal (3)", "Control"), EternalOrdeal.EternalOrdeal_Normal},
+            {("Zote Crew Normal (4)", "Control"), EternalOrdeal.EternalOrdeal_Normal},
+            {("Zote Crew Fat (1)", "Control"), EternalOrdeal.EternalOrdeal_Normal},
+            {("Zote Crew Fat (2)", "Control"), EternalOrdeal.EternalOrdeal_Normal},
+            {("Zote Crew Fat (3)", "Control"), EternalOrdeal.EternalOrdeal_Normal},
+            {("Zote Crew Tall (1)", "Control"), EternalOrdeal.EternalOrdeal_Normal},
+            {("Zote Crew Tall", "Control"), EternalOrdeal.EternalOrdeal_Normal},
+            {("Zote Balloon (1)", "Control"), EternalOrdeal.EternalOrdeal_Balloon},
+            {("Zote Balloon Ordeal", "Control"), EternalOrdeal.EternalOrdeal_Balloon},
+            {("Ordeal Zoteling", "Control"), EternalOrdeal.EternalOrdeal_Zoteling},
+            {("Ordeal Zoteling (1)", "Control"), EternalOrdeal.EternalOrdeal_Zoteling},
+            {("Zote Fluke", "Control"), EternalOrdeal.EternalOrdeal_Other},
+            {("Zote Salubra", "Control"), EternalOrdeal.EternalOrdeal_Other},
+            {("Zote Turret", "Control"), EternalOrdeal.EternalOrdeal_Other},
+            {("Zote Thwomp", "Control"), EternalOrdeal.EternalOrdeal_Thwomp},
         };
         public static readonly Dictionary<string, Action<PlayMakerFSM>> FSMChanges = new Dictionary<string, Action<PlayMakerFSM>>()
         {
@@ -69,5 +70,29 @@ namespace HKVocals
         {
             //menderbug
         };
+        
+        public static readonly Dictionary<string, float> SpecialAudios = new Dictionary<string, float>()
+        {
+            { "100NAIL_TALK_0", 5 },
+            { "100NAIL_TALK_1", 5 },
+            { "100NAIL_REPEAT_0", 5 },
+            { "KARINA_TALK_0", 5 },
+            { "KARINA_TALK_1", 5 },
+            { "KARINA_REPEAT_0", 5 },
+            { "MOLTEN_TALK_0", 5 },
+            { "MOLTEN_REPEAT_0", 5 },
+            { "WALDIE_TALK_0", 5 },
+            { "WALDIE_REPEAT_0", 5 },
+            { "WAYNER_TALK_0", 5 },
+            { "WAYNER_REPEAT_0", 5 },
+            { "HEX_TALK_0", 5 },
+            { "HEX_REPEAT_0", 5 },
+            
+        };
+        
+        public static  List<Func<HealthManager, bool>> HpListeners = new List<Func<HealthManager, bool>>();
+        public static Dictionary<AssetBundle, string[]> CustomAudioBundles = new Dictionary<AssetBundle, string[]>();
+        public static Dictionary<AudioClip, string> CustomAudioClips = new Dictionary<AudioClip, string>();
+        public static List<string> audioExtentions = new List<string>() { ".mp3", ".wav" };
     }
 }

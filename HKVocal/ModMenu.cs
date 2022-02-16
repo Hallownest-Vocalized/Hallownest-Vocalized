@@ -88,7 +88,8 @@ namespace HKVocals
             VolumeSlider_Slider.onValueChanged = SliderEvent ;
 
             //change the key of the text so it can be changed
-            VolumeSlider.transform.Find("Label").GetComponent<AutoLocalizeTextUI>().textKey = HKVocals.AudioSliderKey;
+            UnityEngine.Object.Destroy(VolumeSlider.transform.Find("Label").GetComponent<AutoLocalizeTextUI>());
+            VolumeSlider.transform.Find("Label").GetComponent<Text>().text = "HK Vocals Volume: ";
             VolumeSlider.SetActive(true);
             
             //to make sure when go is cloned, it gets the value of the previous session not the value of the music slider
