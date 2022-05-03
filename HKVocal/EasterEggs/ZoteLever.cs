@@ -51,7 +51,7 @@ namespace HKVocals
 
                 HKVocals._globalSettings.OrdealZoteSpeak = !HKVocals._globalSettings.OrdealZoteSpeak;
 
-                GameManager.instance.StartCoroutine(EnableToggle());
+                HKVocals.CoroutineHolder.StartCoroutine(EnableToggle());
 
                 IEnumerator EnableToggle()
                 {

@@ -114,7 +114,7 @@ namespace HKVocals
                     yield return new WaitForSeconds(HKVocals.instance.GetAudioFor("ORO_2_0").length + 0.5f);
                     HKVocals.instance.CreateDreamDialogue("MATO_2", "Enemy Dreams");
                 }
-                fsm.AddMethod("Reactivate", () => GameManager.instance.StartCoroutine(DreamDialogue()));
+                fsm.AddMethod("Reactivate", () =>HKVocals.CoroutineHolder.StartCoroutine(DreamDialogue()));
             }
         }
 
@@ -143,7 +143,7 @@ namespace HKVocals
         {
             /*
              * say dialogue every 20 seconds
-             * GameManager.instance.StartCoroutine(FSMEditUtils.AddLoopDialogue(20,new string[]{"GREY_PRINCE_1", "GREY_PRINCE_2"},"",fsm.gameObject));
+             * HKVocals.CoroutineHolder.StartCoroutine(FSMEditUtils.AddLoopDialogue(20,new string[]{"GREY_PRINCE_1", "GREY_PRINCE_2"},"",fsm.gameObject));
             */
             string[] GPZDialogues = {"GREY_PRINCE_1", "GREY_PRINCE_2", "GREY_PRINCE_3", "GREY_PRINCE_4", "GREY_PRINCE_5",};
             fsm.InsertAction("Jump", new DreamDialogueAction(GPZDialogues, "Enemy Dreams"){convoMode = DreamDialogueAction.ConvoMode.Random},0);

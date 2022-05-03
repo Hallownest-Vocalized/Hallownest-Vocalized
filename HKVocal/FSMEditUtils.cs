@@ -45,10 +45,10 @@ namespace HKVocals
 
             if (UITextRoutine != null)
             {
-                GameManager.instance.StopCoroutine(UITextRoutine);
+                HKVocals.CoroutineHolder.StopCoroutine(UITextRoutine);
             }
 
-            UITextRoutine = GameManager.instance.StartCoroutine(PlayAudioAfter1SecondDelay());
+            UITextRoutine = HKVocals.CoroutineHolder.StartCoroutine(PlayAudioAfter1SecondDelay());
             
             IEnumerator PlayAudioAfter1SecondDelay()
             {

@@ -142,8 +142,13 @@ namespace HKVocals
         }
 
         public bool IsPlaying() => audioSource.isPlaying;
-        
-        public HKVocals() : base("Hollow Knight Vocalized") { }
+
+        public HKVocals() : base("Hollow Knight Vocalized")
+        {
+            var go = new GameObject("HK Vocals Coroutine Holder");
+            CoroutineHolder = go.AddComponent<NonBouncer>();
+            Object.DontDestroyOnLoad(CoroutineHolder);
+        }
         public override string GetVersion() => "0.0.0.1";
 
         public AssetBundle audioBundle;
@@ -154,6 +159,7 @@ namespace HKVocals
         public bool ToggleButtonInsideMenu => false;
         public bool IsGrubRoom = false;
         public string GrubRoom = "Crossroads_48";
+        public static NonBouncer CoroutineHolder;
 
         public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates) => ModMenu.CreateModMenuScreen(modListMenu);
         
@@ -246,7 +252,7 @@ namespace HKVocals
             orig(self);
             if (!RemoveOrigNPCSounds /*&& _globalSettings.testSetting == 0*/ && self.Fsm.Name == "Conversation Control")
             {
-                GameManager.instance.StartCoroutine(FadeOutClip(ReflectionHelper.GetField<AudioPlayerOneShot, AudioSource>(self, "audio")));
+                HKVocals.CoroutineHolder.StartCoroutine(FadeOutClip(ReflectionHelper.GetField<AudioPlayerOneShot, AudioSource>(self, "audio")));
             }
         }
 
@@ -290,9 +296,9 @@ namespace HKVocals
             {
                 if (autoTextRoutine != null)
                 {
-                    GameManager.instance.StopCoroutine(autoTextRoutine);
+                    HKVocals.CoroutineHolder.StopCoroutine(autoTextRoutine);
                 }
-                autoTextRoutine = GameManager.instance.StartCoroutine(AutoChangePage(self));
+                autoTextRoutine = HKVocals.CoroutineHolder.StartCoroutine(AutoChangePage(self));
             }
         }
 

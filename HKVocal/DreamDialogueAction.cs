@@ -73,7 +73,7 @@ namespace HKVocals
                 }
                 else
                 {
-                    GameManager.instance.StartCoroutine(WaitShowDialogue());
+                    HKVocals.CoroutineHolder.StartCoroutine(WaitShowDialogue());
                 }
             }
             private IEnumerator WaitShowDialogue()
