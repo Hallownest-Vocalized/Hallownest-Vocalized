@@ -23,26 +23,31 @@ namespace HKVocals
             {
                 msgFSM.AddMethod("Display Text", () =>
                 {
-                    Modding.Logger.Log("Playing Dream dialogue");
                     FsmString[] ConvoStrings = new FsmString[]
                     {
                         msgFSM.FsmVariables.FindFsmString("Convo Title"),
                         msgFSM.FsmVariables.FindFsmString("Enemy Type"),
                         msgFSM.FsmVariables.FindFsmString("Enemy Variant")
                     };
-                    if (HKVocals.instance.HasAudioFor(ConvoStrings[0].Value + "_" + ConvoStrings[1].Value + "_" +
-                                                      ConvoStrings[2].Value + "_0"))
+
+                    var opt1 = ConvoStrings[0].Value + "_" + ConvoStrings[1].Value + "_" + ConvoStrings[2].Value + "_0";
+                    var opt2 = ConvoStrings[0].Value + "_" + ConvoStrings[1].Value + "_0";
+                    var opt3 = ConvoStrings[0].Value + "_0";
+                    if (HKVocals.instance.HasAudioFor(opt1))
                     {
-                        HKVocals.instance.TryPlayAudioFor(ConvoStrings[0].Value + "_" + ConvoStrings[1].Value + "_" +
-                                                          ConvoStrings[2].Value + "_0");
+                        HKVocals.instance.TryPlayAudioFor(opt1);
                     }
-                    else if (HKVocals.instance.HasAudioFor(ConvoStrings[0].Value + "_" + ConvoStrings[1].Value + "_0"))
+                    else if (HKVocals.instance.HasAudioFor(opt2))
                     {
-                        HKVocals.instance.TryPlayAudioFor(ConvoStrings[0].Value + "_" + ConvoStrings[1].Value + "_0");
+                        HKVocals.instance.TryPlayAudioFor(opt2);
                     }
-                    else if (HKVocals.instance.HasAudioFor(ConvoStrings[0].Value + "_0"))
+                    else if (HKVocals.instance.HasAudioFor(opt3))
                     {
-                        HKVocals.instance.TryPlayAudioFor(ConvoStrings[0].Value + "_0");
+                        HKVocals.instance.TryPlayAudioFor(opt3);
+                    }
+                    else
+                    {
+                        HKVocals.instance.LogWarn($"Audio not found for: Convo Title {ConvoStrings[0]}, Enemy Type {ConvoStrings[1]} and Enemy Variant{ConvoStrings[2]}");
                     }
                 });
             }
@@ -64,7 +69,7 @@ namespace HKVocals
             HKVocals.instance.Log("Falsey Control Activated");
             fsm.InsertAction("Start Fall", new DreamDialogueAction("FALSE_KNIGHT_1", "Enemy Dreams") { waitTime = 10 }, 0);
             fsm.InsertAction("Recover", new DreamDialogueAction(new string[] { "FALSE_KNIGHT_2", "FALSE_KNIGHT_3" }, "Enemy Dreams") { waitTime = 6, convoOccurances = new int[] { 0, 0, -1 } }, 0);
-           // fsm.MakeLog();
+           
         }
         public static void LurkerControl(PlayMakerFSM fsm)
         {
@@ -110,20 +115,19 @@ namespace HKVocals
                     HKVocals.instance.CreateDreamDialogue("MATO_2", "Enemy Dreams");
                 }
                 fsm.AddMethod("Reactivate", () => GameManager.instance.StartCoroutine(DreamDialogue()));
-                //fsm.MakeLog();
             }
         }
 
         public static void JarCollectorControl(PlayMakerFSM fsm)
         {
-            //fsm.MakeLog();
+            
             HKVocals.instance.Log("Collector");
             fsm.InsertAction("Slam", new DreamDialogueAction(new string[]{"JAR_COLLECTOR_1","JAR_COLLECTOR_2","JAR_COLLECTOR_3" }, "Enemy Dreams") {convoMode = DreamDialogueAction.ConvoMode.Random, chance = 0.4f}, 0);
         }
 
         public static void DreamMageLord(PlayMakerFSM fsm)
         {
-            //fsm.MakeLog();
+            
             HealthManager hm = fsm.GetComponent<HealthManager>();
             FSMEditUtils.AddHPDialogue(hm, new DreamDialogueAction("MAGELORD_D_2", "Enemy Dreams"), (int)(hm.hp * 2f/3f));
             FSMEditUtils.AddHPDialogue(hm, new DreamDialogueAction("MAGELORD_D_3", "Enemy Dreams"), (int)(hm.hp * 1f/3f));

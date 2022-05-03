@@ -72,7 +72,7 @@ namespace HKVocals
             Slider VolumeSlider_Slider = VolumeSlider.GetComponent<Slider>();
             
             //all the other sliders are 0.6 down from each other
-            VolumeSlider.transform.position -= new Vector3(0, 0.6f, 0f);
+            VolumeSlider.transform.position -= new Vector3(0, 90f, 0f);
             VolumeSlider.name = "HkVocalsSlider";
 
             Action<float> StoreValue = f =>

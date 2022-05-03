@@ -61,8 +61,7 @@
     <Reference Include="PlayMaker">
       <HintPath>$(HollowKnightFolder)\PlayMaker.dll</HintPath>
     </Reference>
-    <Reference Include="SFCore, Version=0.2.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="SFCore">
       <HintPath>$(HollowKnightFolder)\Mods\SFCore\SFCore.dll</HintPath>
     </Reference>
     <Reference Include="System" />

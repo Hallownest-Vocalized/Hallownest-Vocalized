@@ -32,15 +32,30 @@ namespace HKVocals
                 array[i] = start + i;
             return array;
         }
-        public AudioClip GetAudioFor(string convName) => 
-            Dictionaries.CustomAudioClips.ContainsValue(convName) ? 
-                Dictionaries.CustomAudioClips.First(a => a.Value == convName).Key : 
-                Dictionaries.CustomAudioBundles.Any(a => a.Value.Any(s => s == convName)) ? 
-                    Dictionaries.CustomAudioBundles.First(a => a.Value.Any(s => s == convName)).Key.LoadAsset<AudioClip>(convName) : 
-                    audioBundle.LoadAsset<AudioClip>(convName.Replace("_generic", "_town_generic"));
+
+        public AudioClip GetAudioFor(string convName)
+        {
+            if (Dictionaries.CustomAudioClips.ContainsValue(convName))
+            {
+                return Dictionaries.CustomAudioClips.First(a => a.Value == convName).Key;
+            }
+            else
+            {
+                if (Dictionaries.CustomAudioBundles.Any(a => a.Value.Any(s => s == convName)))
+                {
+                    return Dictionaries.CustomAudioBundles.First(a => a.Value.Any(s => s == convName)).Key
+                        .LoadAsset<AudioClip>(convName);
+                }
+                else
+                {
+                    return audioBundle.LoadAsset<AudioClip>(convName);
+                }
+            }
+        }
 
         public void TryPlayAudioFor(string convName, float removeTime = 0f)
         {
+            LogDebug($"Trying to play audio for {convName}");
             if (HasAudioFor(convName))
             {
                 if (removeTime == 0f)
@@ -52,18 +67,28 @@ namespace HKVocals
                     PlayAudioForWithTrim(convName, removeTime);
                 }
             }
+            else
+            {
+                LogWarn($"Audio doesn't exits {convName}");
+            }
 
         }
-        public bool HasAudioFor(string convName) => 
-            Dictionaries.CustomAudioBundles.Any(a => a.Value.Contains(convName)) || 
-            Dictionaries.CustomAudioClips.ContainsValue(convName) ||
-            audioNames.Contains(convName.Replace("_GENERIC", "_TOWN_GENERIC"));
+
+        public bool HasAudioFor(string convName)
+        {
+            return 
+                Dictionaries.CustomAudioBundles.Any(a => a.Value.Contains(convName)) ||
+                Dictionaries.CustomAudioClips.ContainsValue(convName) ||
+                audioNames.Contains(convName);
+        }
+
         public void PlayAudioFor(string convName) => PlayAudio(GetAudioFor(convName.ToLower())); 
         public void PlayAudioForWithTrim(string convName, float removeTime) => PlayAudioWithTrim(GetAudioFor(convName.ToLower()), removeTime);
         public void PlayAudioFor(string convName, AudioSource asrc) => PlayAudio(GetAudioFor(convName.ToLower()), asrc);
         
         public void PlayAudioWithTrim(AudioClip clip, float removeTime, AudioSource asrc = null)
         {
+            LogDebug($"Trimming {clip.name}");
             int remove =(int) (clip.frequency * removeTime);
             int size = clip.samples - remove;
             float[] samples = new float[size * clip.channels];
@@ -105,12 +130,15 @@ namespace HKVocals
 
             if (Dictionaries.SpecialAudios.Keys.Contains(clip.name))
             {
+                LogDebug($"Playing {clip.name} (special)");
                 asrc.PlayOneShot(clip, Dictionaries.SpecialAudios[clip.name]);
             }
             else
             {
+                LogDebug($"Playing {clip.name}");
                 asrc.PlayOneShot(clip, 1f);
             }
+            LogDebug("");
         }
 
         public bool IsPlaying() => audioSource.isPlaying;
@@ -156,9 +184,7 @@ namespace HKVocals
                 {
                     audioNames.Add(Path.GetFileNameWithoutExtension(allAssetNames[i]).ToUpper());
                 }
-                #if DEBUG
-                Log($"Object in audiobundle: {allAssetNames[i]} {Path.GetFileNameWithoutExtension(allAssetNames[i])?.ToUpper().Replace("KNGHT", "KNIGHT").Replace("_TOWN_GENERIC", "_GENERIC")}");
-                #endif
+                LogDebug($"Object in audiobundle: {allAssetNames[i]} {Path.GetFileNameWithoutExtension(allAssetNames[i])?.ToUpper().Replace("KNGHT", "KNIGHT")}");
             }
 
             CreateAudioSource();
@@ -178,6 +204,7 @@ namespace HKVocals
 
         private void CreateAudioSource()
         {
+            Log("creating asrc");
             GameObject audioGO = new GameObject("HK Vocals Audio");
             audioSource = audioGO.AddComponent<AudioSource>();
             Object.DontDestroyOnLoad(audioGO);
@@ -249,16 +276,15 @@ namespace HKVocals
         {
             orig(self, pageNum);
             //Log("Started Conversation " + self.currentConversation + "_" + self.currentPage);
-            //if (_globalSettings.testSetting == 0)
+            var convo = self.currentConversation + "_" + (self.currentPage - 1);
+            LogDebug($"Showing page in {convo}");
             if (self.currentPage - 1 == 0)
             {
-                Log("Playing 1st");
-                TryPlayAudioFor(self.currentConversation + "_" + (self.currentPage - 1), 37f/60f);
+                TryPlayAudioFor(convo,37f/60f);
             }
             else
             {
-                Log("Playing later");
-                TryPlayAudioFor(self.currentConversation + "_" + (self.currentPage - 1), 3f/4f);
+                TryPlayAudioFor(convo, 3f/4f);
             }
             if (audioSource.isPlaying)
             {

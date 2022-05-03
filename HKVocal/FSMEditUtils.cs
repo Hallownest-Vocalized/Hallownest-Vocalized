@@ -42,12 +42,10 @@ namespace HKVocals
         {
             //when the UI updates and new text has to be played, no other text can be selected so it makes sense to stop all audio
             HKVocals.instance.audioSource.Stop();
-            Modding.Logger.Log("Stopping UI audio");
 
             if (UITextRoutine != null)
             {
                 GameManager.instance.StopCoroutine(UITextRoutine);
-                Modding.Logger.Log("Stopping UI routine");
             }
 
             UITextRoutine = GameManager.instance.StartCoroutine(PlayAudioAfter1SecondDelay());
@@ -55,7 +53,6 @@ namespace HKVocals
             IEnumerator PlayAudioAfter1SecondDelay()
             {
                 yield return new WaitForSeconds(1);
-                Modding.Logger.Log("Playing Audio");
                 fsm.PlayAudioFromFsmString(audiokey);
             }
         }
