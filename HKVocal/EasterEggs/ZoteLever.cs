@@ -1,9 +1,4 @@
-﻿using System.Collections;
-using Modding;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-
-namespace HKVocals
+﻿namespace HKVocals
 {
     public static class ZoteLever
     {
