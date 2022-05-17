@@ -10,33 +10,14 @@ public class FSMEdits
             msgFSM.AddMethod("Display Text", () =>
             {
                 if (!HKVocals._globalSettings.dnDialogue) return;
-                    
-                FsmString[] ConvoStrings = new FsmString[]
-                {
-                    msgFSM.FsmVariables.FindFsmString("Convo Title"),
-                    msgFSM.FsmVariables.FindFsmString("Enemy Type"),
-                    msgFSM.FsmVariables.FindFsmString("Enemy Variant")
-                };
 
-                var opt1 = ConvoStrings[0].Value + "_" + ConvoStrings[1].Value + "_" + ConvoStrings[2].Value + "_0";
-                var opt2 = ConvoStrings[0].Value + "_" + ConvoStrings[1].Value + "_0";
-                var opt3 = ConvoStrings[0].Value + "_0";
-                    
-                if (AudioUtils.HasAudioFor(opt1))
+                if (AudioUtils.HasAudioFor(msgFSM.FsmVariables.FindFsmString("Convo Title").Value + "_0"))
                 {
-                    AudioUtils.TryPlayAudioFor(opt1);
-                }
-                else if (AudioUtils.HasAudioFor(opt2))
-                {
-                    AudioUtils.TryPlayAudioFor(opt2);
-                }
-                else if (AudioUtils.HasAudioFor(opt3))
-                {
-                    AudioUtils.TryPlayAudioFor(opt3);
+                    AudioUtils.TryPlayAudioFor(msgFSM.FsmVariables.FindFsmString("Convo Title").Value + "_0");
                 }
                 else
                 {
-                    HKVocals.instance.LogWarn($"Audio not found for: Convo Title {ConvoStrings[0]}, Enemy Type {ConvoStrings[1]} and Enemy Variant{ConvoStrings[2]}");
+                    HKVocals.instance.LogWarn($"Audio not found for: {msgFSM.FsmVariables.FindFsmString("Convo Title")}");
                 }
             });
         }
