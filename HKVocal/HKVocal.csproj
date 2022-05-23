@@ -89,10 +89,10 @@
       <HintPath>$(HollowKnightFolder)\mscorlib.dll</HintPath>
     </Reference>
     <Reference Include="Satchel">
-      <HintPath>$(HollowKnightFolder)\Mods\Dependancies\Satchel.dll</HintPath>
+      <HintPath>$(HollowKnightFolder)\Mods\Satchel\Satchel.dll</HintPath>
     </Reference>
     <Reference Include="SFCore">
-      <HintPath>$(HollowKnightFolder)\Mods\Dependancies\SFCore.dll</HintPath>
+      <HintPath>$(HollowKnightFolder)\Mods\SFCore\SFCore.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AssetBundleModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

@@ -96,16 +96,10 @@ public static class AudioUtils
         
         asrc.volume = HKVocals._globalSettings.Volume/10f;
 
-        if (Dictionaries.SpecialAudios.Keys.Contains(clip.name))
-        {
-            HKVocals.instance.LogDebug($"Playing {clip.name} (special)");
-            asrc.PlayOneShot(clip, Dictionaries.SpecialAudios[clip.name]);
-        }
-        else
-        {
-            HKVocals.instance.LogDebug($"Playing {clip.name}");
-            asrc.PlayOneShot(clip, 1f);
-        }
+        
+        HKVocals.instance.LogDebug($"Playing {clip.name}");
+        asrc.PlayOneShot(clip, 1f);
+        
         HKVocals.instance.LogDebug("");
     }
 

@@ -41,8 +41,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         On.EnemyDreamnailReaction.ShowConvo += ShowConvo;
         On.HealthManager.TakeDamage += TakeDamage;
         UIManager.EditMenus +=  ModMenu.AddAudioSlider;
-            
-            
+        
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += EternalOrdeal.DeleteZoteAudioPlayersOnSceneChange;
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += ZoteLever.SetZoteLever;
         On.BossStatueLever.OnTriggerEnter2D += ZoteLever.UseZoteLever;
@@ -64,13 +63,10 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         {
             return;
         }
-        else
-        {
-            Log(key);
-            _saveSettings.FinishedConvos.Add(key);
-            audioSource.Stop();
-            orig(self);
-        }
+        //Log(key);
+        _saveSettings.FinishedConvos.Add(key);
+        audioSource.Stop();
+        orig(self);
     }
 
     public void CreateAudioSource()
@@ -96,12 +92,9 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
 
     private void ShowConvo(On.EnemyDreamnailReaction.orig_ShowConvo orig, EnemyDreamnailReaction self)
     {
-        ExDNailReaction ex = self.GetComponent<ExDNailReaction>();
         PlayMakerFSM fsm = FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value.LocateMyFSM("Display");
-        fsm.FsmVariables.GetFsmGameObject("Last Enemy").Value = self.gameObject;
-        fsm.FsmVariables.GetFsmString("Enemy Type").Value = ex ? ex.PDName : "";
-        fsm.FsmVariables.GetFsmString("Enemy Variant").Value = ex ? ex.Variation : "";
-        fsm.FsmVariables.GetFsmBool("Is Enemy").Value = true;
+        fsm.FsmVariables.GetFsmBool("Is DN Enemy").Value = true;
+        
         orig(self);
     }
 
