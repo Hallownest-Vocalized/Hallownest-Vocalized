@@ -1,7 +1,5 @@
-﻿namespace HKVocals
-{
-    public static class GrubRoom
+﻿namespace HKVocals;
+public static class GrubRoom
     {
         
     }
-}
