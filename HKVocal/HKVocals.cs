@@ -135,7 +135,15 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
                     //randomly select convo amount
                     int selectedConvoAmount = UnityEngine.Random.Range(1, convoAmount);
                     //find all audios that match this format
-                    string bundleAudioName = "${standardName}$_{convoTitle}_{convoAmount}";
+                    string bundleAudioName = $"${standardName}$_{convoTitle}_{convoAmount}";
+                    
+                    //acount for GB1,GB2 and GH. (enemy name isnt used here)
+                    if (listField.Name is "GH" or "GB1" or "GB2")
+                    {
+                        bundleAudioName = $"${listField.Name}$_{convoTitle}_{convoAmount}";
+                    }
+                    
+                    
                     List<string> availableAudios = Dictionaries.audioNames.FindAll(s => s.StartsWith(bundleAudioName));
                     if (availableAudios == null || availableAudios.Count == 0)
                     {
