@@ -1,30 +1,40 @@
 ﻿namespace HKVocals;
 public class FSMEdits
 {
-    public static void BoxOpenDream(PlayMakerFSM fsm)
+    public static void BoxOpenDream(PlayMakerFSM BoxOpenDream)
     {
-        PlayMakerFSM msgFSM = fsm.transform.Find("Dream Msg").gameObject.LocateMyFSM("Display");
-        //not as robust as i would like it to be but i cant think of any better
-        if (msgFSM.GetState("Display Text").Actions.Last() is not MethodAction)
-        {
-            msgFSM.AddMethod("Display Text", () =>
-            {
-                if (!HKVocals._globalSettings.dnDialogue) return;
+        PlayMakerFSM msgFSM = BoxOpenDream.transform.Find("Dream Msg").gameObject.LocateMyFSM("Display");
 
-                //TODO: Check if the convo name exists here or not
-                
-                if (AudioUtils.HasAudioFor(msgFSM.FsmVariables.FindFsmString("Convo Title").Value + "_0"))
+        //the only enabled action here is the convo title empty check
+        //when we play special audio, this state will be skipped as mod will setstate to "Cancel Existing" (the next one)
+        msgFSM.InsertMethod("Check Convo", () =>
+        {
+            HKVocals.PlayDNInFSM = true;
+        },0);
+        
+        msgFSM.AddMethod("Display Text", () =>
+        {
+            if (HKVocals._globalSettings.dnDialogue)
+            {
+                if (HKVocals.PlayDNInFSM)
                 {
-                    AudioUtils.TryPlayAudioFor(msgFSM.FsmVariables.FindFsmString("Convo Title").Value + "_0");
+                    if (AudioUtils.HasAudioFor(msgFSM.FsmVariables.FindFsmString("Convo Title").Value + "_0"))
+                    {
+                        AudioUtils.TryPlayAudioFor(msgFSM.FsmVariables.FindFsmString("Convo Title").Value + "_0");
+                    }
+                    else
+                    {
+                        HKVocals.instance.LogWarn(
+                            $"Audio not found for: {msgFSM.FsmVariables.FindFsmString("Convo Title")}");
+                    }
                 }
-                else
-                {
-                    HKVocals.instance.LogWarn($"Audio not found for: {msgFSM.FsmVariables.FindFsmString("Convo Title")}");
-                }
-            });
-        }
+            }
+
+            HKVocals.PlayDNInFSM = true;
+        });
+
     }
-    
+
     public static void ConversationControl(PlayMakerFSM fsm)
     {
         if (HKVocals.RemoveOrigNPCSounds /*&& _globalSettings.testSetting == 0*/)
@@ -125,25 +135,23 @@ public class FSMEdits
 
     public static void CharmText(PlayMakerFSM fsm)
     {
-        fsm.InsertMethod("Change Text", () => { fsm.PlayUIText("Convo Desc"); }, 4);
+        fsm.AddMethod("Change Text", () => { fsm.PlayUIText("Convo Desc"); });
     }
 
     public static void InventoryText(PlayMakerFSM fsm)
     {
-        fsm.InsertMethod("Change Text", () => { fsm.PlayUIText("Convo Desc"); }, 5);
+        fsm.AddMethod("Change Text", () => { fsm.PlayUIText("Convo Desc"); });
     }
 
     public static void JournalText(PlayMakerFSM fsm)
     {
-        fsm.InsertMethod("Get Details", () => { fsm.PlayUIText("Item Desc Convo"); }, 9);
-        fsm.InsertMethod("Get Details", () => { fsm.PlayUIText("Item Notes Convo"); }, 6);
+        fsm.AddMethod("Get Details", () => { fsm.PlayUIText("Item Desc Convo"); });
+        fsm.AddMethod("Get Details", () => { fsm.PlayUIText("Item Notes Convo"); });
     }
 
     public static void ShopText(PlayMakerFSM fsm)
     {
-        fsm.InsertMethod("Get Details Init", () => { fsm.PlayUIText("Item Desc Convo"); }, 10);
-        fsm.InsertMethod("Get Details", () => { fsm.PlayUIText("Item Desc Convo"); }, 7);
+        fsm.AddMethod("Get Details Init", () => { fsm.PlayUIText("Item Desc Convo"); });
+        fsm.AddMethod("Get Details", () => { fsm.PlayUIText("Item Desc Convo"); });
     }
-        
-    //for grub do normal edit and set bool in uscene manager and the check for dnails
 }

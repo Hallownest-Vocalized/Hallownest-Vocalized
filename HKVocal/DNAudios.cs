@@ -52,6 +52,8 @@ public static class DNAudios
         "Colosseum_Armoured_Mosquito",
         "Blobble",
         "Colosseum Grass Hopper",
+        "Mega Moss Charger",
+        "Lobster",
     };
     public static List<string> COLOSSEUM = new List<string>()
     {
@@ -135,94 +137,13 @@ public static class DNAudios
         "Royal Zombie Coward",
         "Royal Zombie Fat",
     };
-
-    #endregion
-
-    #region SingleAudios
-
-    public static List<string> BEE = new List<string>()
-    {
-        "Bee Stinger"
-    };
-    public static List<string> BEE_HATCHLING = new List<string>()
-    {
-        "Bee Hatchling Ambient"
-    };
-    public static List<string> BLOCKER = new List<string>()
-    {
-        "Blocker"
-    };
-    public static List<string> FLUKE_BIT = new List<string>()
-    {
-        "Fluke Fly"
-    };
-    public static List<string> GORGEOUS_HUSK = new List<string>()
-    {
-        "Gorgeous Husk"
-    };
-    public static List<string> GRUB_MIMIC = new List<string>()
-    {
-        "Grub Mimic"
-    };
-    public static List<string> JELLYFISH = new List<string>()
-    {
-        "Jellyfish"
-    };
-    public static List<string> JELLYFISH_LIL = new List<string>()
-    {
-        "Jellyfish Baby"
-    };
-    public static List<string> LURKER = new List<string>()
-    {
-        "Pale Lurker"
-    };
-    public static List<string> MAGGOT = new List<string>()
-    {
-        "Prayer Slug"
-    };
-    public static List<string> MANTIS_PASSIVE = new List<string>()
-    {
-        "Mantis",
-    };
-    public static List<string> MANTIS_YOUNG_PASSIVE = new List<string>()
-    {
-        "Mantis Flyer Child",
-    };
     public static List<string> MEGAFATBEE = new List<string>()
     {
         "Big Bee",
+        "Mega Fat Bee",
     };
-    public static List<string> MOSS_FAT = new List<string>()
-    {
-        "Moss Knight Fat",
-    };
-    public static List<string> MOSS_KNIGHT = new List<string>()
-    {
-        "Moss Knight",
-    };
-    public static List<string> MUSH_GUARD = new List<string>()
-    {
-        "Mushroom Roller",
-    };
-    public static List<string> MUSH_OGRE = new List<string>()
-    {
-        "Mushroom Brawler",
-    };
-    public static List<string> ROYAL_GUARD = new List<string>()
-    {
-        "Royal Gaurd",
-    };
-    public static List<string> WYRM_SERVANT = new List<string>()
-    {
-        "Enemy",
-    };
-    public static List<string> ZOMBIE_HIVE = new List<string>()
-    {
-        "Zombie Hive",
-    };
-    
 
-    #endregion
+    #endregion]
 
     #region Extras
 

@@ -18,6 +18,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     public bool IsGrubRoom = false;
     public string GrubRoom = "Crossroads_48";
     public static NonBouncer CoroutineHolder;
+    public static bool PlayDNInFSM = true;
 
     public HKVocals() : base("Hollow Knight Vocalized")
     {
@@ -92,10 +93,79 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
 
     private void ShowConvo(On.EnemyDreamnailReaction.orig_ShowConvo orig, EnemyDreamnailReaction self)
     {
-        PlayMakerFSM fsm = FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value.LocateMyFSM("Display");
-        fsm.FsmVariables.GetFsmBool("Is DN Enemy").Value = true;
-        
-        orig(self);
+        if (!_globalSettings.dnDialogue)
+        {
+            orig(self);
+        }
+        else
+        {
+            //get the fsm
+            PlayMakerFSM fsm = FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value.LocateMyFSM("Display");
+            
+            bool found = false;
+            
+            string enemyName = self.gameObject.name;
+            
+            //get vanilla dn variables
+            int convoAmount = ReflectionHelper.GetField<EnemyDreamnailReaction, int>(self, "convoAmount");
+            string convoTitle = ReflectionHelper.GetField<EnemyDreamnailReaction, string>(self, "convoTitle");
+
+            //see if the convo title exists as a field in DN audios class
+            var listField = typeof(DNAudios).GetField(convoTitle);
+            
+            if (listField == null)
+            {
+                LogDebug($"{enemyName} with {convoTitle} isnt in DN List");
+                found = false;
+            }
+            else
+            {
+                //get an actual list
+                List<string> dnAudioList = (List<string>)listField.GetValue(null);
+                
+                //find the name that will be in audiobundle
+                string standardName = dnAudioList.FirstOrDefault(s => enemyName.StartsWith(s));
+                if (standardName == null)
+                {
+                    LogDebug($"{enemyName} isnt in {dnAudioList} List");
+                    found = false;
+                }
+                else
+                {
+                    //randomly select convo amount
+                    int selectedConvoAmount = UnityEngine.Random.Range(1, convoAmount);
+                    //find all audios that match this format
+                    string bundleAudioName = "${standardName}$_{convoTitle}_{convoAmount}";
+                    List<string> availableAudios = Dictionaries.audioNames.FindAll(s => s.StartsWith(bundleAudioName));
+                    if (availableAudios == null || availableAudios.Count == 0)
+                    {
+                        LogDebug($"{bundleAudioName} isnt in audioBundle");
+                    }
+                    //choose random and play
+                    LogDebug("DN Audio Found :)");
+                    int randomVA = Random.Range(1, availableAudios.Count);
+                    AudioUtils.TryPlayAudioFor($"{bundleAudioName}_{randomVA}");
+                    found = true;
+                }
+            }
+
+            //find audio
+            if (found)
+            {
+                PlayDNInFSM = false;
+                fsm.Fsm.GetFsmString("Convo Title").Value = convoTitle;
+                fsm.Fsm.GetFsmInt("Convo Amount").Value = convoAmount;
+                
+                //normally the globla transision sends it to Check Convo and there we set PlayDNInFSM. I wanna bypass that
+                fsm.SetState("Cancel Existing");
+                
+                //play audio
+            }
+            else
+            {
+                orig(self);
+            }
+        }
     }
 
     private void EDNRStart(On.EnemyDreamnailReaction.orig_Start orig, EnemyDreamnailReaction self)
@@ -173,10 +243,6 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         PlayMakerFSM fsm = FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value.LocateMyFSM("Display");
         fsm.Fsm.GetFsmString("Convo Title").Value = convName;
         fsm.Fsm.GetFsmString("Sheet").Value = sheetName;
-        fsm.FsmVariables.GetFsmString("Enemy Type").Value = enemyType;
-        fsm.FsmVariables.GetFsmString("Enemy Variant").Value = enemyVariant;
-        fsm.Fsm.GetFsmGameObject("Last Enemy").Value = enemy;
-        fsm.Fsm.GetFsmBool("Is Enemy").Value = enemy;
         fsm.SendEvent("DISPLAY DREAM MSG");
     }
 

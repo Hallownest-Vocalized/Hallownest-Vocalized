@@ -48,7 +48,7 @@ public static class FSMEditUtils
         IEnumerator PlayAudioAfter1SecondDelay()
         {
             yield return new WaitForSeconds(1);
-            fsm.PlayAudioFromFsmString(audiokey);
+            fsm.PlayAudioFromFsmString(audiokey + "_0");
         }
     }
 
