@@ -38,11 +38,13 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         On.DialogueBox.HideText += StopConvo_HideText;
         On.PlayMakerFSM.Awake += FSMAwake;
         On.HutongGames.PlayMaker.Actions.AudioPlayerOneShot.DoPlayRandomClip += PlayRandomClip;
+        On.PlayMakerFSM.OnEnable += OnGrubFsm;
         On.EnemyDreamnailReaction.Start += EDNRStart;
         On.EnemyDreamnailReaction.ShowConvo += ShowConvo;
         On.HealthManager.TakeDamage += TakeDamage;
         UIManager.EditMenus +=  ModMenu.AddAudioSlider;
-        
+        ModHooks.LanguageGetHook += GrubKeys;
+
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += EternalOrdeal.DeleteZoteAudioPlayersOnSceneChange;
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += ZoteLever.SetZoteLever;
         On.BossStatueLever.OnTriggerEnter2D += ZoteLever.UseZoteLever;
@@ -280,7 +282,8 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     private void LoadAssetBundle()
     {
         Assembly asm = Assembly.GetExecutingAssembly();
-        audioBundle = AssetBundle.LoadFromStream(asm.GetManifestResourceStream("HKVocals.audiobundle"));
+        //audioBundle = AssetBundle.LoadFromStream(asm.GetManifestResourceStream("HKVocals.audiobundle"));
+        audioBundle = AssetBundle.LoadFromStream(File.OpenRead(Path.GetDirectoryName(asm.Location) + "/audiobundle"));
         string[] allAssetNames = audioBundle.GetAllAssetNames();
         for (int i = 0; i < allAssetNames.Length; i++)
         {
@@ -289,6 +292,58 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
                 Dictionaries.audioNames.Add(Path.GetFileNameWithoutExtension(allAssetNames[i]).ToUpper());
             }
             LogDebug($"Object in audiobundle: {allAssetNames[i]} {Path.GetFileNameWithoutExtension(allAssetNames[i])?.ToUpper().Replace("KNGHT", "KNIGHT")}");
+        }
+    }
+
+    public void OnGrubFsm(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
+    {
+        orig(self);
+
+        if (self.gameObject.scene.name == "Abyss_19" && self.gameObject.name == "Dream Dialogue" && self.FsmName == "npc_dream_dialogue")
+        {
+            if (_saveSettings.GrubConvo < 9)
+            {
+                _saveSettings.GrubConvo += 1;
+                self.GetFsmStringVariable("Convo Name").Value = $"GRUB_BOTTLE_DREAM_S_REPEAT_0";
+                self.GetFsmStringVariable("Sheet Name").Value = "Elderbug";
+                AudioUtils.TryPlayAudioFor($"GRUB_BOTTLE_DREAM_S_REPEAT_0");
+            }
+            else
+            {
+                self.GetFsmStringVariable("Convo Name").Value = $"GRUB_BOTTLE_DREAM_S_{_saveSettings.GrubConvo}";
+                self.GetFsmStringVariable("Sheet Name").Value = "Elderbug";
+                AudioUtils.TryPlayAudioFor($"GRUB_BOTTLE_DREAM_S_{_saveSettings.GrubConvo}");
+            }
+        }
+    }
+    public string GrubKeys(string key, string sheettitle, string orig)
+    {
+        switch (key)
+        {
+            case "GRUB_BOTTLE_DREAM_S_0":
+                return " ...Home...";
+            case "GRUB_BOTTLE_DREAM_S_1":
+                return "Why does it stare at me so?";
+            case "GRUB_BOTTLE_DREAM_S_2":
+                return "Has it not come to release me? To save me from this cruel fate?";
+            case "GRUB_BOTTLE_DREAM_S_3 ":
+                return "Repetitively now it’s fist draws back, as if readying to shatter this invisible prison. But it only swipes the air.";
+            case "GRUB_BOTTLE_DREAM_S_4 ":
+                return "It wishes not to destroy my confines, but my pride.";
+            case "GRUB_BOTTLE_DREAM_S_5 ":
+                return "Does it really intend to mock and shame a helpless grub as I? What evil bug it must be, to knowingly prolong this torture, torn from my kin.";
+            case "GRUB_BOTTLE_DREAM_S_6":
+                return "From my… Grubfather.";
+            case "GRUB_BOTTLE_DREAM_S_7 ":
+                return "I stare back with hopeful joy, *scoff* it must think me ignorant. If only it knew of my hatred";
+            case "GRUB_BOTTLE_DREAM_S_8":
+                return "When the time is right and this bug least expects it...";
+            case "GRUB_BOTTLE_DREAM_S_9 ":
+                return "I will gladly return the favor.";
+            case "GRUB_BOTTLE_DREAM_S_REPEAT_0":
+                return "…";
+            default:
+                return orig;
         }
     }
 }
