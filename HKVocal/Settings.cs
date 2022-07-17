@@ -10,6 +10,7 @@ public class GlobalSettings
 }
 public class SaveSettings
 {
+    public int GrubConvo = -1;
     public bool ZoteOn = true;
     public bool UnlockedZoteOpt = false;
     public List<string> FinishedConvos = new List<string>();
