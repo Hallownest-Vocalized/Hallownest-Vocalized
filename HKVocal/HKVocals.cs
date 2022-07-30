@@ -127,8 +127,6 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
             // Enemy name isn't used here, so just use the generic name
             audioId = $"${name}$_{title}_{index}".ToUpper();
         }
- 
-
 
         List<string> availableClips = Dictionaries.audioNames.FindAll(s => s.StartsWith(audioId));
         if (availableClips == null || availableClips.Count == 0) {

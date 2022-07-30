@@ -18,10 +18,6 @@
   <Import Project="LocalBuildProperties_example.props" Condition="Exists('LocalBuildProperties_example.props')"/>
   <Import Project="LocalBuildProperties.props" Condition="Exists('LocalBuildProperties.props')"/>
 
-  <ItemGroup>
-    <EmbeddedResource Include="audiobundle" />
-  </ItemGroup>
-
   <!-- Same References -->
   <ItemGroup>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
