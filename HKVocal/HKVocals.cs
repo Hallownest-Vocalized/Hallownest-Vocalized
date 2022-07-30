@@ -47,7 +47,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
 
         ModHooks.LanguageGetHook += LanguageGet;
         ModHooks.LanguageGetHook += GrubKeys;
-        
+
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += EternalOrdeal.DeleteZoteAudioPlayersOnSceneChange;
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += ZoteLever.SetZoteLever;
         On.BossStatueLever.OnTriggerEnter2D += ZoteLever.UseZoteLever;
@@ -128,7 +128,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
             audioId = $"${name}$_{title}_{index}".ToUpper();
         }
  
-        Dictionaries.audioNames.FindAll(s => { Log(s); return false; });
+
 
         List<string> availableClips = Dictionaries.audioNames.FindAll(s => s.StartsWith(audioId));
         if (availableClips == null || availableClips.Count == 0) {
