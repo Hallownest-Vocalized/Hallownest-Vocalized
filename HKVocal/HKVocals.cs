@@ -19,6 +19,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     public string GrubRoom = "Crossroads_48";
     public static NonBouncer CoroutineHolder;
     public static bool PlayDNInFSM = true;
+    private string lastDreamnailedEnemy;
 
     public HKVocals() : base("Hollow Knight Vocalized")
     {
@@ -42,6 +43,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         On.EnemyDreamnailReaction.ShowConvo += ShowConvo;
         On.HealthManager.TakeDamage += TakeDamage;
         UIManager.EditMenus +=  ModMenu.AddAudioSlider;
+        ModHooks.LanguageGetHook += LanguageGet;
         
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += EternalOrdeal.DeleteZoteAudioPlayersOnSceneChange;
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += ZoteLever.SetZoteLever;
@@ -54,7 +56,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     private void StopConvo_HideText(On.DialogueBox.orig_HideText orig, DialogueBox self)
     {
         audioSource.Stop();
-        orig(self);
+        orig.Invoke(self);
     }
 
     private void StopConvo_NextPage(On.DialogueBox.orig_ShowNextPage orig, DialogueBox self)
@@ -67,7 +69,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         //Log(key);
         _saveSettings.FinishedConvos.Add(key);
         audioSource.Stop();
-        orig(self);
+        orig.Invoke(self);
     }
 
     public void CreateAudioSource()
@@ -90,90 +92,59 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
             }
         }
     }
+    
+    private string LanguageGet(string key, string sheetTitle, string orig) {
+        // Make sure this is dreamnail text
+        if (lastDreamnailedEnemy == null) return orig;
 
-    private void ShowConvo(On.EnemyDreamnailReaction.orig_ShowConvo orig, EnemyDreamnailReaction self)
-    {
-        if (!_globalSettings.dnDialogue)
-        {
-            orig(self);
+        // Format name to match the audio file format
+        var split = key.Split('_');
+        string title = split[0];
+        string index = split[1];
+
+        var listField = typeof(DNAudios).GetField(title);
+
+        if (listField == null) {
+            LogError($"Enemy {lastDreamnailedEnemy} ({title}) wasn't in list!");
+            return orig;
         }
-        else
-        {
-            //get the fsm
-            PlayMakerFSM fsm = FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value.LocateMyFSM("Display");
-            
-            bool found = false;
-            
-            string enemyName = self.gameObject.name;
-            
-            //get vanilla dn variables
-            int convoAmount = ReflectionHelper.GetField<EnemyDreamnailReaction, int>(self, "convoAmount");
-            string convoTitle = ReflectionHelper.GetField<EnemyDreamnailReaction, string>(self, "convoTitle");
 
-            //see if the convo title exists as a field in DN audios class
-            var listField = typeof(DNAudios).GetField(convoTitle);
-            
-            if (listField == null)
-            {
-                LogDebug($"{enemyName} with {convoTitle} isnt in DN List");
-                found = false;
-            }
-            else
-            {
-                //get an actual list
-                List<string> dnAudioList = (List<string>)listField.GetValue(null);
-                
-                //find the name that will be in audiobundle
-                string standardName = dnAudioList.FirstOrDefault(s => enemyName.StartsWith(s));
-                if (standardName == null)
-                {
-                    LogDebug($"{enemyName} isnt in {dnAudioList} List");
-                    found = false;
-                }
-                else
-                {
-                    //randomly select convo amount
-                    int selectedConvoAmount = UnityEngine.Random.Range(1, convoAmount);
-                    //find all audios that match this format
-                    string bundleAudioName = $"${standardName}$_{convoTitle}_{convoAmount}";
-                    
-                    //acount for GB1,GB2 and GH. (enemy name isnt used here)
-                    if (listField.Name is "GH" or "GB1" or "GB2")
-                    {
-                        bundleAudioName = $"${listField.Name}$_{convoTitle}_{convoAmount}";
-                    }
-                    
-                    
-                    List<string> availableAudios = Dictionaries.audioNames.FindAll(s => s.StartsWith(bundleAudioName));
-                    if (availableAudios == null || availableAudios.Count == 0)
-                    {
-                        LogDebug($"{bundleAudioName} isnt in audioBundle");
-                    }
-                    //choose random and play
-                    LogDebug("DN Audio Found :)");
-                    int randomVA = Random.Range(1, availableAudios.Count);
-                    AudioUtils.TryPlayAudioFor($"{bundleAudioName}_{randomVA}");
-                    found = true;
-                }
-            }
+        List<string> list = (List<string>) listField.GetValue(null);
 
-            //find audio
-            if (found)
-            {
-                PlayDNInFSM = false;
-                fsm.Fsm.GetFsmString("Convo Title").Value = convoTitle;
-                fsm.Fsm.GetFsmInt("Convo Amount").Value = convoAmount;
-                
-                //normally the globla transision sends it to Check Convo and there we set PlayDNInFSM. I wanna bypass that
-                fsm.SetState("Cancel Existing");
-                
-                //play audio
-            }
-            else
-            {
-                orig(self);
-            }
+        // Select last dreamnailed enemy
+        string name = list.FirstOrDefault(s => lastDreamnailedEnemy.StartsWith(s));
+        if (name == null) {
+            LogError($"{lastDreamnailedEnemy} isn't in the {list} list!");
+            return orig;
         }
+
+        string audioId = $"${name}$_{title}_{index}".ToUpper();
+
+        if (listField.Name is "GH" or "GB1" or "GB2") {
+            // Enemy name isn't used here, so just use the generic name
+            audioId = $"${name}$_{title}_{index}".ToUpper();
+        }
+ 
+        Dictionaries.audioNames.FindAll(s => { Log(s); return false; });
+
+        List<string> availableClips = Dictionaries.audioNames.FindAll(s => s.StartsWith(audioId));
+        if (availableClips == null || availableClips.Count == 0) {
+            LogError($"{audioId} is not in AudioBundle");
+            return orig;
+        }
+
+        int voiceActor = Random.Range(1, availableClips.Count);
+        AudioUtils.TryPlayAudioFor($"{audioId}_0_{voiceActor}");
+
+        // Prevent it from running again incorrectly
+        lastDreamnailedEnemy = null;
+
+        return orig;
+    }
+
+    private void ShowConvo(On.EnemyDreamnailReaction.orig_ShowConvo orig, EnemyDreamnailReaction self) {
+        lastDreamnailedEnemy = self.gameObject.name;
+        orig(self);
     }
 
     private void EDNRStart(On.EnemyDreamnailReaction.orig_Start orig, EnemyDreamnailReaction self)

@@ -44,6 +44,11 @@ public static class AudioUtils
 
     public static bool HasAudioFor(string convName)
     {
+
+        //Dictionaries.CustomAudioBundles.Any(a => { HKVocals.instance.Log(a.Value); return false; });
+        //Dictionaries.CustomAudioClips.Any(a => { HKVocals.instance.Log(a.Value); return false; });
+        //Dictionaries.audioNames.Any(a => { HKVocals.instance.Log(a); return false; });
+
         return 
             Dictionaries.CustomAudioBundles.Any(a => a.Value.Contains(convName)) ||
             Dictionaries.CustomAudioClips.ContainsValue(convName) ||
@@ -94,7 +99,7 @@ public static class AudioUtils
             asrc.outputAudioMixerGroup = ObjectPool.instance.startupPools.First(o => o.prefab.name == "Audio Player Actor").prefab.GetComponent<AudioSource>().outputAudioMixerGroup;
         }
         
-        asrc.volume = HKVocals._globalSettings.Volume/10f;
+        asrc.volume = HKVocals._globalSettings.Volume / 10f;
 
         
         HKVocals.instance.LogDebug($"Playing {clip.name}");
