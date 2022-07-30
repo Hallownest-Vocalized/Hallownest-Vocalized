@@ -338,4 +338,7 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# HKVocal-specific ignores
 HKVocal/audiobundle
+HKVocal/LocalBuildProperties.props

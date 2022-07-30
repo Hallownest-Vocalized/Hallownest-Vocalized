@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <HollowKnightFolder>..\API</HollowKnightFolder>
+    <OutputDirectory>$(SolutionDir)</OutputDirectory>
+  </PropertyGroup>
+</Project>

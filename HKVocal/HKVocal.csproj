@@ -11,9 +11,12 @@
     <TargetFramework>net472</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
-    <HollowKnightFolder>/home/clove/.steam/steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed</HollowKnightFolder>
-    <OutputDirectory>$(HollowKnightFolder)\Mods</OutputDirectory>
   </PropertyGroup>
+
+  <!-- Create a LocalBuildProperties.props file which defines HollowKnightFolder (references dir) 
+  and OutputDirectory (where the post-build event sends the dll to) -->
+  <Import Project="LocalBuildProperties_example.props" Condition="Exists('LocalBuildProperties_example.props')"/>
+  <Import Project="LocalBuildProperties.props" Condition="Exists('LocalBuildProperties.props')"/>
 
   <ItemGroup>
     <EmbeddedResource Include="audiobundle" />
