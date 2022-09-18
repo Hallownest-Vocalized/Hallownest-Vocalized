@@ -14,4 +14,5 @@ public class SaveSettings
     public bool ZoteOn = true;
     public bool UnlockedZoteOpt = false;
     public List<string> FinishedConvos = new List<string>();
+    public Dictionary<string, int> PersistentVoiceActors = new Dictionary<string, int>();
 }

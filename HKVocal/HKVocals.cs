@@ -1,4 +1,5 @@
 namespace HKVocals;
+using System.Text.RegularExpressions;
 
 public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<SaveSettings>, ICustomMenuMod
 {
@@ -19,13 +20,17 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     public string GrubRoom = "Crossroads_48";
     public static NonBouncer CoroutineHolder;
     public static bool PlayDNInFSM = true;
-    private string lastDreamnailedEnemy;
+    private GameObject lastDreamnailedEnemy;
+
+    private Regex enemyTrimRegex;
 
     public HKVocals() : base("Hollow Knight Vocalized")
     {
         var go = new GameObject("HK Vocals Coroutine Holder");
         CoroutineHolder = go.AddComponent<NonBouncer>();
         Object.DontDestroyOnLoad(CoroutineHolder);
+
+        enemyTrimRegex = new Regex("([^0-9\\(\\)]+)", RegexOptions.Compiled);
     }
     public override string GetVersion() => "0.0.0.1";
 
@@ -95,56 +100,47 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
             }
         }
     }
-    
+
+    public static string GetUniqueId(Transform transform, string path = "") {
+        if (transform.parent == null) return $"{UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}:" + path + transform.name;
+        else return GetUniqueId(transform.parent, path + $"{transform.name}/");
+    }
+
     private string LanguageGet(string key, string sheetTitle, string orig) {
         // Make sure this is dreamnail text
         if (lastDreamnailedEnemy == null) return orig;
 
-        // Format name to match the audio file format
-        var split = key.Split('_');
-        string title = split[0];
-        string index = split[1];
+        Log(key);
 
-        var listField = typeof(DNAudios).GetField(title);
-
-        if (listField == null) {
-            LogError($"Enemy {lastDreamnailedEnemy} ({title}) wasn't in list!");
-            return orig;
-        }
-
-        List<string> list = (List<string>) listField.GetValue(null);
-
-        // Select last dreamnailed enemy
-        string name = list.FirstOrDefault(s => lastDreamnailedEnemy.StartsWith(s));
-        if (name == null) {
-            LogError($"{lastDreamnailedEnemy} isn't in the {list} list!");
-            return orig;
-        }
-
-        string audioId = $"${name}$_{title}_{index}".ToUpper();
-
-        if (listField.Name is "GH" or "GB1" or "GB2") {
-            // Enemy name isn't used here, so just use the generic name
-            audioId = $"${name}$_{title}_{index}".ToUpper();
-        }
-
-        List<string> availableClips = Dictionaries.audioNames.FindAll(s => s.StartsWith(audioId));
-        if (availableClips == null || availableClips.Count == 0) {
-            LogError($"{audioId} is not in AudioBundle");
-            return orig;
-        }
-
-        int voiceActor = Random.Range(1, availableClips.Count);
-        AudioUtils.TryPlayAudioFor($"{audioId}_0_{voiceActor}");
+        // Grab the ID and name now
+        string id = GetUniqueId(lastDreamnailedEnemy.transform);
+        string name = enemyTrimRegex.Match(lastDreamnailedEnemy.name).Value.Trim();
 
         // Prevent it from running again incorrectly
         lastDreamnailedEnemy = null;
+
+        List<string> availableClips = Dictionaries.audioNames.FindAll(s => s.Contains(key));
+        if (availableClips == null || availableClips.Count == 0) {
+            LogError($"No clips for {key}");
+            return orig;
+        }
+
+        // Either use the already registered VA or make one and save it
+        int voiceActor;
+
+        if (_saveSettings.PersistentVoiceActors.ContainsKey(id)) voiceActor = _saveSettings.PersistentVoiceActors[id];
+        else {
+            voiceActor = Random.Range(1, availableClips.Count);
+            _saveSettings.PersistentVoiceActors[id] = voiceActor;
+        }
+
+        AudioUtils.TryPlayAudioFor($"${name}$_{key}_0_{voiceActor}".ToUpper());
 
         return orig;
     }
 
     private void ShowConvo(On.EnemyDreamnailReaction.orig_ShowConvo orig, EnemyDreamnailReaction self) {
-        lastDreamnailedEnemy = self.gameObject.name;
+        lastDreamnailedEnemy = self.gameObject;
         orig(self);
     }
 
