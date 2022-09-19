@@ -4,9 +4,9 @@ public class GlobalSettings
 {
     public int Volume = 10;
     public bool OrdealZoteSpeak = true;
-    public bool autoScroll = true; //TODO: test
-    public bool dnDialogue = true; //TODO: test
-    public bool scrollLock = true; //TODO: test
+    public bool autoScroll = false; //TODO: test
+    public bool dnDialogue = false; //TODO: test
+    public bool scrollLock = false; //TODO: test
 }
 public class SaveSettings
 {
