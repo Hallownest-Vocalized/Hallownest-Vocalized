@@ -146,6 +146,14 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
 
     private void EDNRStart(On.EnemyDreamnailReaction.orig_Start orig, EnemyDreamnailReaction self)
     {
+        if (self.gameObject.name == "Mace")
+        {
+            int rand = Random.Range(1, 10);
+            if (rand == 10)
+            {
+
+            }
+        }
         orig(self);
         //if (self.GetComponent<EnemyDeathEffects>() != null)
         self.gameObject.AddComponent<ExDNailReaction>();
@@ -284,32 +292,20 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     }
     public string GrubKeys(string key, string sheettitle, string orig)
     {
-        switch (key)
+        return key switch
         {
-            case "GRUB_BOTTLE_DREAM_S_0":
-                return " ...Home...";
-            case "GRUB_BOTTLE_DREAM_S_1":
-                return "Why does it stare at me so?";
-            case "GRUB_BOTTLE_DREAM_S_2":
-                return "Has it not come to release me? To save me from this cruel fate?";
-            case "GRUB_BOTTLE_DREAM_S_3 ":
-                return "Repetitively now it’s fist draws back, as if readying to shatter this invisible prison. But it only swipes the air.";
-            case "GRUB_BOTTLE_DREAM_S_4 ":
-                return "It wishes not to destroy my confines, but my pride.";
-            case "GRUB_BOTTLE_DREAM_S_5 ":
-                return "Does it really intend to mock and shame a helpless grub as I? What evil bug it must be, to knowingly prolong this torture, torn from my kin.";
-            case "GRUB_BOTTLE_DREAM_S_6":
-                return "From my… Grubfather.";
-            case "GRUB_BOTTLE_DREAM_S_7 ":
-                return "I stare back with hopeful joy, *scoff* it must think me ignorant. If only it knew of my hatred";
-            case "GRUB_BOTTLE_DREAM_S_8":
-                return "When the time is right and this bug least expects it...";
-            case "GRUB_BOTTLE_DREAM_S_9 ":
-                return "I will gladly return the favor.";
-            case "GRUB_BOTTLE_DREAM_S_REPEAT_0":
-                return "…";
-            default:
-                return orig;
-        }
+            "GRUB_BOTTLE_DREAM_S_0" => " ...Home...",
+            "GRUB_BOTTLE_DREAM_S_1" => "Why does it stare at me so?",
+            "GRUB_BOTTLE_DREAM_S_2" => "Has it not come to release me? To save me from this cruel fate?",
+            "GRUB_BOTTLE_DREAM_S_3 " => "Repetitively now it’s fist draws back, as if readying to shatter this invisible prison. But it only swipes the air.",
+            "GRUB_BOTTLE_DREAM_S_4 " => "It wishes not to destroy my confines, but my pride.",
+            "GRUB_BOTTLE_DREAM_S_5 " => "Does it really intend to mock and shame a helpless grub as I? What evil bug it must be, to knowingly prolong this torture, torn from my kin.",
+            "GRUB_BOTTLE_DREAM_S_6" => "From my… Grubfather.",
+            "GRUB_BOTTLE_DREAM_S_7 " => "I stare back with hopeful joy, *scoff* it must think me ignorant. If only it knew of my hatred",
+            "GRUB_BOTTLE_DREAM_S_8" => "When the time is right and this bug least expects it...",
+            "GRUB_BOTTLE_DREAM_S_9 " => "I will gladly return the favor.",
+            "GRUB_BOTTLE_DREAM_S_REPEAT_0" => "…",
+            _ => orig,
+        };
     }
 }

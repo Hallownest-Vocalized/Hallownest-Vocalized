@@ -20,12 +20,13 @@ public class FSMEdits
                 {
                     if (AudioUtils.HasAudioFor(msgFSM.FsmVariables.FindFsmString("Convo Title").Value + "_0"))
                     {
-                        //AudioUtils.TryPlayAudioFor(msgFSM.FsmVariables.FindFsmString("Convo Title").Value + "_0");
+                        AudioUtils.TryPlayAudioFor(msgFSM.FsmVariables.FindFsmString("Convo Title").Value + "_0");
                     }
                     else
                     {
                         HKVocals.instance.LogWarn(
                             $"Audio not found for: {msgFSM.FsmVariables.FindFsmString("Convo Title")}");
+
                     }
                 }
             }
