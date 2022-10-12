@@ -344,3 +344,4 @@ HKVocal/audiobundle
 HKVocal/LocalBuildProperties.props
 *.dll
 *.xml
+*.zip
