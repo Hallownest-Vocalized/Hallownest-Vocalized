@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <HollowKnightFolder>C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\</HollowKnightFolder>
+    <OutputDirectory>$(SolutionDir)</OutputDirectory>
+  </PropertyGroup>
+</Project>
