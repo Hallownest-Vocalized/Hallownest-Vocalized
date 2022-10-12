@@ -33,5 +33,5 @@ jobs:
       - name: Upload Mod
         uses: actions/upload-artifact@v2
         with:
-          name: HKVocals
-          path: ./HKVocals/bin/Release
+          name: HKVocal
+          path: ./HKVocal/bin/Release
