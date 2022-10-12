@@ -342,3 +342,5 @@ healthchecksdb
 # HKVocal-specific ignores
 HKVocal/audiobundle
 HKVocal/LocalBuildProperties.props
+*.dll
+*.xml

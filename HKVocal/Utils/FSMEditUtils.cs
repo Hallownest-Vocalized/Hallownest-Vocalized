@@ -53,4 +53,11 @@ public static class FSMEditUtils
     }
 
     private static Coroutine UITextRoutine;
+    
+    public static FsmState ClearState(this FsmState state)
+    {
+        state.Actions = Array.Empty<FsmStateAction>();
+        state.Transitions = Array.Empty<FsmTransition>();
+        return state;
+    }
 }

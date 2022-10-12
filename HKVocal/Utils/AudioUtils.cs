@@ -21,23 +21,24 @@ public static class AudioUtils
         }
     }
 
-    public static void TryPlayAudioFor(string convName, float removeTime = 0f)
+    public static bool TryPlayAudioFor(string convName, float removeTime = 0f)
     {
         HKVocals.instance.LogDebug($"Trying to play audio for {convName}");
         if (HasAudioFor(convName))
         {
-            if (removeTime == 0f)
-            {
-                PlayAudioFor(convName);
-            }
-            else
+            if (removeTime != 0f)
             {
                 PlayAudioForWithTrim(convName, removeTime);
+                return true;
             }
+
+            PlayAudioFor(convName);
+            return true;
         }
         else
         {
-            HKVocals.instance.LogWarn($"Audio doesn't exits {convName}");
+            HKVocals.instance.LogWarn($"Audio doesn't exist {convName}");
+            return false;
         }
 
     }
@@ -101,7 +102,7 @@ public static class AudioUtils
         
         asrc.volume = HKVocals._globalSettings.Volume / 10f;
 
-        
+        asrc.Stop();
         HKVocals.instance.LogDebug($"Playing {clip.name}");
         asrc.PlayOneShot(clip, 1f);
         

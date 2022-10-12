@@ -1,3 +1,5 @@
+using HKMirror.InstanceClasses;
+
 namespace HKVocals;
 using System.Text.RegularExpressions;
 
@@ -21,6 +23,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     public static NonBouncer CoroutineHolder;
     public static bool PlayDNInFSM = true;
     private GameObject lastDreamnailedEnemy;
+    public static bool WantToAutoContinue = false;
 
     private Regex enemyTrimRegex;
 
@@ -81,6 +84,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         orig.Invoke(self);
     }
 
+    //todo: complete
     private IEnumerator ScrollLock(DialogueBox box)
     {
         yield return new WaitWhile(() => ReflectionHelper.GetField<DialogueBox, bool>(box, "typing"));
@@ -89,24 +93,27 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     private void ShowPage(On.DialogueBox.orig_ShowPage orig, DialogueBox self, int pageNum)
     {
         orig(self, pageNum);
+        
         var convo = self.currentConversation + "_" + (self.currentPage - 1);
-        LogDebug($"Showing page in {convo}");
-        if (self.currentPage - 1 == 0)
+
+        float removeTime = self.currentPage - 1 == 0 ? 37f / 60f : 3f / 4f;
+
+        bool audioPlayed = AudioUtils.TryPlayAudioFor(convo, removeTime);
+        
+        if (audioPlayed && _globalSettings.autoScroll)
         {
-            AudioUtils.TryPlayAudioFor(convo,37f/60f);
+            WantToAutoContinue = true;
+            
+            if (autoTextRoutine != null)
+            {
+                CoroutineHolder.StopCoroutine(autoTextRoutine);
+            }
+            
+            autoTextRoutine = CoroutineHolder.StartCoroutine(AutoChangePage(new DialogueBoxR(self)));
         }
         else
         {
-            AudioUtils.TryPlayAudioFor(convo, 3f/4f);
-        }
-
-        if (_globalSettings.autoScroll)
-        {
-            if (autoTextRoutine != null)
-            {
-                HKVocals.CoroutineHolder.StopCoroutine(autoTextRoutine);
-            }
-            autoTextRoutine = HKVocals.CoroutineHolder.StartCoroutine(AutoChangePage(self));
+            WantToAutoContinue = false;
         }
     }
 
@@ -118,24 +125,25 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         //if (_globalSettings.testSetting == 0)
         AudioUtils.TryPlayAudioFor(convName);
     }
-    
-    public IEnumerator AutoChangePage(DialogueBox dialogueBox)
+
+    private IEnumerator AutoChangePage(DialogueBoxR dialogueBox)
     {
-        if (AudioUtils.IsPlaying())
-              yield return new WaitWhile(() => AudioUtils.IsPlaying() &&  ReflectionHelper.GetField<DialogueBox, bool>(dialogueBox, "typing") /*&& dialogueBox && dialogueBox.currentPage < newPageNum && dialogueBox.currentConversation == oldConvoName*/);
-        else
-        {
-            yield return new WaitWhile(() => ReflectionHelper.GetField<DialogueBox, bool>(dialogueBox, "typing"));
-            yield return new WaitForSeconds(1f);
-        }
-           
+        //i doubt we need to check for typing but we can add it back later on testing if it doesnt work
+        yield return new WaitWhile(AudioUtils.IsPlaying);
+        
         yield return new WaitForSeconds(1f/6f);//wait additional 1/6th second
-        dialogueBox.ShowPage(dialogueBox.currentPage + 1);
+
+        if (dialogueBox.currentPage + 1 <= dialogueBox.textMesh.textInfo.pageCount)
+        {
+            LogDebug("AutoScrolling to new page");
+            
+            dialogueBox.ShowPage(dialogueBox.currentPage + 1);
+        }
     }
     
     public void CreateAudioSource()
     {
-        Log("creating asrc");
+        LogDebug("creating new asrc");
         GameObject audioGO = new GameObject("HK Vocals Audio");
         audioSource = audioGO.AddComponent<AudioSource>();
         Object.DontDestroyOnLoad(audioGO);

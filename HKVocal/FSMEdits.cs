@@ -1,5 +1,5 @@
 ﻿namespace HKVocals;
-public class FSMEdits
+public static class FSMEdits
 {
     public static void BoxOpenDream(PlayMakerFSM BoxOpenDream)
     {
@@ -154,5 +154,36 @@ public class FSMEdits
     {
         fsm.AddMethod("Get Details Init", () => { fsm.PlayUIText("Item Desc Convo"); });
         fsm.AddMethod("Get Details", () => { fsm.PlayUIText("Item Desc Convo"); });
+    }
+
+    public static void ContinueScrollOnConvoEnd(PlayMakerFSM fsm)
+    {
+        var conversationEndState = fsm.GetState("Conversation End");
+        
+        var transitionState = fsm.CopyFsmState(conversationEndState.Name, "Conversation End Transition").ClearState();
+        
+        transitionState.AddMethod(() =>
+        {
+            IEnumerator WaitForAudioFinishPlaying()
+            {
+                yield return new WaitWhile(AudioUtils.IsPlaying);
+                
+                HKVocals.instance.LogDebug("AutoScrolling to new Conversation");
+                
+                fsm.SetState("SFX");
+            }
+            
+            GameManager.instance.StartCoroutine(WaitForAudioFinishPlaying());
+        });
+
+        
+
+        conversationEndState.InsertMethod(() =>
+        {
+            if (HKVocals.WantToAutoContinue)
+            {
+                fsm.SetState(transitionState.Name);
+            }
+        },0);
     }
 }

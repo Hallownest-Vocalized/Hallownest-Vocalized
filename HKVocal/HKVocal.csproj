@@ -23,6 +23,9 @@
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(HollowKnightFolder)\Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="HKMirror">
+      <HintPath>$(HollowKnightFolder)\Mods\HKMirror\HKMirror.dll</HintPath>
+    </Reference>
     <Reference Include="MMHOOK_PlayMaker, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(HollowKnightFolder)\MMHOOK_PlayMaker.dll</HintPath>
     </Reference>
