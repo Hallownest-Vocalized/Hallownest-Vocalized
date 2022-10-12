@@ -15,8 +15,8 @@
 
   <!-- Create a LocalBuildProperties.props file which defines HollowKnightFolder (references dir) 
   and OutputDirectory (where the post-build event sends the dll to) -->
-  <Import Project="LocalBuildProperties_example.props" Condition="Exists('LocalBuildProperties_example.props')"/>
-  <Import Project="LocalBuildProperties.props" Condition="Exists('LocalBuildProperties.props')"/>
+  <Import Project="LocalBuildProperties_example.props" Condition="Exists('LocalBuildProperties_example.props')" />
+  <Import Project="LocalBuildProperties.props" Condition="Exists('LocalBuildProperties.props')" />
 
   <!-- Same References -->
   <ItemGroup>
@@ -103,7 +103,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="res/dn_groups.json"/>
+    <EmbeddedResource Include="res/dn_groups.json" />
   </ItemGroup>
 
   <Target Name="CopyMod" AfterTargets="PostBuildEvent">

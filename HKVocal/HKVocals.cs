@@ -72,14 +72,67 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         string key = self.currentConversation + "%%" + self.currentPage;
         if (_globalSettings.scrollLock && !_saveSettings.FinishedConvos.Contains(key))
         {
+            CoroutineHolder.StartCoroutine(ScrollLock(self));
             return;
         }
-        //Log(key);
+        LogDebug(key);
         _saveSettings.FinishedConvos.Add(key);
         audioSource.Stop();
         orig.Invoke(self);
     }
 
+    private IEnumerator ScrollLock(DialogueBox box)
+    {
+        yield return new WaitWhile(() => ReflectionHelper.GetField<DialogueBox, bool>(box, "typing"));
+    }
+    
+    private void ShowPage(On.DialogueBox.orig_ShowPage orig, DialogueBox self, int pageNum)
+    {
+        orig(self, pageNum);
+        var convo = self.currentConversation + "_" + (self.currentPage - 1);
+        LogDebug($"Showing page in {convo}");
+        if (self.currentPage - 1 == 0)
+        {
+            AudioUtils.TryPlayAudioFor(convo,37f/60f);
+        }
+        else
+        {
+            AudioUtils.TryPlayAudioFor(convo, 3f/4f);
+        }
+
+        if (_globalSettings.autoScroll)
+        {
+            if (autoTextRoutine != null)
+            {
+                HKVocals.CoroutineHolder.StopCoroutine(autoTextRoutine);
+            }
+            autoTextRoutine = HKVocals.CoroutineHolder.StartCoroutine(AutoChangePage(self));
+        }
+    }
+
+    private void SetConversation(On.DialogueBox.orig_SetConversation orig, DialogueBox self, string convName,
+        string sheetName)
+    {
+        orig(self, convName, sheetName);
+        Log("Started Conversation " + convName + " " + sheetName);
+        //if (_globalSettings.testSetting == 0)
+        AudioUtils.TryPlayAudioFor(convName);
+    }
+    
+    public IEnumerator AutoChangePage(DialogueBox dialogueBox)
+    {
+        if (AudioUtils.IsPlaying())
+              yield return new WaitWhile(() => AudioUtils.IsPlaying() &&  ReflectionHelper.GetField<DialogueBox, bool>(dialogueBox, "typing") /*&& dialogueBox && dialogueBox.currentPage < newPageNum && dialogueBox.currentConversation == oldConvoName*/);
+        else
+        {
+            yield return new WaitWhile(() => ReflectionHelper.GetField<DialogueBox, bool>(dialogueBox, "typing"));
+            yield return new WaitForSeconds(1f);
+        }
+           
+        yield return new WaitForSeconds(1f/6f);//wait additional 1/6th second
+        dialogueBox.ShowPage(dialogueBox.currentPage + 1);
+    }
+    
     public void CreateAudioSource()
     {
         Log("creating asrc");
@@ -186,6 +239,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
             goAction(self);
         if (Dictionaries.FSMChanges.TryGetValue(self.FsmName, out var action))
             action(self);
+
         /*if (self.gameObject.name.ToLower().Contains("elderbug"))
         {
             foreach (FsmVar v in self.FsmStates.SelectMany(s => s.Actions.Where(a => a is CallMethodProper call && call.behaviour.Value.ToLower() == "dialoguebox").Cast<CallMethodProper>().SelectMany(c => c.parameters)))
@@ -193,59 +247,14 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         }*/
     }
 
-    private void ShowPage(On.DialogueBox.orig_ShowPage orig, DialogueBox self, int pageNum)
-    {
-        orig(self, pageNum);
-        var convo = self.currentConversation + "_" + (self.currentPage - 1);
-        LogDebug($"Showing page in {convo}");
-        if (self.currentPage - 1 == 0)
-        {
-            AudioUtils.TryPlayAudioFor(convo,37f/60f);
-        }
-        else
-        {
-            AudioUtils.TryPlayAudioFor(convo, 3f/4f);
-        }
-        if (audioSource.isPlaying)
-        {
-            if (autoTextRoutine != null)
-            {
-                HKVocals.CoroutineHolder.StopCoroutine(autoTextRoutine);
-            }
-            autoTextRoutine = HKVocals.CoroutineHolder.StartCoroutine(AutoChangePage(self));
-        }
-    }
-
-    private void SetConversation(On.DialogueBox.orig_SetConversation orig, DialogueBox self, string convName,
-        string sheetName)
-    {
-        orig(self, convName, sheetName);
-        Log("Started Conversation " + convName + " " + sheetName);
-        //if (_globalSettings.testSetting == 0)
-        AudioUtils.TryPlayAudioFor(convName);
-    }
-
+   
+    
     public void CreateDreamDialogue(string convName, string sheetName, string enemyType = "", string enemyVariant = "", GameObject enemy = null)
     {
         PlayMakerFSM fsm = FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value.LocateMyFSM("Display");
         fsm.Fsm.GetFsmString("Convo Title").Value = convName;
         fsm.Fsm.GetFsmString("Sheet").Value = sheetName;
         fsm.SendEvent("DISPLAY DREAM MSG");
-    }
-
-    public IEnumerator AutoChangePage(DialogueBox dialogueBox)
-    {
-        int newPageNum = dialogueBox.currentPage + 1;
-        string oldConvoName = dialogueBox.currentConversation;
-        yield return new WaitWhile(() => AudioUtils.IsPlaying() && dialogueBox && dialogueBox.currentPage < newPageNum && dialogueBox.currentConversation == oldConvoName);
-        yield return new WaitForSeconds(1f/6f);//wait additional 1/6th second
-        if (_globalSettings.autoScroll &&
-            dialogueBox != null &&
-            dialogueBox.currentPage < newPageNum &&
-            dialogueBox.currentConversation == oldConvoName)
-        {
-            dialogueBox.ShowNextPage();
-        }
     }
 
     private IEnumerator FadeOutClip(AudioSource source)
