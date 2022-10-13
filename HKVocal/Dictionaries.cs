@@ -32,6 +32,7 @@ public static class Dictionaries
         { ("Inv", "Update Text"), FSMEdits.InventoryText },
         { ("Charms", "Update Text"), FSMEdits.CharmText },
         { ("Item List", "Item List Control"), FSMEdits.ShopText },
+        { ("Shop Menu", "shop_control"), FSMEditUtils.OpenShopMenu },
 
         { ("Zote Boss", "Control"), EternalOrdeal.EternalOrdeal_Normal },
         { ("Zote Crew Normal (1)", "Control"), EternalOrdeal.EternalOrdeal_Normal },

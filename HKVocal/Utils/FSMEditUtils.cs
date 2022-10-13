@@ -30,7 +30,15 @@ public static class FSMEditUtils
 
     public static void PlayAudioFromFsmString(this PlayMakerFSM fsm, string audiokey)
     {
-        AudioUtils.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value);
+        HKVocals.instance.Log("audio from fsm string is looking for: " + fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
+        AudioUtils.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
+    }
+
+    private static bool OpenedMenu = false;
+
+    public static void OpenShopMenu(PlayMakerFSM fsm)
+    {
+        fsm.AddMethod("Open Window", () => { OpenedMenu = true; });
     }
 
     public static void PlayUIText(this PlayMakerFSM fsm, string audiokey)
@@ -47,10 +55,20 @@ public static class FSMEditUtils
             
         IEnumerator PlayAudioAfter1SecondDelay()
         {
-            yield return new WaitForSeconds(1);
-            fsm.PlayAudioFromFsmString(audiokey + "_0");
+            if (OpenedMenu == true)
+            {
+                yield return new WaitForSeconds(1f);
+                OpenedMenu = false;
+
+            } else
+            {
+                yield return new WaitForSeconds(0.3f);
+
+            }
+
+            fsm.PlayAudioFromFsmString(audiokey);
         }
     }
-
+    
     private static Coroutine UITextRoutine;
 }
