@@ -54,10 +54,11 @@ public static class FSMEditUtils
 
     private static Coroutine UITextRoutine;
     
-    public static FsmState ClearState(this FsmState state)
+    public static FsmState CreateEmptyState(this PlayMakerFSM fsm, string name)
     {
-        state.Actions = Array.Empty<FsmStateAction>();
-        state.Transitions = Array.Empty<FsmTransition>();
-        return state;
+        var empty = fsm.CopyState(fsm.FsmStates[0].Name, name);
+        empty.Actions = Array.Empty<FsmStateAction>();
+        empty.Transitions = Array.Empty<FsmTransition>();
+        return empty;
     }
 }

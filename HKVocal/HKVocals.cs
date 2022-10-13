@@ -8,7 +8,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     public static GlobalSettings _globalSettings { get; set; } = new GlobalSettings();
     public void OnLoadGlobal(GlobalSettings s) => _globalSettings = s;
     public GlobalSettings OnSaveGlobal() => _globalSettings;
-    public SaveSettings _saveSettings { get; set; } = new SaveSettings();
+    public static SaveSettings _saveSettings { get; set; } = new SaveSettings();
     public void OnLoadLocal(SaveSettings s) => _saveSettings = s;
     public SaveSettings OnSaveLocal() => _saveSettings;
         
@@ -23,7 +23,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     public static NonBouncer CoroutineHolder;
     public static bool PlayDNInFSM = true;
     private GameObject lastDreamnailedEnemy;
-    public static bool WantToAutoContinue = false;
+    public static bool ShouldAutoScroll = false;
 
     private Regex enemyTrimRegex;
 
@@ -42,10 +42,11 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     public override void Initialize()
     {
         instance = this;
-        On.DialogueBox.ShowPage += ShowPage;
-        On.DialogueBox.ShowNextPage += StopConvo_NextPage;
-        On.DialogueBox.HideText += StopConvo_HideText;
-        On.PlayMakerFSM.Awake += FSMAwake;
+        On.DialogueBox.ShowPage += AutoScrollDialogue;
+        //On.DialogueBox.SendConvEndEvent += LockScrolling_ConvoEnd;
+        //On.DialogueBox.SendPageEndEvent += LockScrolling_PageEnd;
+        On.DialogueBox.HideText += StopAudioOnDialogueBoxClose;
+        On.PlayMakerFSM.Awake += AddFSMEdits;
         On.HutongGames.PlayMaker.Actions.AudioPlayerOneShot.DoPlayRandomClip += PlayRandomClip;
         On.PlayMakerFSM.OnEnable += OnGrubFsm;
         On.EnemyDreamnailReaction.Start += EDNRStart;
@@ -64,33 +65,48 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         CreateAudioSource();
     }
 
-    private void StopConvo_HideText(On.DialogueBox.orig_HideText orig, DialogueBox self)
+    private void StopAudioOnDialogueBoxClose(On.DialogueBox.orig_HideText orig, DialogueBox self)
     {
         audioSource.Stop();
         orig.Invoke(self);
     }
 
-    private void StopConvo_NextPage(On.DialogueBox.orig_ShowNextPage orig, DialogueBox self)
+    private void LockScrolling_ConvoEnd(On.DialogueBox.orig_SendConvEndEvent orig, DialogueBox self)
     {
-        string key = self.currentConversation + "%%" + self.currentPage;
+        LockScrolling(new DialogueBoxR(self), "CONVERSATION_END");
+    }
+    private void LockScrolling_PageEnd(On.DialogueBox.orig_SendPageEndEvent orig, DialogueBox self)
+    {
+        LockScrolling(new DialogueBoxR(self), "PAGE_END");
+    }
+
+    private void LockScrolling(DialogueBoxR db, string sendEvent)
+    {
+        string key = $"{db.currentConversation}_{db.currentPage - 1}";
         if (_globalSettings.scrollLock && !_saveSettings.FinishedConvos.Contains(key))
         {
-            CoroutineHolder.StartCoroutine(ScrollLock(self));
-            return;
+            _saveSettings.FinishedConvos.Add(key);
+            CoroutineHolder.StartCoroutine(ScrollLock(db));
         }
-        LogDebug(key);
-        _saveSettings.FinishedConvos.Add(key);
-        audioSource.Stop();
-        orig.Invoke(self);
+        else
+        {
+            orig_SendEndEvent(db);
+        }
+
+        IEnumerator ScrollLock(DialogueBoxR db)
+        {
+            yield return new WaitWhile(AudioUtils.IsPlaying);
+            
+            orig_SendEndEvent(db);
+        }
+
+        void orig_SendEndEvent(DialogueBoxR db)
+        {
+            if (db.proxyFSM != null) db.proxyFSM.SendEvent(sendEvent);
+        }
     }
 
-    //todo: complete
-    private IEnumerator ScrollLock(DialogueBox box)
-    {
-        yield return new WaitWhile(() => ReflectionHelper.GetField<DialogueBox, bool>(box, "typing"));
-    }
-    
-    private void ShowPage(On.DialogueBox.orig_ShowPage orig, DialogueBox self, int pageNum)
+    private void AutoScrollDialogue(On.DialogueBox.orig_ShowPage orig, DialogueBox self, int pageNum)
     {
         orig(self, pageNum);
         
@@ -102,7 +118,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         
         if (audioPlayed && _globalSettings.autoScroll)
         {
-            WantToAutoContinue = true;
+            ShouldAutoScroll = true;
             
             if (autoTextRoutine != null)
             {
@@ -113,7 +129,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         }
         else
         {
-            WantToAutoContinue = false;
+            ShouldAutoScroll = false;
         }
     }
 
@@ -232,7 +248,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         }
     }
 
-    private void FSMAwake(On.PlayMakerFSM.orig_Awake orig, PlayMakerFSM self)
+    private void AddFSMEdits(On.PlayMakerFSM.orig_Awake orig, PlayMakerFSM self)
     {
         orig(self);
         /*if (self.FsmGlobalTransitions.Any(t => t.EventName.ToLower().Contains("dream")))
