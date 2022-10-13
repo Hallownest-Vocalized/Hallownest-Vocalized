@@ -11,20 +11,20 @@ public static class ModMenu
                 "Should dialogue autoscroll after the audio finishes",
                 new []{"Yes", "No"},
                 (i) => HKVocals._globalSettings.autoScroll = i == 0,
-                () => HKVocals._globalSettings.autoScroll ? 1 : 0),
+                () => HKVocals._globalSettings.autoScroll ? 0 : 1),
             new HorizontalOption("Dream Nail Dialogue?", 
                 "Should dream nail dialogue be voiced?",
                 new []{"Yes", "No"},
                 (i) => HKVocals._globalSettings.dnDialogue = i == 0,
-                () => HKVocals._globalSettings.dnDialogue ? 1 : 0),
+                () => HKVocals._globalSettings.dnDialogue ? 0 : 1),
             new HorizontalOption("Scroll Lock?", 
                 "Should first time dialogues be scroll locked until audio has finished?",
                 new []{"Yes", "No"},
                 (i) => HKVocals._globalSettings.scrollLock = i == 0,
-                () => HKVocals._globalSettings.scrollLock ? 1 : 0),
+                () => HKVocals._globalSettings.scrollLock ? 0: 1),
         });
             
-
+        
         return MenuRef.GetMenuScreen(modListMenu);
     }
 
