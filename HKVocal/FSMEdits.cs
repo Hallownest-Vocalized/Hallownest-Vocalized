@@ -147,6 +147,11 @@ public static class FSMEdits
         fsm.AddMethod("Change Text", () => { fsm.PlayUIText("Convo Desc"); });
     }
 
+    public static void InventoryClose(PlayMakerFSM fsm)
+    {
+        fsm.AddMethod("Close", () => { HKVocals.instance.audioSource.Stop(); });
+    }
+
     public static void JournalText(PlayMakerFSM fsm)
     {
         fsm.AddMethod("Get Details", () => { fsm.PlayUIText("Item Desc Convo"); });

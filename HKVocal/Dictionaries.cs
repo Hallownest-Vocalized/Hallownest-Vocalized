@@ -32,7 +32,8 @@ public static class Dictionaries
         { ("Inv", "Update Text"), FSMEdits.InventoryText },
         { ("Charms", "Update Text"), FSMEdits.CharmText },
         { ("Item List", "Item List Control"), FSMEdits.ShopText },
-        { ("Shop Menu", "shop_control"), FSMEditUtils.OpenShopMenu },
+        { ("Shop Menu", "shop_control"), FSMEditUtils.ShopMenuOpenClose },
+        { ("Inventory", "Inventory Control"), FSMEdits.InventoryClose },
         { ("Text", "Dialogue Page Control"), FSMEdits.ContinueScrollOnConvoEnd_AndScrollLock },
 
         { ("Zote Boss", "Control"), EternalOrdeal.EternalOrdeal_Normal },

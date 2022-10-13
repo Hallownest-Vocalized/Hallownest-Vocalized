@@ -36,10 +36,12 @@ public static class FSMEditUtils
 
     private static bool OpenedMenu = false;
 
-    public static void OpenShopMenu(PlayMakerFSM fsm)
+    public static void ShopMenuOpenClose(PlayMakerFSM fsm)
     {
         //Checks when you open the shop keeper menu
         fsm.AddMethod("Open Window", () => { OpenedMenu = true; });
+        //Checks when you close a shop keeper menu
+        fsm.AddMethod("Down", () => { HKVocals.instance.audioSource.Stop(); });
     }
 
     public static void PlayUIText(this PlayMakerFSM fsm, string audiokey)
