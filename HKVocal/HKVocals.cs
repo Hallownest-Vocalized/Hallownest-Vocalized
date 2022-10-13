@@ -23,7 +23,6 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     public static NonBouncer CoroutineHolder;
     public static bool PlayDNInFSM = true;
     private GameObject lastDreamnailedEnemy;
-    public static bool ShouldAutoScroll = false;
 
     private Regex enemyTrimRegex;
 
@@ -71,41 +70,6 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         orig.Invoke(self);
     }
 
-    private void LockScrolling_ConvoEnd(On.DialogueBox.orig_SendConvEndEvent orig, DialogueBox self)
-    {
-        LockScrolling(new DialogueBoxR(self), "CONVERSATION_END");
-    }
-    private void LockScrolling_PageEnd(On.DialogueBox.orig_SendPageEndEvent orig, DialogueBox self)
-    {
-        LockScrolling(new DialogueBoxR(self), "PAGE_END");
-    }
-
-    private void LockScrolling(DialogueBoxR db, string sendEvent)
-    {
-        string key = $"{db.currentConversation}_{db.currentPage - 1}";
-        if (_globalSettings.scrollLock && !_saveSettings.FinishedConvos.Contains(key))
-        {
-            _saveSettings.FinishedConvos.Add(key);
-            CoroutineHolder.StartCoroutine(ScrollLock(db));
-        }
-        else
-        {
-            orig_SendEndEvent(db);
-        }
-
-        IEnumerator ScrollLock(DialogueBoxR db)
-        {
-            yield return new WaitWhile(AudioUtils.IsPlaying);
-            
-            orig_SendEndEvent(db);
-        }
-
-        void orig_SendEndEvent(DialogueBoxR db)
-        {
-            if (db.proxyFSM != null) db.proxyFSM.SendEvent(sendEvent);
-        }
-    }
-
     private void AutoScrollDialogue(On.DialogueBox.orig_ShowPage orig, DialogueBox self, int pageNum)
     {
         orig(self, pageNum);
@@ -116,30 +80,17 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
 
         bool audioPlayed = AudioUtils.TryPlayAudioFor(convo, removeTime);
         
+        var db = new DialogueBoxR(self);
+        
+        //this controls autoscroll when more pages are left. when theres a convo end, thats handled in fsm edits
         if (audioPlayed && _globalSettings.autoScroll)
         {
-            ShouldAutoScroll = true;
-            
-            if (autoTextRoutine != null)
-            {
-                CoroutineHolder.StopCoroutine(autoTextRoutine);
-            }
-            
-            autoTextRoutine = CoroutineHolder.StartCoroutine(AutoChangePage(new DialogueBoxR(self)));
+            db.proxyFSM.GetBoolVariable("Did Audio Play").Value = true;
         }
         else
         {
-            ShouldAutoScroll = false;
+            db.proxyFSM.GetBoolVariable("Did Audio Play").Value = false;
         }
-    }
-
-    private void SetConversation(On.DialogueBox.orig_SetConversation orig, DialogueBox self, string convName,
-        string sheetName)
-    {
-        orig(self, convName, sheetName);
-        Log("Started Conversation " + convName + " " + sheetName);
-        //if (_globalSettings.testSetting == 0)
-        AudioUtils.TryPlayAudioFor(convName);
     }
 
     private IEnumerator AutoChangePage(DialogueBoxR dialogueBox)
