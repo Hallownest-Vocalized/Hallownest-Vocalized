@@ -38,6 +38,7 @@ public static class FSMEditUtils
 
     public static void OpenShopMenu(PlayMakerFSM fsm)
     {
+        //Checks when you open the shop keeper menu
         fsm.AddMethod("Open Window", () => { OpenedMenu = true; });
     }
 
