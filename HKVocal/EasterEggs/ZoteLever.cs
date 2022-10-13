@@ -1,4 +1,6 @@
-﻿namespace HKVocals
+﻿using HKMirror.InstanceClasses;
+
+namespace HKVocals
 {
     public static class ZoteLever
     {
@@ -17,27 +19,23 @@
                 if (!ZoteLeverGo.activeInHierarchy || (!collision.CompareTag("Nail Attack"))) return;
 
                 BossStatueLever ZoteLeverComponent = ZoteLeverGo.GetComponent<BossStatueLever>();
+                BossStatueLeverR ZoteLeverComponentR = new (ZoteLeverComponent);
                 
                 
-                if(ReflectionHelper.GetField<BossStatueLever, bool>(ZoteLeverComponent, "canToggle") == false) return;
+                if(!ZoteLeverComponentR.canToggle) return;
                 
-                ReflectionHelper.SetField(ZoteLeverComponent, "canToggle", false);
+                ZoteLeverComponentR.canToggle = false;
                 
-                ReflectionHelper.GetField<BossStatueLever, AudioEvent>(ZoteLeverComponent, "switchSound")
-                    .SpawnAndPlayOneShot(EternalOrdeal.GetZoteAudioPlayer(), HeroController.instance.transform.position);
+                ZoteLeverComponentR.switchSound.SpawnAndPlayOneShot(
+                    EternalOrdeal.GetZoteAudioPlayer(), HeroController.instance.transform.position);
                 
                 GameManager.instance.FreezeMoment(1);
                 GameCameras.instance.cameraShakeFSM.SendEvent("EnemyKillShake");
-
-                GameObject strikeNailPrefab =
-                    ReflectionHelper.GetField<BossStatueLever, GameObject>(ZoteLeverComponent, "strikeNailPrefab");
-                Transform hitOrigin =
-                    ReflectionHelper.GetField<BossStatueLever, Transform>(ZoteLeverComponent, "hitOrigin");
                 
 
-                if (strikeNailPrefab && hitOrigin)
+                if (ZoteLeverComponent.strikeNailPrefab && ZoteLeverComponentR.hitOrigin)
                 {
-                    strikeNailPrefab.Spawn(hitOrigin.transform.position);
+                    ZoteLeverComponent.strikeNailPrefab.Spawn(ZoteLeverComponentR.hitOrigin.transform.position);
                 }
 
                 if (!ZoteLeverComponent.leverAnimator) return;
@@ -51,7 +49,7 @@
                 IEnumerator EnableToggle()
                 {
                     yield return new WaitForSeconds(1f);
-                    ReflectionHelper.SetField(ZoteLeverComponent, "canToggle", true);
+                    ZoteLeverComponentR.canToggle = true;
                     ZoteLeverComponent.leverAnimator.Play("Shine");
                 }
             }

@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <HollowKnightFolder>../HKManaged</HollowKnightFolder>
+    <OutputDirectory>$(SolutionDir)</OutputDirectory>
+  </PropertyGroup>
+</Project>

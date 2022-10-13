@@ -1,4 +1,6 @@
-﻿namespace HKVocals;
+﻿using HKMirror.InstanceClasses;
+
+namespace HKVocals;
 public class ExDNailReaction : MonoBehaviour
 {
     internal string Variation = "";
@@ -7,10 +9,13 @@ public class ExDNailReaction : MonoBehaviour
     private void Awake()
     {
         ede = GetComponent<EnemyDeathEffects>();
+        EnemyDeathEffectsR edeR = new(ede);
         if (ede)
         {
-            PDName = ede.GetAttr<EnemyDeathEffects, string>("playerDataName");
-            Variation = Dictionaries.EnemyVariants.ContainsKey(PDName) ? Dictionaries.EnemyVariants[PDName][UnityEngine.Random.Range(0, Dictionaries.EnemyVariants[PDName].Length)] : "";
+            PDName = edeR.playerDataName;
+            Variation = Dictionaries.EnemyVariants.ContainsKey(PDName) ? 
+                Dictionaries.EnemyVariants[PDName][Random.Range(0, Dictionaries.EnemyVariants[PDName].Length)] 
+                : "";
         }
     }
     private void OnDestroy()

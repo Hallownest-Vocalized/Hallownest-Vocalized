@@ -1,5 +1,8 @@
-﻿namespace HKVocals;
-public class FSMEdits
+﻿using HKMirror.InstanceClasses;
+using FsmUtil = Satchel.FsmUtil;
+
+namespace HKVocals;
+public static class FSMEdits
 {
     public static void BoxOpenDream(PlayMakerFSM BoxOpenDream)
     {
@@ -154,5 +157,147 @@ public class FSMEdits
     {
         fsm.AddMethod("Get Details Init", () => { fsm.PlayUIText("Item Desc Convo"); });
         fsm.AddMethod("Get Details", () => { fsm.PlayUIText("Item Desc Convo"); });
+    }
+
+    public static void ContinueScrollOnConvoEnd_AndScrollLock(PlayMakerFSM fsm)
+    {
+        var PageEnd = fsm.GetState("Page End");
+        
+        var originalPageEnd = fsm.CopyFsmState(PageEnd.Name, "Original Page End");
+        originalPageEnd.CopyActionData(PageEnd);
+        originalPageEnd.LoadActions();
+
+        var lockedScroll_PageEnd = fsm.CreateEmptyState("Locked Scroll Page End");
+
+        PageEnd.Actions = Array.Empty<FsmStateAction>();
+        PageEnd.AddMethod(() =>
+        {
+            var db = new DialogueBoxR(fsm.gameObject.GetComponent<DialogueBox>());
+            
+            string key = $"{db.currentConversation}_{db.currentPage - 1}";
+            if (HKVocals._globalSettings.scrollLock && !HKVocals._saveSettings.FinishedConvos.Contains(key))
+            {
+                HKVocals._saveSettings.FinishedConvos.Add(key);
+                fsm.SetState(lockedScroll_PageEnd.Name);
+                return;
+            }
+            else
+            {
+                fsm.SetState(originalPageEnd.Name);
+                return;
+            }
+        });
+
+        lockedScroll_PageEnd.AddMethod(() =>
+        {
+            HKVocals.CoroutineHolder.StartCoroutine(GoToStateAfterAudioPlay(fsm, originalPageEnd.Name));
+        });
+        
+        
+        var ConvoEnd = fsm.GetState("Arrow");
+        
+        var originalConvoEnd = fsm.CopyFsmState(ConvoEnd.Name, "Original Convo End");
+
+        originalConvoEnd.CopyActionData(ConvoEnd);
+        originalConvoEnd.LoadActions();
+
+        var lockedAutoScroll = fsm.CreateEmptyState("Locked Auto Scroll");
+        var lockedScroll = fsm.CreateEmptyState("Locked Scroll");
+        
+        var AutoScroll = fsm.CopyFsmState("SFX", "AutoScroll");
+        AutoScroll.CopyActionData(fsm.GetState("SFX"));
+        AutoScroll.LoadActions();
+        AutoScroll.RemoveAction(1); //remove the audio
+
+        ConvoEnd.Actions = Array.Empty<FsmStateAction>();
+        ConvoEnd.AddMethod(() =>
+        {
+            var db = new DialogueBoxR(fsm.gameObject.GetComponent<DialogueBox>());
+            
+            string key = $"{db.currentConversation}_{db.currentPage - 1}";
+
+            if (HKVocals._globalSettings.scrollLock)
+            {
+                if (!HKVocals._saveSettings.FinishedConvos.Contains(key))
+                {
+                    HKVocals._saveSettings.FinishedConvos.Add(key);
+                    if (HKVocals.ShouldAutoScroll)
+                    {
+                        fsm.SetState(lockedAutoScroll.Name);
+                    }
+                    else
+                    {
+                        fsm.SetState(lockedScroll.Name);
+                    }
+                }
+                else
+                {
+                    fsm.SetState(originalConvoEnd.Name);
+                }
+            }
+        });
+        
+        lockedAutoScroll.AddMethod(() =>
+        {
+            HKVocals.CoroutineHolder.StartCoroutine(GoToStateAfterAudioPlayAndRemoveArrow(fsm, AutoScroll.Name));
+            
+            IEnumerator GoToStateAfterAudioPlayAndRemoveArrow(PlayMakerFSM fsm, string nextstate)
+            {
+                var arrow = fsm.gameObject.transform.parent.Find("Arrow").gameObject;
+                arrow.GetComponent<MeshRenderer>().enabled = false;
+                yield return null;
+                while (AudioUtils.IsPlaying())
+                {
+                    yield return null;
+                    arrow.GetComponent<MeshRenderer>().enabled = false;
+                }
+
+                fsm.SetState(nextstate);
+            }
+        });
+
+        lockedScroll.AddMethod(() =>
+        {
+            HKVocals.CoroutineHolder.StartCoroutine(GoToStateAfterAudioPlay(fsm, originalConvoEnd.Name));
+        });
+        
+            
+        var conversationEnd = fsm.GetState("Conversation End");
+        conversationEnd.AddAction(new WaitForFinishPlaying()
+        {
+            OnFinish = FsmUtil.GetAction<ListenForCast>(conversationEnd, 4).wasPressed,
+            eventTarget = FsmUtil.GetAction<ListenForCast>(conversationEnd, 4).eventTarget,
+        });
+
+        var fullConvoEnd = fsm.GetState("Stop");
+        var originalfullConvoEnd = fsm.CopyFsmState(fullConvoEnd.Name, "Lock Scroll Full Convo End");
+        originalfullConvoEnd.CopyActionData(fullConvoEnd);
+        originalfullConvoEnd.LoadActions();
+        
+        var lockedScrollFullConvoEnd = fsm.CreateEmptyState("Locked Scroll Full Convo End");
+        lockedScrollFullConvoEnd.AddMethod(() =>
+        {
+            HKVocals.CoroutineHolder.StartCoroutine(GoToStateAfterAudioPlay(fsm, originalfullConvoEnd.Name));
+        });
+        
+        fullConvoEnd.InsertMethod(() =>
+        {
+            if (HKVocals._globalSettings.scrollLock)
+            {
+                fsm.SetState(lockedScroll.Name);
+            }
+            else
+            {
+                fsm.SetState(originalfullConvoEnd.Name);
+            }
+        }, 0);
+    }
+    
+    private static IEnumerator GoToStateAfterAudioPlay(PlayMakerFSM fsm, string nextstate)
+    {
+        yield return null;
+        yield return new WaitWhile(AudioUtils.IsPlaying);
+
+        fsm.SetState(nextstate);
     }
 }
