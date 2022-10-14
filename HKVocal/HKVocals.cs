@@ -42,7 +42,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     public override void Initialize()
     {
         instance = this;
-        On.DialogueBox.ShowPage += AutoScrollDialogue;
+        On.DialogueBox.ShowPage += PlayNPCDialogue;
         On.DialogueBox.HideText += StopAudioOnDialogueBoxClose;
         On.PlayMakerFSM.Awake += AddFSMEdits;
         On.HutongGames.PlayMaker.Actions.AudioPlayerOneShot.DoPlayRandomClip += PlayRandomClip;
@@ -69,7 +69,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         orig.Invoke(self);
     }
 
-    private void AutoScrollDialogue(On.DialogueBox.orig_ShowPage orig, DialogueBox self, int pageNum)
+    private void PlayNPCDialogue(On.DialogueBox.orig_ShowPage orig, DialogueBox self, int pageNum)
     {
         orig(self, pageNum);
         
