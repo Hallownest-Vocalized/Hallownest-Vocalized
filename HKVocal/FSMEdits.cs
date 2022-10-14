@@ -162,77 +162,58 @@ public static class FSMEdits
 
     public static void ContinueScrollOnConvoEnd_AndScrollLock(PlayMakerFSM fsm)
     {
-        var dap = fsm.AddFsmBoolVariable("Did Audio Play");
-        var ise = fsm.AddFsmBoolVariable("Is Convo Ending");
-        dap.Value = false;
-        ise.Value = false;
-        ImplementAutoScroll_OnPageEnd(fsm, dap, ise);
-        ImplementAutoScroll_OnHalfConvoEnd(fsm, dap, ise);
+        var isConvoEnding = fsm.AddFsmBoolVariable("Is Convo Ending");
+        isConvoEnding.Value = false;
+        ImplementAutoScroll_OnPageEnd(fsm, isConvoEnding);
+        ImplementAutoScroll_OnHalfConvoEnd(fsm, isConvoEnding);
         
-        //so we need to implement 2 cases, when page end and when convo end
-        //ImplementLock_OnPageEnd(fsm);
-        
-        //half end is when theres a convo directly after it. indicated by an arrow (and not stop)
-        //ImplementLock_OnConvoHalfEnd_AndAutoScroll(fsm);
-        //ImplementLock_OnConvoFullEnd(fsm);
+        //there are 2 cases, page ends and conversation ends
+        ImplementLock(fsm, "Page End", "PAGE_END");
+        ImplementLock(fsm, "Stop Pause", "CONVERSATION_END");
     }
-
-    private static void ImplementAutoScroll_OnHalfConvoEnd(PlayMakerFSM fsm, FsmBool didAudioPlay, FsmBool isConvoEnding)
-    {
-        fsm.AddAction("Arrow",new SetBoolValue()
-        {
-            boolValue = false,
-            boolVariable = isConvoEnding,
-        });
-        
-        fsm.AddAction("Stop",new SetBoolValue()
-        {
-            boolValue = true,
-            boolVariable = isConvoEnding,
-        });
-        
-        fsm.AddAction("Conversation End", new AutoScrollOnFinishPlaying(true, didAudioPlay, isConvoEnding));
-    }
-
-    private static void ImplementAutoScroll_OnPageEnd(PlayMakerFSM fsm, FsmBool didAudioPlay, FsmBool isConvoEnding)
-    {
-        fsm.AddAction("Page End", new AutoScrollOnFinishPlaying(false, didAudioPlay, isConvoEnding));
-    }
-
-    private static void ImplementLock_OnPageEnd(PlayMakerFSM fsm)
-    {
-        //for page end, we will create a new state that is identical to the state that waits for a button press and use that as original state
-        //i did this because i dont know how to intercept events so here we are
-        
-        //when the event is invoked, page end state is active, in that we decide whether or not to immediately go to original page end (no lock)
-        //or wait for audio to finish (yes lock)
-        
-        var PageEnd = fsm.GetState("Page End");
-        
-        var originalPageEnd = fsm.CopyFsmState(PageEnd.Name, "Original Page End");
-        originalPageEnd.CopyActionData(PageEnd);
-        originalPageEnd.LoadActions();
-
-        PageEnd.Actions = new FsmStateAction[] { new LockScrollOnFinishPlaying() };
-        PageEnd.AddTransition("FINISHED", originalPageEnd.Name);
-    }
-    private static void ImplementLock_OnConvoHalfEnd_AndAutoScroll(PlayMakerFSM fsm)
-    {
-        fsm.Intercept(new TransitionInterceptor()
-        {
-            fromState = "Stop or Arrow?",
-            toStateDefault = "Arrow",
-            toStateCustom = ""
-        });
-    }
-
     
-
-    private static IEnumerator GoToStateAfterAudioPlay(PlayMakerFSM fsm, string nextstate)
+    private static void ImplementAutoScroll_OnPageEnd(PlayMakerFSM fsm, FsmBool isConvoEnding)
     {
-        yield return null;
-        yield return new WaitWhile(AudioUtils.IsPlaying);
+        fsm.AddAction("Page End", new AutoScrollOnFinishPlaying(isConvoEnding));
+        
+        //we dont wanna play next page sound on autoscroll
+        RemoveAudioOnAutoScroll(fsm,"Show Next Page", "Page End"); 
+    }
 
-        fsm.SetState(nextstate);
+    private static void ImplementAutoScroll_OnHalfConvoEnd(PlayMakerFSM fsm, FsmBool isConvoEnding)
+    {
+        fsm.AddMethod("Arrow", () => isConvoEnding.Value = false);
+        fsm.AddMethod("Stop", () => isConvoEnding.Value = true);
+
+        fsm.AddAction("Conversation End", new AutoScrollOnFinishPlaying(isConvoEnding, shouldConsiderConvoEnding: true));
+
+        //we dont wanna play next page sound on autoscroll
+        RemoveAudioOnAutoScroll(fsm, "SFX", "End Conversation");
+    }
+
+    private static void RemoveAudioOnAutoScroll(PlayMakerFSM fsm, string audioState, string previousState)
+    {
+        //create a new state with same actions as the normal state except the one that plays audio
+        //we will go to this state via the next o audio event we invoke in AutoScrollOnFinishPlaying    
+        var SFX = fsm.GetState(audioState);
+        var SFX_NoAudio = fsm.CopyState(SFX.Name, $"{audioState} No Audio");
+        SFX_NoAudio.Actions = SFX.Actions;
+        SFX_NoAudio.RemoveAction(SFX_NoAudio.Actions.GetIndexOf(a => a is AudioPlayerOneShotSingle));
+
+        fsm.AddFsmTransition(previousState, "NEXT_NOAUDIO", SFX_NoAudio.Name);
+    }
+
+    private static void ImplementLock(PlayMakerFSM fsm, string landingStateName, string eventName)
+    {
+        //what we are doing is changing the event transition to my state where we will wait for lock to end
+        //before we let fsm continue. if lock == false, the LockScrollOnFinishPlaying will see that and not wait and just continue
+        
+        var newPageEnd = fsm.CreateEmptyState($"New {landingStateName}");
+        newPageEnd.AddAction(new LockScrollOnFinishPlaying());
+        newPageEnd.AddTransition("FINISHED", landingStateName);
+
+        var pageEndTransition =  fsm.FsmGlobalTransitions.First(s => s.EventName == eventName);
+        pageEndTransition.ToState = newPageEnd.Name;
+        pageEndTransition.ToFsmState = newPageEnd;
     }
 }

@@ -4,58 +4,42 @@ namespace HKVocals;
 
 public class LockScrollOnFinishPlaying : FsmStateAction
 {
-    private bool shouldRun = true;
-    private FsmBool DidAudioPlay;
-
-    public LockScrollOnFinishPlaying()
-    {
-        DidAudioPlay = Fsm.GetFsmBool("Did Audio Play");
-    }
-
-    public override void Reset()
-    {
-        shouldRun = true;
-    }
-    
     public override void OnEnter()
     {
         var db = new DialogueBoxR(Fsm.GameObject.gameObject.GetComponent<DialogueBox>());
             
         string key = $"{db.currentConversation}_{db.currentPage - 1}";
-        if (HKVocals._globalSettings.scrollLock && !HKVocals._saveSettings.FinishedConvos.Contains(key))
+        if (!HKVocals._saveSettings.FinishedConvos.Contains(key))
         {
+            //adds key regardless of scroll lock being on
             HKVocals._saveSettings.FinishedConvos.Add(key);
-            shouldRun = true;
+            
+            if (HKVocals._globalSettings.scrollLock)
+            {
+                CheckForFinishState();
+                return;
+            }
         }
-        else
-        {
-            shouldRun = false;
-        }
-
-        CheckForFinish();
+        //comes here if scroll lock false or key already heard
+        Finish();
     }
 
-    public override void OnUpdate() => CheckForFinish();
+    public override void OnUpdate() => CheckForFinishState();
 
-    public void CheckForFinish()
+    public void CheckForFinishState()
     {
-        if (!shouldRun || !DidAudioPlay.Value)
+        //safegaurd for when an audio doesnt exist
+        if (!HKVocals.DidPlayAudioOnDialogueBox)
         {
-            OnFinish();
+            Finish();
             return;
         }
-        
+
         if (AudioUtils.IsPlaying())
         {
             return;
         }
         
-        OnFinish();
-    }
-
-    private void OnFinish()
-    {
-        shouldRun = true;
         Finish();
     }
 }

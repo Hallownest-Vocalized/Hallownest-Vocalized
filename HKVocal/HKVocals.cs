@@ -23,6 +23,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     public static NonBouncer CoroutineHolder;
     public static bool PlayDNInFSM = true;
     private GameObject lastDreamnailedEnemy;
+    public static bool DidPlayAudioOnDialogueBox = false;
 
     private Regex enemyTrimRegex;
 
@@ -42,8 +43,6 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     {
         instance = this;
         On.DialogueBox.ShowPage += AutoScrollDialogue;
-        //On.DialogueBox.SendConvEndEvent += LockScrolling_ConvoEnd;
-        //On.DialogueBox.SendPageEndEvent += LockScrolling_PageEnd;
         On.DialogueBox.HideText += StopAudioOnDialogueBoxClose;
         On.PlayMakerFSM.Awake += AddFSMEdits;
         On.HutongGames.PlayMaker.Actions.AudioPlayerOneShot.DoPlayRandomClip += PlayRandomClip;
@@ -80,34 +79,17 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
 
         bool audioPlayed = AudioUtils.TryPlayAudioFor(convo, removeTime);
         
-        var db = new DialogueBoxR(self);
-        
-        //this controls autoscroll when more pages are left. when theres a convo end, thats handled in fsm edits
-        if (audioPlayed && _globalSettings.autoScroll)
+        //this controls scroll lock and autoscroll
+        if (audioPlayed)
         {
-            db.proxyFSM.GetBoolVariable("Did Audio Play").Value = true;
+            DidPlayAudioOnDialogueBox = true;
         }
         else
         {
-            db.proxyFSM.GetBoolVariable("Did Audio Play").Value = false;
+            DidPlayAudioOnDialogueBox = false;
         }
     }
 
-    private IEnumerator AutoChangePage(DialogueBoxR dialogueBox)
-    {
-        //i doubt we need to check for typing but we can add it back later on testing if it doesnt work
-        yield return new WaitWhile(AudioUtils.IsPlaying);
-        
-        yield return new WaitForSeconds(1f/6f);//wait additional 1/6th second
-
-        if (dialogueBox.currentPage + 1 <= dialogueBox.textMesh.textInfo.pageCount)
-        {
-            LogDebug("AutoScrolling to new page");
-            
-            dialogueBox.ShowPage(dialogueBox.currentPage + 1);
-        }
-    }
-    
     public void CreateAudioSource()
     {
         LogDebug("creating new asrc");

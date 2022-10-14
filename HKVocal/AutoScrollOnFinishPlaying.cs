@@ -2,18 +2,17 @@
 
 public class AutoScrollOnFinishPlaying : FsmStateAction
 {
-    private FsmBool DidAudioPlay;
     /// <summary>
     /// its for when it goes to convo end state but technically theres still lines left. happens when theres a choice to be made in the dialogue
     /// </summary>
     private FsmBool IsConvoEnding;
-    public bool ShouldConsiderConvoEnding;
+    private bool ShouldConsiderConvoEnding;
     private float timer;
     private float WaitTime = 1f / 6f;
+    public string NextEventName = "NEXT_NOAUDIO"; //our custom transition
 
-    public AutoScrollOnFinishPlaying(bool shouldConsiderConvoEnding, FsmBool didAudioPlay, FsmBool isConvoEnding)
+    public AutoScrollOnFinishPlaying(FsmBool isConvoEnding, bool shouldConsiderConvoEnding = false)
     {
-        DidAudioPlay = didAudioPlay;
         IsConvoEnding = isConvoEnding;
         ShouldConsiderConvoEnding = shouldConsiderConvoEnding;
     }
@@ -37,7 +36,7 @@ public class AutoScrollOnFinishPlaying : FsmStateAction
             return;
         }
 
-        if (DidAudioPlay.Value)
+        if (HKVocals.DidPlayAudioOnDialogueBox && HKVocals._globalSettings.autoScroll)
         {
             if (!ShouldConsiderConvoEnding ||
                 ShouldConsiderConvoEnding && !IsConvoEnding.Value)
@@ -46,7 +45,7 @@ public class AutoScrollOnFinishPlaying : FsmStateAction
                 if (timer >= WaitTime)
                 {
                     timer = 0f;
-                    Fsm.Event("NEXT");
+                    Fsm.Event(NextEventName);
                 }
             }
         }
