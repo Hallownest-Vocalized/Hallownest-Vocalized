@@ -33,8 +33,10 @@ public static class Dictionaries
         { ("Charms", "Update Text"), FSMEdits.CharmText },
         { ("Item List", "Item List Control"), FSMEdits.ShopText },
         { ("Shop Menu", "shop_control"), FSMEditUtils.ShopMenuOpenClose },
-        { ("Inventory", "Inventory Control"), FSMEdits.InventoryClose },
+        { ("Inventory", "Inventory Control"), FSMEditUtils.InventoryOpenClose },
         { ("Text", "Dialogue Page Control"), FSMEdits.ContinueScrollOnConvoEnd_AndScrollLock },
+        { ("Iselda", "Shop Anim"), FSMEdits.IseldaAudio },
+        { ("Mr Mushroom NPC", "Control"), FSMEdits.MrMushroomAudio },
 
         { ("Zote Boss", "Control"), EternalOrdeal.EternalOrdeal_Normal },
         { ("Zote Crew Normal (1)", "Control"), EternalOrdeal.EternalOrdeal_Normal },

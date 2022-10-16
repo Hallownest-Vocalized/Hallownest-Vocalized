@@ -1,6 +1,8 @@
 ﻿using HKMirror.InstanceClasses;
 using Satchel.Futils;
 using FsmUtil = Satchel.FsmUtil;
+using SFCore.Utils;
+using SFCore;
 
 namespace HKVocals;
 public static class FSMEdits
@@ -46,8 +48,13 @@ public static class FSMEdits
         {
             foreach (FsmState state in fsm.FsmStates)
             {
-                if (state.Actions.Any(action => action is AudioPlayerOneShot || action is AudioPlayerOneShotSingle))
-                    state.Actions = state.Actions.Where(action => !(action is AudioPlayerOneShot || action is AudioPlayerOneShotSingle)).ToArray();
+                if (state.Actions.Any(action => action is AudioPlayerOneShot or AudioPlayerOneShotSingle or AudioPlaySimple))
+                {
+                    foreach (var action in state.Actions.Where(action => action is AudioPlayerOneShot or AudioPlayerOneShotSingle or AudioPlaySimple))
+                    {
+                        action.Enabled = false;
+                    }
+                }
             }
         }
     }
@@ -147,22 +154,109 @@ public static class FSMEdits
     {
         fsm.AddMethod("Change Text", () => { fsm.PlayUIText("Convo Desc"); });
     }
-
-    public static void InventoryClose(PlayMakerFSM fsm)
-    {
-        fsm.AddMethod("Close", () => { HKVocals.instance.audioSource.Stop(); });
-    }
-
+    private static bool HunterNotesUnlocked = true;
     public static void JournalText(PlayMakerFSM fsm)
     {
-        fsm.AddMethod("Get Details", () => { fsm.PlayUIText("Item Desc Convo"); });
-        fsm.AddMethod("Get Details", () => { fsm.PlayUIText("Item Notes Convo"); });
+        fsm.AddMethod("Get Details", () =>
+        {
+            HKVocals.CoroutineHolder.StopCoroutine(JournalWait());
+            HKVocals.CoroutineHolder.StopCoroutine(JournalText(fsm));
+            HKVocals.CoroutineHolder.StartCoroutine(JournalWait());
+            fsm.PlayUIText("Item Desc Convo");
+        });
+
+        fsm.AddMethod("Display Kills", () => { HunterNotesUnlocked = false; } );
+
+        IEnumerator JournalWait()
+        {
+            yield return new WaitForSeconds(1.5f);
+            HKVocals.CoroutineHolder.StartCoroutine(JournalText(fsm));
+            HKVocals.CoroutineHolder.StopCoroutine(JournalWait());
+        }
+
+        IEnumerator JournalText(PlayMakerFSM fsm)
+        {
+            yield return new WaitWhile(AudioUtils.IsPlaying);
+            if (HunterNotesUnlocked == false)
+            {
+                HunterNotesUnlocked = true;
+            } else if (HunterNotesUnlocked == true) 
+            {
+                if (FSMEditUtils.InvMenuClosed == true)
+                {
+                    HKVocals.instance.audioSource.Stop();
+                } else
+                {
+                    fsm.PlayUIText("Item Notes Convo");
+                }
+            }
+            HKVocals.CoroutineHolder.StopCoroutine(JournalText(fsm));
+        }
+
     }
 
     public static void ShopText(PlayMakerFSM fsm)
     {
         fsm.AddMethod("Get Details Init", () => { fsm.PlayUIText("Item Desc Convo"); });
         fsm.AddMethod("Get Details", () => { fsm.PlayUIText("Item Desc Convo"); });
+    }
+
+    public static void IseldaAudio(PlayMakerFSM fsm)
+    {
+        foreach (FsmState state in fsm.FsmStates)
+        {
+            if (state.Actions.Any(action => action is AudioPlayerOneShot or AudioPlayerOneShotSingle or AudioPlaySimple))
+            {
+                foreach (var action in state.Actions.Where(action => action is AudioPlayerOneShot or AudioPlayerOneShotSingle or AudioPlaySimple))
+                {
+                    action.Enabled = false;
+                }
+            }
+        }
+
+        fsm.AddMethod("Shop Start", () =>
+        {
+            foreach (FsmState state in fsm.FsmStates)
+            {
+                if (state.Actions.Any(action => action is AudioPlayerOneShot or AudioPlayerOneShotSingle or AudioPlaySimple))
+                {
+                    foreach (var action in state.Actions.Where(action => action is AudioPlayerOneShot or AudioPlayerOneShotSingle or AudioPlaySimple))
+                    {
+                        action.Enabled = true;
+                    }
+                }
+            }
+        });
+
+    }
+
+    public static void MrMushroomAudio(PlayMakerFSM fsm)
+    {
+        foreach (FsmState state in fsm.FsmStates)
+        {
+            if (state.Actions.Any(action => action is AudioPlayerOneShot or AudioPlay))
+            {
+                foreach (var action in state.Actions.Where(action => action is AudioPlayerOneShot or AudioPlay))
+                {
+                    action.Enabled = false;
+                }
+            }
+        }
+
+        fsm.AddMethod("Bounce On", () =>
+        {
+            foreach (FsmState state in fsm.FsmStates)
+            {
+                if (state.Actions.Any(action => action is AudioPlayerOneShot or AudioPlay))
+                {
+                    foreach (var action in state.Actions.Where(action => action is AudioPlayerOneShot or AudioPlay))
+                    {
+                        action.Enabled = true;
+                    }
+                }
+            }
+        });
+
     }
 
     public static void ContinueScrollOnConvoEnd_AndScrollLock(PlayMakerFSM fsm)

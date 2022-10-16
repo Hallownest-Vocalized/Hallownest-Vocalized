@@ -34,14 +34,22 @@ public static class FSMEditUtils
         AudioUtils.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
     }
 
-    private static bool OpenedMenu = false;
+    private static bool OpenedShopMenu = false;
+    public static bool OpenInvMenu = false;
+    public static bool InvMenuClosed = true;
 
     public static void ShopMenuOpenClose(PlayMakerFSM fsm)
     {
         //Checks when you open the shop keeper menu
-        fsm.AddMethod("Open Window", () => { OpenedMenu = true; });
+        fsm.AddMethod("Open Window", () => { OpenedShopMenu = true; });
         //Checks when you close a shop keeper menu
         fsm.AddMethod("Down", () => { HKVocals.instance.audioSource.Stop(); });
+    }
+
+    public static void InventoryOpenClose(PlayMakerFSM fsm)
+    {
+        fsm.AddMethod("Open", () => { OpenInvMenu = true; InvMenuClosed = false; });
+        fsm.AddMethod("Close", () => { HKVocals.instance.audioSource.Stop(); InvMenuClosed = true; });
     }
 
     public static void PlayUIText(this PlayMakerFSM fsm, string audiokey)
@@ -58,17 +66,19 @@ public static class FSMEditUtils
             
         IEnumerator PlayAudioAfter1SecondDelay()
         {
-            if (OpenedMenu == true)
+            if (OpenedShopMenu == true)
             {
                 yield return new WaitForSeconds(1f);
-                OpenedMenu = false;
-
+                OpenInvMenu = false;
+            }
+            else if (OpenInvMenu == true)
+            {
+                yield return new WaitForSeconds(1f);
+                OpenInvMenu = false;
             } else
             {
                 yield return new WaitForSeconds(0.3f);
-
             }
-
             fsm.PlayAudioFromFsmString(audiokey);
         }
     }
