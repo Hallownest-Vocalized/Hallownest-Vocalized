@@ -1,4 +1,4 @@
-﻿using HKMirror.InstanceClasses;
+﻿using HKMirror.Reflection;
 
 namespace HKVocals;
 
@@ -6,7 +6,7 @@ public class LockScrollOnFinishPlaying : FsmStateAction
 {
     public override void OnEnter()
     {
-        var db = new DialogueBoxR(Fsm.GameObject.gameObject.GetComponent<DialogueBox>());
+        var db = Fsm.GameObject.gameObject.GetComponent<DialogueBox>().Reflect();
             
         string key = $"{db.currentConversation}_{db.currentPage - 1}";
         if (!HKVocals._saveSettings.FinishedConvos.Contains(key))

@@ -1,4 +1,4 @@
-﻿using HKMirror.InstanceClasses;
+﻿using HKMirror.Reflection;
 
 namespace HKVocals
 {
@@ -18,24 +18,22 @@ namespace HKVocals
 
                 if (!ZoteLeverGo.activeInHierarchy || (!collision.CompareTag("Nail Attack"))) return;
 
-                BossStatueLever ZoteLeverComponent = ZoteLeverGo.GetComponent<BossStatueLever>();
-                BossStatueLeverR ZoteLeverComponentR = new (ZoteLeverComponent);
+                var ZoteLeverComponent = ZoteLeverGo.GetComponent<BossStatueLever>().Reflect();
+
+                if(!ZoteLeverComponent.canToggle) return;
                 
+                ZoteLeverComponent.canToggle = false;
                 
-                if(!ZoteLeverComponentR.canToggle) return;
-                
-                ZoteLeverComponentR.canToggle = false;
-                
-                ZoteLeverComponentR.switchSound.SpawnAndPlayOneShot(
+                ZoteLeverComponent.switchSound.SpawnAndPlayOneShot(
                     EternalOrdeal.GetZoteAudioPlayer(), HeroController.instance.transform.position);
                 
                 GameManager.instance.FreezeMoment(1);
                 GameCameras.instance.cameraShakeFSM.SendEvent("EnemyKillShake");
                 
 
-                if (ZoteLeverComponent.strikeNailPrefab && ZoteLeverComponentR.hitOrigin)
+                if (ZoteLeverComponent.strikeNailPrefab && ZoteLeverComponent.hitOrigin)
                 {
-                    ZoteLeverComponent.strikeNailPrefab.Spawn(ZoteLeverComponentR.hitOrigin.transform.position);
+                    ZoteLeverComponent.strikeNailPrefab.Spawn(ZoteLeverComponent.hitOrigin.transform.position);
                 }
 
                 if (!ZoteLeverComponent.leverAnimator) return;
@@ -49,7 +47,7 @@ namespace HKVocals
                 IEnumerator EnableToggle()
                 {
                     yield return new WaitForSeconds(1f);
-                    ZoteLeverComponentR.canToggle = true;
+                    ZoteLeverComponent.canToggle = true;
                     ZoteLeverComponent.leverAnimator.Play("Shine");
                 }
             }

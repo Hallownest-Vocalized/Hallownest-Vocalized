@@ -1,4 +1,4 @@
-﻿using HKMirror.InstanceClasses;
+﻿using HKMirror.Reflection;
 using Satchel.Futils;
 using FsmUtil = Satchel.FsmUtil;
 

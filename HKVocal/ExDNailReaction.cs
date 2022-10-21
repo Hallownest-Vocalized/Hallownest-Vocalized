@@ -1,4 +1,4 @@
-﻿using HKMirror.InstanceClasses;
+﻿using HKMirror.Reflection;
 
 namespace HKVocals;
 public class ExDNailReaction : MonoBehaviour
@@ -9,7 +9,7 @@ public class ExDNailReaction : MonoBehaviour
     private void Awake()
     {
         ede = GetComponent<EnemyDeathEffects>();
-        EnemyDeathEffectsR edeR = new(ede);
+        var edeR = ede.Reflect();
         if (ede)
         {
             PDName = edeR.playerDataName;
