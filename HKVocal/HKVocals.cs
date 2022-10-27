@@ -27,7 +27,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
 
     private Regex enemyTrimRegex;
 
-    public HKVocals() : base("Hollow Knight Vocalized")
+    public HKVocals() : Hallownest Vocalized")
     {
         var go = new GameObject("HK Vocals Coroutine Holder");
         CoroutineHolder = go.AddComponent<NonBouncer>();
