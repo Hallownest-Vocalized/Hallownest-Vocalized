@@ -54,6 +54,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
 
         ModHooks.LanguageGetHook += LanguageGet;
         ModHooks.LanguageGetHook += GrubKeys;
+        ModHooks.LanguageGetHook += ElderbugAudioEdit;
 
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += EternalOrdeal.DeleteZoteAudioPlayersOnSceneChange;
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += ZoteLever.SetZoteLever;
@@ -61,6 +62,16 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
 
         LoadAssetBundle();
         CreateAudioSource();
+    }
+
+    private string ElderbugAudioEdit(string key, string sheettitle, string orig)
+    {
+        if (key == "ELDERBUG_INTRO_MAIN_ALT" && sheettitle == "Elderbug")
+        {
+            orig = Language.Language.Get("ELDERBUG_INTRO_MAIN", sheettitle);
+        }
+
+        return orig;
     }
 
     private void StopAudioOnDialogueBoxClose(On.DialogueBox.orig_HideText orig, DialogueBox self)

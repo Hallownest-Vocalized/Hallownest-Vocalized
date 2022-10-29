@@ -37,6 +37,7 @@ public static class Dictionaries
         { ("Text", "Dialogue Page Control"), FSMEdits.ContinueScrollOnConvoEnd_AndScrollLock },
         { ("Iselda", "Shop Anim"), FSMEdits.IseldaAudio },
         { ("Mr Mushroom NPC", "Control"), FSMEdits.MrMushroomAudio },
+        { ("Elderbug", "Conversation Control"), FSMEdits.ElderbugAudio },
 
         { ("Zote Boss", "Control"), EternalOrdeal.EternalOrdeal_Normal },
         { ("Zote Crew Normal (1)", "Control"), EternalOrdeal.EternalOrdeal_Normal },

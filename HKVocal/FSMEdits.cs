@@ -1,4 +1,5 @@
-﻿using HKMirror.Reflection;
+﻿using HKMirror;
+using HKMirror.Reflection;
 using Satchel.Futils;
 using FsmUtil = Satchel.FsmUtil;
 
@@ -313,5 +314,23 @@ public static class FSMEdits
         var pageEndTransition =  fsm.FsmGlobalTransitions.First(s => s.EventName == eventName);
         pageEndTransition.ToState = newPageEnd.Name;
         pageEndTransition.ToFsmState = newPageEnd;
+    }
+
+    public static void ElderbugAudio(PlayMakerFSM fsm)
+    {
+        var introMain = fsm.GetState("Intro Main");
+        var alt = fsm.CopyFsmState(introMain.Name, introMain.Name + " Alt");
+
+        alt.Actions = Array.Empty<FsmStateAction>();
+        
+        alt.AddMethod(() =>
+        {
+            PlayerDataAccess.metElderbug = true;
+            var dialogueText = FsmUtil.GetAction<CallMethodProper>(introMain, 1).gameObject.GameObject.Value;
+            dialogueText.GetComponent<DialogueBox>().StartConversation("ELDERBUG_INTRO_MAIN_ALT", "Elderbug");
+        });
+        
+        fsm.GetState("Intro 2").ChangeTransition("CONVO_FINISH", alt.Name);
+        fsm.GetState("Intro 3").ChangeTransition("CONVO_FINISH", alt.Name);
     }
 }
