@@ -244,7 +244,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
 
         if (self.gameObject.scene.name == "Abyss_19" && self.gameObject.name == "Dream Dialogue" && self.FsmName == "npc_dream_dialogue")
         {
-            if (_saveSettings.GrubConvo < 9)
+             if (_saveSettings.GrubConvo < 9)
             {
                 _saveSettings.GrubConvo += 1;
                 self.GetFsmStringVariable("Convo Name").Value = $"GRUB_BOTTLE_DREAM_S_REPEAT_0";
