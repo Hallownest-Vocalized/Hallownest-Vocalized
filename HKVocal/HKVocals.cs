@@ -1,6 +1,6 @@
-using HKMirror.Reflection;
 using System.Text.RegularExpressions;
 using HKMirror.Hooks.OnHooks;
+using HKMirror.Reflection.InstanceClasses;
 
 namespace HKVocals;
 
@@ -53,6 +53,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         On.HealthManager.TakeDamage += TakeDamage;
         OnAnimatorSequence.AfterOrig.Begin += MonomonIntro;
         OnAnimatorSequence.WithOrig.Skip += LockScrollIntro;
+        On.ChainSequence.Update += ChainSequenceOnUpdate;
         UIManager.EditMenus += ModMenu.AddAudioSlider;
 
         ModHooks.LanguageGetHook += LanguageGet;
@@ -89,7 +90,14 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
             audioSource.Stop();
         }
     }
-
+    private void ChainSequenceOnUpdate(On.ChainSequence.orig_Update orig, ChainSequence self)
+    {
+        ChainSequenceR selfr = new(self);
+        if (selfr.CurrentSequence != null && !selfr.CurrentSequence.IsPlaying && !selfr.isSkipped && AudioUtils.IsPlaying())
+        {
+            selfr.Next();
+        }
+    }
     private void MonomonIntro(OnAnimatorSequence.Delegates.Params_Begin args)
     {
         CoroutineHolder.StartCoroutine(WaitIg());
