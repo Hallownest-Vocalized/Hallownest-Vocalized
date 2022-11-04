@@ -48,6 +48,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         
         EasterEggs.EternalOrdeal.Hook();
         EasterEggs.SpecialGrub.Hook();
+        EasterEggs.PaleFlower.Hook();
         
         On.PlayMakerFSM.Awake += AddFSMEdits;
 
