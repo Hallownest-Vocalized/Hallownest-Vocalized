@@ -1,4 +1,4 @@
-﻿namespace HKVocals;
+﻿namespace HKVocals.EasterEggs;
 public static class EternalOrdeal
 {
     public static void DeleteZoteAudioPlayersOnSceneChange(Scene from, Scene to)
