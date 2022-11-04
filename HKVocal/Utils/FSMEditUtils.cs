@@ -1,55 +1,21 @@
-﻿namespace HKVocals;
+﻿using HKVocals.MajorFeatures;
+
+namespace HKVocals;
 
 public static class FSMEditUtils
 {
-    public static void AddHPDialogue(HealthManager hm, DreamDialogueAction action, int hpBenchmark)
+    public static void CreateDreamDialogue(string convName, string sheetName)
     {
-        action.Owner = hm.gameObject;
-        Dictionaries.HpListeners.Add(hmInstance =>
-        {
-            if (hmInstance == hm && hmInstance.hp < hpBenchmark)
-            {
-                action.OnEnter();
-                return true;
-            }
-
-            return false;
-        });
-    }
-
-    public static IEnumerator AddLoopDialogue(float time, string[] convNames, string sheetNames, GameObject go)
-    {
-        while (go.activeInHierarchy)
-        {
-            yield return new WaitForSeconds(time);
-            var x = new DreamDialogueAction(convNames, sheetNames)
-                {convoMode = DreamDialogueAction.ConvoMode.Random};
-            x.OnEnter();
-        }
+        PlayMakerFSM fsm = FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value.LocateMyFSM("Display");
+        fsm.Fsm.GetFsmString("Convo Title").Value = convName;
+        fsm.Fsm.GetFsmString("Sheet").Value = sheetName;
+        fsm.SendEvent("DISPLAY DREAM MSG");
     }
 
     public static void PlayAudioFromFsmString(this PlayMakerFSM fsm, string audiokey)
     {
-        HKVocals.instance.Log("audio from fsm string is looking for: " + fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
+        HKVocals.instance.LogDebug("audio from fsm string is looking for: " + fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
         AudioUtils.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
-    }
-
-    private static bool OpenedShopMenu = false;
-    public static bool OpenInvMenu = false;
-    public static bool InvMenuClosed = true;
-
-    public static void ShopMenuOpenClose(PlayMakerFSM fsm)
-    {
-        //Checks when you open the shop keeper menu
-        fsm.AddMethod("Open Window", () => { OpenedShopMenu = true; });
-        //Checks when you close a shop keeper menu
-        fsm.AddMethod("Down", () => { AudioUtils.StopPlaying(); });
-    }
-
-    public static void InventoryOpenClose(PlayMakerFSM fsm)
-    {
-        fsm.AddMethod("Open", () => { OpenInvMenu = true; InvMenuClosed = false; });
-        fsm.AddMethod("Close", () => { AudioUtils.StopPlaying(); InvMenuClosed = true; });
     }
 
     public static void PlayUIText(this PlayMakerFSM fsm, string audiokey)
@@ -66,15 +32,15 @@ public static class FSMEditUtils
             
         IEnumerator PlayAudioAfterDelay()
         {
-            if (OpenedShopMenu)
+            if (UITextAudio.OpenedShopMenu)
             {
                 yield return new WaitForSeconds(1f);
-                OpenInvMenu = false;
+                UITextAudio.OpenInvMenu = false;
             }
-            else if (OpenInvMenu)
+            else if (UITextAudio.OpenInvMenu)
             {
                 yield return new WaitForSeconds(1f);
-                OpenInvMenu = false;
+                UITextAudio.OpenInvMenu = false;
             } 
             else
             {
@@ -92,5 +58,47 @@ public static class FSMEditUtils
         empty.Actions = Array.Empty<FsmStateAction>();
         empty.Transitions = Array.Empty<FsmTransition>();
         return empty;
+    }
+    public static void DisableAction(this FsmState state, int index)
+    {
+        Satchel.FsmUtil.GetAction(state, index).Enabled = false;
+    }
+
+    public static void DisableActionInRange(this FsmState state, params int[] indexes)
+    {
+        for (int i = 0; i < state.Actions.Length; i++)
+        {
+            if (indexes.Contains(i))
+            {
+                state.Actions[i].Enabled = false;
+            }
+        }
+    }
+
+    public static void DisableActionsThatAre(this FsmState state, Func<FsmStateAction, bool> predicate)
+    {
+        if (state.Actions.Any(action => action.IsAudioAction()))
+        {
+            foreach (var action in state.Actions.Where(predicate))
+            {
+                action.Enabled = false;
+            }
+        }
+    }
+    
+    public static void EnableActionsThatAre(this FsmState state, Func<FsmStateAction, bool> predicate)
+    {
+        if (state.Actions.Any(action => action.IsAudioAction()))
+        {
+            foreach (var action in state.Actions.Where(predicate))
+            {
+                action.Enabled = true;
+            }
+        }
+    }
+
+    public static bool IsAudioAction(this FsmStateAction action)
+    {
+        return action is AudioPlayerOneShot or AudioPlayerOneShotSingle or AudioPlaySimple;
     }
 }

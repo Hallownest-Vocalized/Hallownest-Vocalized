@@ -1,14 +1,13 @@
 ﻿namespace HKVocals;
 public class DreamDialogueAction : FsmStateAction
 {
-    public string convName { get => convNames[0]; set => convNames = new string[] { value }; }
-    public string sheetName { get => sheetNames[0]; set => sheetNames = new string[] { value }; }
+    public string convName { get => convNames[0]; set => convNames = new [] { value }; }
+    public string sheetName { get => sheetNames[0]; set => sheetNames = new [] { value }; }
     public string[] convNames;
     public string[] sheetNames;
     public float waitTime = 0;
     public ConvoMode convoMode = ConvoMode.Once;
-    public int[] convoOccurances = new int[] { 0 };
-    public bool isEnemy = true;
+    public int[] convoOccurances = { 0 };
     public float chance = 1; //between 0 and 1 like probability
     private int lastIndex = int.MaxValue;
     private int realLastIndex = -1;
@@ -101,7 +100,7 @@ public class DreamDialogueAction : FsmStateAction
                 lastIndex = UnityEngine.Random.Range(0, convNames.Length);
                 break;
         }
-        HKVocals.instance.CreateDreamDialogue(convNames.Length > lastIndex ? convNames[lastIndex] : convNames.Last(), sheetNames.Length == 0 ? "Enemy Dreams" : sheetNames.Length > lastIndex ? sheetNames[lastIndex] : sheetNames.Last(), "", "", isEnemy ? Owner : null);
+        FSMEditUtils.CreateDreamDialogue(convNames.Length > lastIndex ? convNames[lastIndex] : convNames.Last(), sheetNames.Length == 0 ? "Enemy Dreams" : sheetNames.Length > lastIndex ? sheetNames[lastIndex] : sheetNames.Last());
     }
     public enum ConvoMode
     {

@@ -1,5 +1,8 @@
 ﻿namespace HKVocals;
 
+/// <summary>
+/// A class that stores all the fsm edits that need to happen in PlayMakerFSM.Awake
+/// </summary>
 public static class FSMEditData
 {
     public static List<GameObjectFsmEditData> GameObjectFsmEdits = new List<GameObjectFsmEditData>();

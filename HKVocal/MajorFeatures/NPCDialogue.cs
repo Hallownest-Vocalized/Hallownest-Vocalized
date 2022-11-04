@@ -8,6 +8,10 @@ public static class NPCDialogue
     {
         OnDialogueBox.AfterOrig.ShowPage += PlayNPCDialogue;
         OnDialogueBox.BeforeOrig.HideText += StopAudioOnDialogueBoxClose;
+        
+        FSMEditData.AddAnyFsmEdit("Conversation Control", RemovOriginalNPCSounds);
+        FSMEditData.AddGameObjectFsmEdit("Iselda", "Shop Anim", RemoveIsdelaShopAudio);
+        FSMEditData.AddGameObjectFsmEdit("Mr Mushroom NPC", "Control", MrMushroomAudio);
     }
     
     private static void StopAudioOnDialogueBoxClose(OnDialogueBox.Delegates.Params_HideText args)
@@ -23,6 +27,48 @@ public static class NPCDialogue
 
         //this controls scroll lock and autoscroll
         DidPlayAudioOnDialogueBox = AudioUtils.TryPlayAudioFor(convo, removeTime);
+    }
+    
+    public static void RemovOriginalNPCSounds(PlayMakerFSM fsm)
+    {
+        foreach (FsmState state in fsm.FsmStates)
+        {
+            state.DisableActionsThatAre(action => action.IsAudioAction());
+        }
+    }
+    
+    //todo: re-implement. instead of enabling/disabling, just disable what is not required
+    public static void RemoveIsdelaShopAudio(PlayMakerFSM fsm)
+    {
+        foreach (FsmState state in fsm.FsmStates)
+        {
+            state.DisableActionsThatAre(action => action.IsAudioAction());
+        }
+
+        fsm.AddMethod("Shop Start", () =>
+        {
+            foreach (FsmState state in fsm.FsmStates)
+            {
+                state.EnableActionsThatAre(action => action.IsAudioAction());
+            }
+        });
+    }
+
+    //todo: re-implement. instead of enabling/disabling, just disable what is not required
+    public static void MrMushroomAudio(PlayMakerFSM fsm)
+    {
+        foreach (FsmState state in fsm.FsmStates)
+        {
+            state.DisableActionsThatAre(action => action.IsAudioAction());
+        }
+
+        fsm.AddMethod("Bounce On", () =>
+        {
+            foreach (FsmState state in fsm.FsmStates)
+            {
+                state.EnableActionsThatAre(action => action.IsAudioAction());
+            }
+        });
     }
     
 }

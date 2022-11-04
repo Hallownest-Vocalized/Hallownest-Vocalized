@@ -159,15 +159,15 @@ public static class EternalOrdeal
 
     public static void EditFsmToPlayRandomDialogue(PlayMakerFSM fsm, string stateName)
     {
-        fsm.InsertMethod(stateName, () =>
+        if (MiscUtils.GetCurrentSceneName() == "GG_Mighty_Zote")
         {
-            if (MiscUtils.GetCurrentSceneName() == "GG_Mighty_Zote")
+            fsm.InsertMethod(stateName, () =>
             {
                 if (HKVocals._globalSettings.OrdealZoteSpeak && Random.value <= 0.4f)
                 {
                     AudioUtils.PlayAudioFor(ZoteDialogues[Random.Range(1, 4)], GetZoteAudioPlayer());
                 }
-            }
-        }, 0);
+            }, 0);
+        }
     }
 }

@@ -14,12 +14,13 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     public void OnLoadLocal(SaveSettings s) => _saveSettings = s;
     public SaveSettings OnSaveLocal() => _saveSettings;
         
-    public const bool RemoveOrigNPCSounds = true;
     public AssetBundle audioBundle;
     public AudioSource audioSource;
     internal static HKVocals instance;
-    public bool ToggleButtonInsideMenu => false;
     public static NonBouncer CoroutineHolder;
+    
+    public static List<string> audioExtentions = new List<string>() { ".mp3", ".wav" };
+    public static List<string> audioNames = new List<string>();
 
     public HKVocals() : base("Hallownest Vocalized")
     {
@@ -27,16 +28,14 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         CoroutineHolder = go.AddComponent<NonBouncer>();
         Object.DontDestroyOnLoad(CoroutineHolder);
     }
+    
+    //todo: add hash of audiobundle here, if not present warn users in get version
     public override string GetVersion() => "0.0.0.1";
 
-    public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates) => ModMenu.CreateModMenuScreen(modListMenu);
-        
     public override void Initialize()
     {
         instance = this;
 
-        OnHealthManager.AfterOrig.TakeDamage += RemoveHpListeners;
-        
         UIManager.EditMenus +=  ModMenu.AddAudioSlider;
 
         MajorFeatures.SpecialAudio.Hook();
@@ -44,6 +43,8 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         MajorFeatures.DreamNailDialogue.Hook();
         MajorFeatures.AutoScroll.Hook();
         MajorFeatures.ScrollLock.Hook();
+        MajorFeatures.AutomaticBossDialogue.Hook();
+        MajorFeatures.UITextAudio.Hook();
         
         EasterEggs.EternalOrdeal.Hook();
         EasterEggs.SpecialGrub.Hook();
@@ -60,19 +61,6 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         GameObject audioGO = new GameObject("HK Vocals Audio");
         audioSource = audioGO.AddComponent<AudioSource>();
         Object.DontDestroyOnLoad(audioGO);
-    }
-
-    private void RemoveHpListeners(OnHealthManager.Delegates.Params_TakeDamage args)
-    {
-        for (int i = 0; i < Dictionaries.HpListeners.Count; i++)
-        {
-            bool sucess = Dictionaries.HpListeners[i](args.self);
-            if (sucess)
-            {
-                Dictionaries.HpListeners.RemoveAt(i);
-                i--;
-            }
-        }
     }
 
     private void AddFSMEdits(On.PlayMakerFSM.orig_Awake orig, PlayMakerFSM self)
@@ -99,29 +87,22 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         }
     }
 
-   
-    
-    public void CreateDreamDialogue(string convName, string sheetName, string enemyType = "", string enemyVariant = "", GameObject enemy = null)
-    {
-        PlayMakerFSM fsm = FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value.LocateMyFSM("Display");
-        fsm.Fsm.GetFsmString("Convo Title").Value = convName;
-        fsm.Fsm.GetFsmString("Sheet").Value = sheetName;
-        fsm.SendEvent("DISPLAY DREAM MSG");
-    }
-
     private void LoadAssetBundle()
     {
         Assembly asm = Assembly.GetExecutingAssembly();
-        //audioBundle = AssetBundle.LoadFromStream(asm.GetManifestResourceStream("HKVocals.audiobundle"));
         audioBundle = AssetBundle.LoadFromStream(File.OpenRead(Path.GetDirectoryName(asm.Location) + "/audiobundle"));
         string[] allAssetNames = audioBundle.GetAllAssetNames();
         for (int i = 0; i < allAssetNames.Length; i++)
         {
-            if (Dictionaries.audioExtentions.Any(ext => allAssetNames[i].EndsWith(ext)))
+            if (audioExtentions.Any(ext => allAssetNames[i].EndsWith(ext)))
             {
-                Dictionaries.audioNames.Add(Path.GetFileNameWithoutExtension(allAssetNames[i]).ToUpper());
+                audioNames.Add(Path.GetFileNameWithoutExtension(allAssetNames[i]).ToUpper());
             }
             LogDebug($"Object in audiobundle: {allAssetNames[i]} {Path.GetFileNameWithoutExtension(allAssetNames[i])?.ToUpper().Replace("KNGHT", "KNIGHT")}");
         }
     }
+    
+    
+    public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates) => ModMenu.CreateModMenuScreen(modListMenu);
+    public bool ToggleButtonInsideMenu => false;
 }

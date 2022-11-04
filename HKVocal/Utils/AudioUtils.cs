@@ -30,7 +30,7 @@ public static class AudioUtils
 
     public static bool HasAudioFor(string convName)
     {
-        return Dictionaries.audioNames.Contains(convName);
+        return HKVocals.audioNames.Contains(convName);
     }
 
     public static void PlayAudioFor(string convName) => PlayAudio(GetAudioFor(convName.ToLower())); 
