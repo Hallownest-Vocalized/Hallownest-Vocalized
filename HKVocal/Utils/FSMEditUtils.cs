@@ -2,12 +2,12 @@
 
 public static class FSMEditUtils
 {
-    public static void AddHPDialogue(HealthManager hm, DreamDialogueAction action, int hp)
+    public static void AddHPDialogue(HealthManager hm, DreamDialogueAction action, int hpBenchmark)
     {
         action.Owner = hm.gameObject;
-        Dictionaries.HpListeners.Add(self =>
+        Dictionaries.HpListeners.Add(hmInstance =>
         {
-            if (self == hm && self.hp >= hp)
+            if (hmInstance == hm && hmInstance.hp < hpBenchmark)
             {
                 action.OnEnter();
                 return true;

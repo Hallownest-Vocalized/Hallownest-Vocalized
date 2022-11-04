@@ -85,4 +85,13 @@ public static class AudioUtils
     }
 
     public static bool IsPlaying() => HKVocals.instance.audioSource.isPlaying;
+    
+    private static IEnumerator FadeOutClip(AudioSource source)
+    {
+        float volumeChange = source.volume / 100f;
+        yield return new WaitForSeconds(1f);
+        for (int i = 0; i < 100; i++)
+            source.volume -= volumeChange;
+    }
+    
 }

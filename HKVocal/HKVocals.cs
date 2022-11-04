@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using HKMirror.Hooks.OnHooks;
+using HKMirror.Reflection;
 using HKMirror.Reflection.InstanceClasses;
 
 namespace HKVocals;
@@ -16,11 +17,8 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     public const bool RemoveOrigNPCSounds = true;
     public AssetBundle audioBundle;
     public AudioSource audioSource;
-    public Coroutine autoTextRoutine;
     internal static HKVocals instance;
     public bool ToggleButtonInsideMenu => false;
-    public bool IsGrubRoom = false;
-    public string GrubRoom = "Crossroads_48";
     public static NonBouncer CoroutineHolder;
     public static bool PlayDNInFSM = true;
     private GameObject lastDreamnailedEnemy;
@@ -43,32 +41,36 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     public override void Initialize()
     {
         instance = this;
-        On.DialogueBox.ShowPage += PlayNPCDialogue;
-        On.DialogueBox.HideText += StopAudioOnDialogueBoxClose;
+        
         On.PlayMakerFSM.Awake += AddFSMEdits;
-        On.HutongGames.PlayMaker.Actions.AudioPlayerOneShot.DoPlayRandomClip += PlayRandomClip;
-        On.PlayMakerFSM.OnEnable += EasterEggs.SpecialGrub.EditSpecialGrub;
-        On.EnemyDreamnailReaction.Start += EDNRStart;
-        On.EnemyDreamnailReaction.ShowConvo += ShowConvo;
-        On.HealthManager.TakeDamage += TakeDamage;
-        OnAnimatorSequence.AfterOrig.Begin += MonomonIntro;
-        OnAnimatorSequence.WithOrig.Skip += LockScrollIntro;
-        On.ChainSequence.Update += ChainSequenceOnUpdate;
-        UIManager.EditMenus += ModMenu.AddAudioSlider;
 
-        ModHooks.LanguageGetHook += LanguageGet;
+        OnDialogueBox.AfterOrig.ShowPage += PlayNPCDialogue;
+        OnDialogueBox.BeforeOrig.HideText += StopAudioOnDialogueBoxClose;
+        
+        OnEnemyDreamnailReaction.AfterOrig.Start += AddCancelDreamDialogueOnDeath;
+        OnEnemyDreamnailReaction.BeforeOrig.ShowConvo += SetLastDreamNailedEnemy;
+        OnHealthManager.AfterOrig.TakeDamage += RemoveHpListeners;
+        
+        UIManager.EditMenus +=  ModMenu.AddAudioSlider;
+
+        ModHooks.LanguageGetHook += PlayDreamNailDialogue;
+        ModHooks.LanguageGetHook += AddSpecialElderbugAudioKey;
+
+        OnAnimatorSequence.AfterOrig.Begin += PlayMonomonIntroPoem;
+        OnAnimatorSequence.WithOrig.Skip += LockSkippingMonomonIntro;
+        OnChainSequence.WithOrig.Update += WaitForAudioBeforeNextCutscene;
+        
         ModHooks.LanguageGetHook += EasterEggs.SpecialGrub.GetSpecialGrubDialogue;
-        ModHooks.LanguageGetHook += ElderbugAudioEdit;
-
+        On.PlayMakerFSM.OnEnable += EasterEggs.SpecialGrub.EditSpecialGrub;
+        OnBossStatueLever.WithOrig.OnTriggerEnter2D += EasterEggs.ZoteLever.UseZoteLever;
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += EasterEggs.EternalOrdeal.DeleteZoteAudioPlayersOnSceneChange;
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += EasterEggs.ZoteLever.SetZoteLever;
-        On.BossStatueLever.OnTriggerEnter2D += EasterEggs.ZoteLever.UseZoteLever;
 
         LoadAssetBundle();
         CreateAudioSource();
     }
 
-    private string ElderbugAudioEdit(string key, string sheettitle, string orig)
+    private string AddSpecialElderbugAudioKey(string key, string sheettitle, string orig)
     {
         if (key == "ELDERBUG_INTRO_MAIN_ALT" && sheettitle == "Elderbug")
         {
@@ -78,19 +80,15 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         return orig;
     }
 
-    private void LockScrollIntro(On.AnimatorSequence.orig_Skip orig, AnimatorSequence self)
+    private void LockSkippingMonomonIntro(On.AnimatorSequence.orig_Skip orig, AnimatorSequence self)
     {
-        if (_globalSettings.scrollLock)
-        {
-            return;
-        }
-        else
+        if (!_globalSettings.scrollLock)
         {
             orig(self);
             audioSource.Stop();
         }
     }
-    private void ChainSequenceOnUpdate(On.ChainSequence.orig_Update orig, ChainSequence self)
+    private void WaitForAudioBeforeNextCutscene(On.ChainSequence.orig_Update orig, ChainSequence self)
     {
         ChainSequenceR selfr = new(self);
         if (selfr.CurrentSequence != null && !selfr.CurrentSequence.IsPlaying && !selfr.isSkipped && AudioUtils.IsPlaying())
@@ -98,47 +96,24 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
             selfr.Next();
         }
     }
-    private void MonomonIntro(OnAnimatorSequence.Delegates.Params_Begin args)
+    private void PlayMonomonIntroPoem(OnAnimatorSequence.Delegates.Params_Begin args)
     {
-        CoroutineHolder.StartCoroutine(WaitIg());
+        MiscUtils.WaitForFramesBeforeInvoke(2, () => AudioUtils.TryPlayAudioFor("RANDOM_POEM_STUFF_0"));
     }
 
-    private IEnumerator WaitIg()
-    {
-        yield return null;
-        yield return null;
-        AudioUtils.TryPlayAudioFor("RANDOM_POEM_STUFF_0");
-    }
-    
-
-
-    private void StopAudioOnDialogueBoxClose(On.DialogueBox.orig_HideText orig, DialogueBox self)
+    private void StopAudioOnDialogueBoxClose(OnDialogueBox.Delegates.Params_HideText args)
     {
         audioSource.Stop();
-        orig.Invoke(self);
     }
 
-    private void PlayNPCDialogue(On.DialogueBox.orig_ShowPage orig, DialogueBox self, int pageNum)
+    private void PlayNPCDialogue(OnDialogueBox.Delegates.Params_ShowPage args)
     {
-        orig(self, pageNum);
-        
-        var convo = self.currentConversation + "_" + (self.currentPage - 1);
+        var convo = args.self.currentConversation + "_" + (args.self.currentPage - 1);
 
-        float removeTime = self.currentPage - 1 == 0 ? 37f / 60f : 3f / 4f;
+        float removeTime = args.self.currentPage - 1 == 0 ? 37f / 60f : 3f / 4f;
 
-        bool audioPlayed = AudioUtils.TryPlayAudioFor(convo, removeTime);
-        
-     
-        
         //this controls scroll lock and autoscroll
-        if (audioPlayed)
-        {
-            DidPlayAudioOnDialogueBox = true;
-        }
-        else
-        {
-            DidPlayAudioOnDialogueBox = false;
-        }
+        DidPlayAudioOnDialogueBox = AudioUtils.TryPlayAudioFor(convo, removeTime);
     }
 
     public void CreateAudioSource()
@@ -149,12 +124,12 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         Object.DontDestroyOnLoad(audioGO);
     }
 
-    private void TakeDamage(On.HealthManager.orig_TakeDamage orig, HealthManager self, HitInstance hitInstance)
+    private void RemoveHpListeners(OnHealthManager.Delegates.Params_TakeDamage args)
     {
-        orig(self, hitInstance);
         for (int i = 0; i < Dictionaries.HpListeners.Count; i++)
         {
-            if (Dictionaries.HpListeners[i](self))
+            bool sucess = Dictionaries.HpListeners[i](args.self);
+            if (sucess)
             {
                 Dictionaries.HpListeners.RemoveAt(i);
                 i--;
@@ -163,14 +138,23 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     }
 
     public static string GetUniqueId(Transform transform, string path = "") {
-        if (transform.parent == null) return $"{UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}:" + path + transform.name;
-        else return GetUniqueId(transform.parent, path + $"{transform.name}/");
+        if (transform.parent == null)
+        {
+            return $"{UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}:" + path + transform.name;
+        }
+        else
+        {
+            return GetUniqueId(transform.parent, path + $"{transform.name}/");
+        }
     }
 
-    private string LanguageGet(string key, string sheetTitle, string orig) {
-
+    private string PlayDreamNailDialogue(string key, string sheetTitle, string orig) 
+    {
         // Make sure this is dreamnail text
-        if (lastDreamnailedEnemy == null) return orig;
+        if (lastDreamnailedEnemy == null)
+        {
+            return orig;
+        }
 
         // Grab the ID and name now
         string id = GetUniqueId(lastDreamnailedEnemy.transform);
@@ -179,13 +163,12 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         // Prevent it from running again incorrectly
         lastDreamnailedEnemy = null;
 
-        string group = key.Split('_')[0];
-
         // For the special case of grouped (generic) enemies
         if (DNAudios.DNGroups.ContainsKey(name)) name = DNAudios.DNGroups[name];
 
         List<string> availableClips = Dictionaries.audioNames.FindAll(s => s.Contains($"${name}$_{key}".ToUpper()));
-        if (availableClips == null || availableClips.Count == 0) {
+        if (availableClips == null || availableClips.Count == 0) 
+        {
             LogError($"No clips for ${name}$_{key}");
             return orig;
         }
@@ -193,8 +176,12 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         // Either use the already registered VA or make one and save it
         int voiceActor;
 
-        if (_saveSettings.PersistentVoiceActors.ContainsKey(id)) voiceActor = _saveSettings.PersistentVoiceActors[id];
-        else {
+        if (_saveSettings.PersistentVoiceActors.ContainsKey(id))
+        {
+            voiceActor = _saveSettings.PersistentVoiceActors[id];
+        }
+        else 
+        {
             voiceActor = Random.Range(1, availableClips.Count);
             _saveSettings.PersistentVoiceActors[id] = voiceActor;
         }
@@ -204,56 +191,27 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         return orig;
     }
 
-    private void ShowConvo(On.EnemyDreamnailReaction.orig_ShowConvo orig, EnemyDreamnailReaction self) {
-        lastDreamnailedEnemy = self.gameObject;
-        orig(self);
+    private void SetLastDreamNailedEnemy(OnEnemyDreamnailReaction.Delegates.Params_ShowConvo args) 
+    {
+        lastDreamnailedEnemy = args.self.gameObject;
     }
 
-    private void EDNRStart(On.EnemyDreamnailReaction.orig_Start orig, EnemyDreamnailReaction self)
+    private void AddCancelDreamDialogueOnDeath(OnEnemyDreamnailReaction.Delegates.Params_Start args)
     {
-        if (self.gameObject.name == "Mace")
-        {
-            int rand = Random.Range(1, 10);
-            if (rand == 10)
-            {
-
-            }
-        }
-        orig(self);
-        //if (self.GetComponent<EnemyDeathEffects>() != null)
-        self.gameObject.AddComponent<ExDNailReaction>();
-    }
-
-    private void PlayRandomClip(On.HutongGames.PlayMaker.Actions.AudioPlayerOneShot.orig_DoPlayRandomClip orig, AudioPlayerOneShot self)
-    {
-        orig(self);
-        if (!RemoveOrigNPCSounds /*&& _globalSettings.testSetting == 0*/ && self.Fsm.Name == "Conversation Control")
-        {
-            HKVocals.CoroutineHolder.StartCoroutine(FadeOutClip(ReflectionHelper.GetField<AudioPlayerOneShot, AudioSource>(self, "audio")));
-        }
+        args.self.gameObject.AddComponent<CancelDreamDialogueOnDeath>();
     }
 
     private void AddFSMEdits(On.PlayMakerFSM.orig_Awake orig, PlayMakerFSM self)
     {
         orig(self);
-        /*if (self.FsmGlobalTransitions.Any(t => t.EventName.ToLower().Contains("dream")))
-        {
-            self.MakeLog();
-            foreach (FsmTransition t in self.FsmGlobalTransitions)
-                Log(t.EventName);
-        }*/
+        
+        
         if (Dictionaries.SceneFSMEdits.TryGetValue((UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, self.gameObject.name, self.FsmName), out var sceneAction))
             sceneAction(self);
         if (Dictionaries.GoFSMEdits.TryGetValue((self.gameObject.name, self.FsmName), out var goAction))
             goAction(self);
         if (Dictionaries.FSMChanges.TryGetValue(self.FsmName, out var action))
             action(self);
-
-        /*if (self.gameObject.name.ToLower().Contains("elderbug"))
-        {
-            foreach (FsmVar v in self.FsmStates.SelectMany(s => s.Actions.Where(a => a is CallMethodProper call && call.behaviour.Value.ToLower() == "dialoguebox").Cast<CallMethodProper>().SelectMany(c => c.parameters)))
-                Log(v.variableName + "  " + v.Type + "  " + v.GetValue());
-        }*/
     }
 
    
@@ -264,14 +222,6 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         fsm.Fsm.GetFsmString("Convo Title").Value = convName;
         fsm.Fsm.GetFsmString("Sheet").Value = sheetName;
         fsm.SendEvent("DISPLAY DREAM MSG");
-    }
-
-    private IEnumerator FadeOutClip(AudioSource source)
-    {
-        float volumeChange = source.volume / 100f;
-        yield return new WaitForSeconds(1f);
-        for (int i = 0; i < 100; i++)
-            source.volume -= volumeChange;
     }
 
     private void LoadAssetBundle()
