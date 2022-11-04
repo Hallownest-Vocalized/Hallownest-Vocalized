@@ -1,4 +1,6 @@
-﻿namespace HKVocals;
+﻿using HKVocals.EasterEggs;
+
+namespace HKVocals;
 
 public static class Dictionaries
 {
@@ -66,15 +68,7 @@ public static class Dictionaries
         { "LurkerControl", FSMEdits.LurkerControl },
     };
 
-    //probably needs to be changed. just a placeholder
-    public static readonly List<string> NoAudioMixer = new List<string>()
-    {
-        //menderbug
-    };
-
-    public static List<Func<HealthManager, bool>> HpListeners = new List<Func<HealthManager, bool>>();
-    public static Dictionary<AssetBundle, string[]> CustomAudioBundles = new Dictionary<AssetBundle, string[]>();
-    public static Dictionary<AudioClip, string> CustomAudioClips = new Dictionary<AudioClip, string>();
+    public static List<Func<HealthManager, bool>> HpListeners = new List<Func<HealthManager, bool>>(); 
     public static List<string> audioExtentions = new List<string>() { ".mp3", ".wav" };
     public static List<string> audioNames = new List<string>();
 }

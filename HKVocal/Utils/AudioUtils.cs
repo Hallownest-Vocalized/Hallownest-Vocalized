@@ -3,22 +3,7 @@ public static class AudioUtils
 {
     public static AudioClip GetAudioFor(string convName)
     {
-        if (Dictionaries.CustomAudioClips.ContainsValue(convName))
-        {
-            return Dictionaries.CustomAudioClips.First(a => a.Value == convName).Key;
-        }
-        else
-        {
-            if (Dictionaries.CustomAudioBundles.Any(a => a.Value.Any(s => s == convName)))
-            {
-                return Dictionaries.CustomAudioBundles.First(a => a.Value.Any(s => s == convName)).Key
-                    .LoadAsset<AudioClip>(convName);
-            }
-            else
-            {
-                return HKVocals.instance.audioBundle.LoadAsset<AudioClip>(convName);
-            }
-        }
+        return HKVocals.instance.audioBundle.LoadAsset<AudioClip>(convName);
     }
 
     public static bool TryPlayAudioFor(string convName, float removeTime = 0f)
@@ -45,15 +30,7 @@ public static class AudioUtils
 
     public static bool HasAudioFor(string convName)
     {
-
-        //Dictionaries.CustomAudioBundles.Any(a => { HKVocals.instance.Log(a.Value); return false; });
-        //Dictionaries.CustomAudioClips.Any(a => { HKVocals.instance.Log(a.Value); return false; });
-        //Dictionaries.audioNames.Any(a => { HKVocals.instance.Log(a); return false; });
-
-        return 
-            Dictionaries.CustomAudioBundles.Any(a => a.Value.Contains(convName)) ||
-            Dictionaries.CustomAudioClips.ContainsValue(convName) ||
-            Dictionaries.audioNames.Contains(convName);
+        return Dictionaries.audioNames.Contains(convName);
     }
 
     public static void PlayAudioFor(string convName) => PlayAudio(GetAudioFor(convName.ToLower())); 
@@ -91,11 +68,7 @@ public static class AudioUtils
             asrc.transform.localPosition = HeroController.instance.transform.localPosition;
         }
 
-        if (Dictionaries.NoAudioMixer.Contains(clip.name))
-        {
-            asrc.outputAudioMixerGroup = null;
-        }
-        else if (!asrc.outputAudioMixerGroup) // might need to be rewritten if this changes, don't think it does
+        if (!asrc.outputAudioMixerGroup) // might need to be rewritten if this changes, don't think it does
         {
             asrc.outputAudioMixerGroup = ObjectPool.instance.startupPools.First(o => o.prefab.name == "Audio Player Actor").prefab.GetComponent<AudioSource>().outputAudioMixerGroup;
         }
@@ -105,8 +78,6 @@ public static class AudioUtils
         asrc.Stop();
         HKVocals.instance.LogDebug($"Playing {clip.name}");
         asrc.PlayOneShot(clip, 1f);
-        
-        HKVocals.instance.LogDebug("");
     }
 
     public static bool IsPlaying() => HKVocals.instance.audioSource.isPlaying;
