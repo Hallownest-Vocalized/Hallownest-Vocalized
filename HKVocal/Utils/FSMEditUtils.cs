@@ -62,20 +62,21 @@ public static class FSMEditUtils
             HKVocals.CoroutineHolder.StopCoroutine(UITextRoutine);
         }
 
-        UITextRoutine = HKVocals.CoroutineHolder.StartCoroutine(PlayAudioAfter1SecondDelay());
+        UITextRoutine = HKVocals.CoroutineHolder.StartCoroutine(PlayAudioAfterDelay());
             
-        IEnumerator PlayAudioAfter1SecondDelay()
+        IEnumerator PlayAudioAfterDelay()
         {
-            if (OpenedShopMenu == true)
+            if (OpenedShopMenu)
             {
                 yield return new WaitForSeconds(1f);
                 OpenInvMenu = false;
             }
-            else if (OpenInvMenu == true)
+            else if (OpenInvMenu)
             {
                 yield return new WaitForSeconds(1f);
                 OpenInvMenu = false;
-            } else
+            } 
+            else
             {
                 yield return new WaitForSeconds(0.3f);
             }

@@ -42,14 +42,12 @@ namespace HKVocals
 
                 HKVocals._globalSettings.OrdealZoteSpeak = !HKVocals._globalSettings.OrdealZoteSpeak;
 
-                HKVocals.CoroutineHolder.StartCoroutine(EnableToggle());
-
-                IEnumerator EnableToggle()
+                MiscUtils.WaitForSecondsBeforeInvoke(1f, () =>
                 {
-                    yield return new WaitForSeconds(1f);
                     ZoteLeverComponent.canToggle = true;
                     ZoteLeverComponent.leverAnimator.Play("Shine");
-                }
+                });
+
             }
         }
 

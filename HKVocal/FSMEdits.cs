@@ -177,22 +177,23 @@ public static class FSMEdits
         IEnumerator JournalText(PlayMakerFSM fsm)
         {
             yield return new WaitWhile(AudioUtils.IsPlaying);
-            if (HunterNotesUnlocked == false)
+            if (!HunterNotesUnlocked)
             {
                 HunterNotesUnlocked = true;
-            } else if (HunterNotesUnlocked == true) 
+            } 
+            else if (HunterNotesUnlocked) 
             {
-                if (FSMEditUtils.InvMenuClosed == true)
+                if (FSMEditUtils.InvMenuClosed)
                 {
                     HKVocals.instance.audioSource.Stop();
-                } else
+                } 
+                else
                 {
                     fsm.PlayUIText("Item Notes Convo");
                 }
             }
             HKVocals.CoroutineHolder.StopCoroutine(JournalText(fsm));
         }
-
     }
 
     public static void ShopText(PlayMakerFSM fsm)

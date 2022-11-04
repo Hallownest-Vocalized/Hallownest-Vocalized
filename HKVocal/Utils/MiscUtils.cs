@@ -10,7 +10,7 @@ public static class MiscUtils
         return array;
     }
 
-    public static int GetIndexOf<T>(this T[] arr, Func<T,bool> predicate) where T: FsmStateAction
+    public static int GetIndexOf<T>(this T[] arr, Func<T, bool> predicate)
     {
         for (int i = 0; i < arr.Length; i++)
         {
@@ -21,5 +21,32 @@ public static class MiscUtils
         }
 
         throw new ArgumentOutOfRangeException();
+    }
+
+    public static void WaitForFramesBeforeInvoke(int numFrames, Action codeToRun)
+    {
+        HKVocals.CoroutineHolder.StartCoroutine(WaitBeforeInvokeRoutine(numFrames, codeToRun));
+    }
+
+    public static void WaitForSecondsBeforeInvoke(float seconds, Action codeToRun)
+    {
+        HKVocals.CoroutineHolder.StartCoroutine(WaitBeforeInvokeRoutine(seconds, codeToRun));
+    }
+    
+    private static IEnumerator WaitBeforeInvokeRoutine(int numFrames, Action codeToRun)
+    {
+        for (int i = 0; i < numFrames; i++)
+        {
+            yield return null;
+        }
+
+        codeToRun();
+    }
+
+    private static IEnumerator WaitBeforeInvokeRoutine(float seconds, Action codeToRun)
+    {
+        yield return new WaitForSeconds(seconds);
+
+        codeToRun();
     }
 }
