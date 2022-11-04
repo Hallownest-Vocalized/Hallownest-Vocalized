@@ -1,4 +1,6 @@
-﻿namespace HKVocals;
+﻿using HKVocals.MajorFeatures;
+
+namespace HKVocals;
 
 public class AutoScrollOnFinishPlaying : FsmStateAction
 {
@@ -36,7 +38,7 @@ public class AutoScrollOnFinishPlaying : FsmStateAction
             return;
         }
 
-        if (HKVocals.DidPlayAudioOnDialogueBox && HKVocals._globalSettings.autoScroll)
+        if (NPCDialogue.DidPlayAudioOnDialogueBox && HKVocals._globalSettings.autoScroll)
         {
             if (!ShouldConsiderConvoEnding ||
                 ShouldConsiderConvoEnding && !IsConvoEnding.Value)

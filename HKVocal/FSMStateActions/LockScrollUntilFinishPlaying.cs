@@ -1,4 +1,5 @@
 ﻿using HKMirror.Reflection;
+using HKVocals.MajorFeatures;
 
 namespace HKVocals;
 
@@ -29,7 +30,7 @@ public class LockScrollOnFinishPlaying : FsmStateAction
     public void CheckForFinishState()
     {
         //safegaurd for when an audio doesnt exist
-        if (!HKVocals.DidPlayAudioOnDialogueBox)
+        if (!NPCDialogue.DidPlayAudioOnDialogueBox)
         {
             Finish();
             return;
