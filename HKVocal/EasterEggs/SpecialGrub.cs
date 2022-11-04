@@ -1,12 +1,18 @@
 ﻿namespace HKVocals.EasterEggs;
-
 public static class SpecialGrub
 {
+    public static string SpeicalGrubSceneName = "Abyss_19";
+    public static void Hook()
+    {
+        ModHooks.LanguageGetHook += GetSpecialGrubDialogue;
+        On.PlayMakerFSM.OnEnable += EditSpecialGrub;
+    }
+    
     public static void EditSpecialGrub(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
     {
         orig(self);
 
-        if (self.gameObject.scene.name == "Abyss_19" && self.gameObject.name == "Dream Dialogue" && self.FsmName == "npc_dream_dialogue")
+        if (self.gameObject.scene.name == SpeicalGrubSceneName && self.gameObject.name == "Dream Dialogue" && self.FsmName == "npc_dream_dialogue")
         {
             if (HKVocals._saveSettings.GrubConvo < 9) 
             {

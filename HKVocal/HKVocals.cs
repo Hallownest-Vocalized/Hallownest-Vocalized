@@ -20,19 +20,12 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     internal static HKVocals instance;
     public bool ToggleButtonInsideMenu => false;
     public static NonBouncer CoroutineHolder;
-    public static bool PlayDNInFSM = true;
-    private GameObject lastDreamnailedEnemy;
-    public static bool DidPlayAudioOnDialogueBox = false;
-
-    private Regex enemyTrimRegex;
 
     public HKVocals() : base("Hallownest Vocalized")
     {
         var go = new GameObject("HK Vocals Coroutine Holder");
         CoroutineHolder = go.AddComponent<NonBouncer>();
         Object.DontDestroyOnLoad(CoroutineHolder);
-
-        enemyTrimRegex = new Regex("([^0-9\\(\\)]+)", RegexOptions.Compiled);
     }
     public override string GetVersion() => "0.0.0.1";
 
@@ -41,79 +34,24 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     public override void Initialize()
     {
         instance = this;
-        
-        On.PlayMakerFSM.Awake += AddFSMEdits;
 
-        OnDialogueBox.AfterOrig.ShowPage += PlayNPCDialogue;
-        OnDialogueBox.BeforeOrig.HideText += StopAudioOnDialogueBoxClose;
-        
-        OnEnemyDreamnailReaction.AfterOrig.Start += AddCancelDreamDialogueOnDeath;
-        OnEnemyDreamnailReaction.BeforeOrig.ShowConvo += SetLastDreamNailedEnemy;
         OnHealthManager.AfterOrig.TakeDamage += RemoveHpListeners;
         
         UIManager.EditMenus +=  ModMenu.AddAudioSlider;
 
-        ModHooks.LanguageGetHook += PlayDreamNailDialogue;
-        ModHooks.LanguageGetHook += AddSpecialElderbugAudioKey;
-
-        OnAnimatorSequence.AfterOrig.Begin += PlayMonomonIntroPoem;
-        OnAnimatorSequence.WithOrig.Skip += LockSkippingMonomonIntro;
-        OnChainSequence.WithOrig.Update += WaitForAudioBeforeNextCutscene;
+        MajorFeatures.SpecialAudio.Hook();
+        MajorFeatures.NPCDialogue.Hook();
+        MajorFeatures.DreamNailDialogue.Hook();
+        MajorFeatures.AutoScroll.Hook();
+        MajorFeatures.ScrollLock.Hook();
         
-        ModHooks.LanguageGetHook += EasterEggs.SpecialGrub.GetSpecialGrubDialogue;
-        On.PlayMakerFSM.OnEnable += EasterEggs.SpecialGrub.EditSpecialGrub;
-        OnBossStatueLever.WithOrig.OnTriggerEnter2D += EasterEggs.ZoteLever.UseZoteLever;
-        UnityEngine.SceneManagement.SceneManager.activeSceneChanged += EasterEggs.EternalOrdeal.DeleteZoteAudioPlayersOnSceneChange;
-        UnityEngine.SceneManagement.SceneManager.activeSceneChanged += EasterEggs.ZoteLever.SetZoteLever;
+        EasterEggs.EternalOrdeal.Hook();
+        EasterEggs.SpecialGrub.Hook();
+        
+        On.PlayMakerFSM.Awake += AddFSMEdits;
 
         LoadAssetBundle();
         CreateAudioSource();
-    }
-
-    private string AddSpecialElderbugAudioKey(string key, string sheettitle, string orig)
-    {
-        if (key == "ELDERBUG_INTRO_MAIN_ALT" && sheettitle == "Elderbug")
-        {
-            orig = Language.Language.Get("ELDERBUG_INTRO_MAIN", sheettitle);
-        }
-
-        return orig;
-    }
-
-    private void LockSkippingMonomonIntro(On.AnimatorSequence.orig_Skip orig, AnimatorSequence self)
-    {
-        if (!_globalSettings.scrollLock)
-        {
-            orig(self);
-            audioSource.Stop();
-        }
-    }
-    private void WaitForAudioBeforeNextCutscene(On.ChainSequence.orig_Update orig, ChainSequence self)
-    {
-        ChainSequenceR selfr = new(self);
-        if (selfr.CurrentSequence != null && !selfr.CurrentSequence.IsPlaying && !selfr.isSkipped && AudioUtils.IsPlaying())
-        {
-            selfr.Next();
-        }
-    }
-    private void PlayMonomonIntroPoem(OnAnimatorSequence.Delegates.Params_Begin args)
-    {
-        MiscUtils.WaitForFramesBeforeInvoke(2, () => AudioUtils.TryPlayAudioFor("RANDOM_POEM_STUFF_0"));
-    }
-
-    private void StopAudioOnDialogueBoxClose(OnDialogueBox.Delegates.Params_HideText args)
-    {
-        audioSource.Stop();
-    }
-
-    private void PlayNPCDialogue(OnDialogueBox.Delegates.Params_ShowPage args)
-    {
-        var convo = args.self.currentConversation + "_" + (args.self.currentPage - 1);
-
-        float removeTime = args.self.currentPage - 1 == 0 ? 37f / 60f : 3f / 4f;
-
-        //this controls scroll lock and autoscroll
-        DidPlayAudioOnDialogueBox = AudioUtils.TryPlayAudioFor(convo, removeTime);
     }
 
     public void CreateAudioSource()
@@ -137,81 +75,28 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         }
     }
 
-    public static string GetUniqueId(Transform transform, string path = "") {
-        if (transform.parent == null)
-        {
-            return $"{UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}:" + path + transform.name;
-        }
-        else
-        {
-            return GetUniqueId(transform.parent, path + $"{transform.name}/");
-        }
-    }
-
-    private string PlayDreamNailDialogue(string key, string sheetTitle, string orig) 
-    {
-        // Make sure this is dreamnail text
-        if (lastDreamnailedEnemy == null)
-        {
-            return orig;
-        }
-
-        // Grab the ID and name now
-        string id = GetUniqueId(lastDreamnailedEnemy.transform);
-        string name = enemyTrimRegex.Match(lastDreamnailedEnemy.name).Value.Trim();
-
-        // Prevent it from running again incorrectly
-        lastDreamnailedEnemy = null;
-
-        // For the special case of grouped (generic) enemies
-        if (DNAudios.DNGroups.ContainsKey(name)) name = DNAudios.DNGroups[name];
-
-        List<string> availableClips = Dictionaries.audioNames.FindAll(s => s.Contains($"${name}$_{key}".ToUpper()));
-        if (availableClips == null || availableClips.Count == 0) 
-        {
-            LogError($"No clips for ${name}$_{key}");
-            return orig;
-        }
-
-        // Either use the already registered VA or make one and save it
-        int voiceActor;
-
-        if (_saveSettings.PersistentVoiceActors.ContainsKey(id))
-        {
-            voiceActor = _saveSettings.PersistentVoiceActors[id];
-        }
-        else 
-        {
-            voiceActor = Random.Range(1, availableClips.Count);
-            _saveSettings.PersistentVoiceActors[id] = voiceActor;
-        }
-
-        AudioUtils.TryPlayAudioFor($"${name}$_{key}_0_{voiceActor}".ToUpper());
-        
-        return orig;
-    }
-
-    private void SetLastDreamNailedEnemy(OnEnemyDreamnailReaction.Delegates.Params_ShowConvo args) 
-    {
-        lastDreamnailedEnemy = args.self.gameObject;
-    }
-
-    private void AddCancelDreamDialogueOnDeath(OnEnemyDreamnailReaction.Delegates.Params_Start args)
-    {
-        args.self.gameObject.AddComponent<CancelDreamDialogueOnDeath>();
-    }
-
     private void AddFSMEdits(On.PlayMakerFSM.orig_Awake orig, PlayMakerFSM self)
     {
         orig(self);
+
+        string sceneName = MiscUtils.GetCurrentSceneName();
+        string gameObjectName = self.gameObject.name;
+        string fsmName = self.FsmName;
+
+        foreach (var fsmEdit in FSMEditData.SceneFsmEdits.FindAll(x => x.DoesMatch(sceneName, gameObjectName, fsmName)))
+        {
+            fsmEdit.Invoke(self);
+        }
         
+        foreach (var fsmEdit in FSMEditData.GameObjectFsmEdits.FindAll(x => x.DoesMatch(gameObjectName, fsmName)))
+        {
+            fsmEdit.Invoke(self);
+        }
         
-        if (Dictionaries.SceneFSMEdits.TryGetValue((UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, self.gameObject.name, self.FsmName), out var sceneAction))
-            sceneAction(self);
-        if (Dictionaries.GoFSMEdits.TryGetValue((self.gameObject.name, self.FsmName), out var goAction))
-            goAction(self);
-        if (Dictionaries.FSMChanges.TryGetValue(self.FsmName, out var action))
-            action(self);
+        foreach (var fsmEdit in FSMEditData.AnyFsmEdits.FindAll(x => x.DoesMatch(fsmName)))
+        {
+            fsmEdit.Invoke(self);
+        }
     }
 
    

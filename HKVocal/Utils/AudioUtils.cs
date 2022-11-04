@@ -85,6 +85,7 @@ public static class AudioUtils
     }
 
     public static bool IsPlaying() => HKVocals.instance.audioSource.isPlaying;
+    public static void StopPlaying() => HKVocals.instance.audioSource.Stop();
     
     private static IEnumerator FadeOutClip(AudioSource source)
     {

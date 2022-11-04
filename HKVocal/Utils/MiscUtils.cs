@@ -49,4 +49,6 @@ public static class MiscUtils
 
         codeToRun();
     }
+
+    public static string GetCurrentSceneName() => UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 }

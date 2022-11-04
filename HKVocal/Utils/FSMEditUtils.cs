@@ -43,19 +43,19 @@ public static class FSMEditUtils
         //Checks when you open the shop keeper menu
         fsm.AddMethod("Open Window", () => { OpenedShopMenu = true; });
         //Checks when you close a shop keeper menu
-        fsm.AddMethod("Down", () => { HKVocals.instance.audioSource.Stop(); });
+        fsm.AddMethod("Down", () => { AudioUtils.StopPlaying(); });
     }
 
     public static void InventoryOpenClose(PlayMakerFSM fsm)
     {
         fsm.AddMethod("Open", () => { OpenInvMenu = true; InvMenuClosed = false; });
-        fsm.AddMethod("Close", () => { HKVocals.instance.audioSource.Stop(); InvMenuClosed = true; });
+        fsm.AddMethod("Close", () => { AudioUtils.StopPlaying(); InvMenuClosed = true; });
     }
 
     public static void PlayUIText(this PlayMakerFSM fsm, string audiokey)
     {
         //when the UI updates and new text has to be played, no other text can be selected so it makes sense to stop all audio
-        HKVocals.instance.audioSource.Stop();
+        AudioUtils.StopPlaying();
 
         if (UITextRoutine != null)
         {

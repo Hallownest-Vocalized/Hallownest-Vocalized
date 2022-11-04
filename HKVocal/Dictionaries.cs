@@ -4,18 +4,13 @@ namespace HKVocals;
 
 public static class Dictionaries
 {
-    public static readonly Dictionary<string, string[]> EnemyVariants = new Dictionary<string, string[]>()
-    {
-        { "", new string[] { "" } }
-    };
-
-    public static readonly Dictionary<(string, string, string), Action<PlayMakerFSM>> SceneFSMEdits = new Dictionary<(string, string, string), Action<PlayMakerFSM>>()
+    public static readonly Dictionary<(string, string, string), Action<PlayMakerFSM>> SceneFSMEditsOld = new Dictionary<(string, string, string), Action<PlayMakerFSM>>()
     { 
         {("GG_Radiance", "Boss Control", "Control"), fsm => { if (BossSequenceController.IsInSequence) fsm.AddAction("Flash Down", new DreamDialogueAction("RADIANCE_1", "Enemy Dreams") { waitTime = 5 }); } },
         { ("Dream_Final_Boss", "Boss Control", "Control"), fsm => { if (BossSequenceController.IsInSequence) fsm.AddAction("Flash Down", new DreamDialogueAction("RADIANCE_1", "Enemy Dreams") { waitTime = 5 }); } }
     };
 
-    public static readonly Dictionary<(string, string), Action<PlayMakerFSM>> GoFSMEdits = new Dictionary<(string, string), Action<PlayMakerFSM>>()
+     public static readonly Dictionary<(string, string), Action<PlayMakerFSM>> GoFSMEditsOld = new Dictionary<(string, string), Action<PlayMakerFSM>>()
     {
         { ("Absolute Radiance", "Control"), FSMEdits.RadianceControl },
         { ("Absolute Radiance", "Phase Control"), fsm => { if (BossSequenceController.IsInSequence) fsm.AddAction("Set Phase 2", new DreamDialogueAction("RADIANCE_2", "Enemy Dreams")); } },
@@ -35,32 +30,11 @@ public static class Dictionaries
         { ("Item List", "Item List Control"), FSMEdits.ShopText },
         { ("Shop Menu", "shop_control"), FSMEditUtils.ShopMenuOpenClose },
         { ("Inventory", "Inventory Control"), FSMEditUtils.InventoryOpenClose },
-        { ("Text", "Dialogue Page Control"), FSMEdits.ContinueScrollOnConvoEnd_AndScrollLock },
         { ("Iselda", "Shop Anim"), FSMEdits.IseldaAudio },
         { ("Mr Mushroom NPC", "Control"), FSMEdits.MrMushroomAudio },
-        { ("Elderbug", "Conversation Control"), FSMEdits.ElderbugAudio },
-
-        { ("Zote Boss", "Control"), EternalOrdeal.EternalOrdeal_Normal },
-        { ("Zote Crew Normal (1)", "Control"), EternalOrdeal.EternalOrdeal_Normal },
-        { ("Zote Crew Normal (2)", "Control"), EternalOrdeal.EternalOrdeal_Normal },
-        { ("Zote Crew Normal (3)", "Control"), EternalOrdeal.EternalOrdeal_Normal },
-        { ("Zote Crew Normal (4)", "Control"), EternalOrdeal.EternalOrdeal_Normal },
-        { ("Zote Crew Fat (1)", "Control"), EternalOrdeal.EternalOrdeal_Normal },
-        { ("Zote Crew Fat (2)", "Control"), EternalOrdeal.EternalOrdeal_Normal },
-        { ("Zote Crew Fat (3)", "Control"), EternalOrdeal.EternalOrdeal_Normal },
-        { ("Zote Crew Tall (1)", "Control"), EternalOrdeal.EternalOrdeal_Normal },
-        { ("Zote Crew Tall", "Control"), EternalOrdeal.EternalOrdeal_Normal },
-        { ("Zote Balloon (1)", "Control"), EternalOrdeal.EternalOrdeal_Balloon },
-        { ("Zote Balloon Ordeal", "Control"), EternalOrdeal.EternalOrdeal_Balloon },
-        { ("Ordeal Zoteling", "Control"), EternalOrdeal.EternalOrdeal_Zoteling },
-        { ("Ordeal Zoteling (1)", "Control"), EternalOrdeal.EternalOrdeal_Zoteling },
-        { ("Zote Fluke", "Control"), EternalOrdeal.EternalOrdeal_Other },
-        { ("Zote Salubra", "Control"), EternalOrdeal.EternalOrdeal_Other },
-        { ("Zote Turret", "Control"), EternalOrdeal.EternalOrdeal_Other },
-        { ("Zote Thwomp", "Control"), EternalOrdeal.EternalOrdeal_Thwomp },
     };
 
-    public static readonly Dictionary<string, Action<PlayMakerFSM>> FSMChanges = new Dictionary<string, Action<PlayMakerFSM>>()
+    public static readonly Dictionary<string, Action<PlayMakerFSM>> FSMChangesOld = new Dictionary<string, Action<PlayMakerFSM>>()
     {
         { "Conversation Control", FSMEdits.ConversationControl },
         { "FalseyControl", FSMEdits.FalseyControl },
