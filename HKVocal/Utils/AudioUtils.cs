@@ -67,6 +67,11 @@ public static class AudioUtils
         {
             asrc.transform.localPosition = HeroController.instance.transform.localPosition;
         }
+        else
+        {
+            //for monomon audio
+            asrc.transform.localPosition = new Vector3(15f, 10f, 1f);
+        }
 
         if (!asrc.outputAudioMixerGroup) // might need to be rewritten if this changes, don't think it does
         {
@@ -74,7 +79,6 @@ public static class AudioUtils
         }
         
         asrc.volume = HKVocals._globalSettings.Volume / 10f;
-
         asrc.Stop();
         HKVocals.instance.LogDebug($"Playing {clip.name}");
         asrc.PlayOneShot(clip, 1f);

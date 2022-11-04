@@ -1,7 +1,8 @@
-using HKMirror.Reflection;
+using System.Text.RegularExpressions;
+using HKMirror.Hooks.OnHooks;
+using HKMirror.Reflection.InstanceClasses;
 
 namespace HKVocals;
-using System.Text.RegularExpressions;
 
 public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<SaveSettings>, ICustomMenuMod
 {
@@ -50,7 +51,10 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         On.EnemyDreamnailReaction.Start += EDNRStart;
         On.EnemyDreamnailReaction.ShowConvo += ShowConvo;
         On.HealthManager.TakeDamage += TakeDamage;
-        UIManager.EditMenus +=  ModMenu.AddAudioSlider;
+        OnAnimatorSequence.AfterOrig.Begin += MonomonIntro;
+        OnAnimatorSequence.WithOrig.Skip += LockScrollIntro;
+        On.ChainSequence.Update += ChainSequenceOnUpdate;
+        UIManager.EditMenus += ModMenu.AddAudioSlider;
 
         ModHooks.LanguageGetHook += LanguageGet;
         ModHooks.LanguageGetHook += EasterEggs.SpecialGrub.GetSpecialGrubDialogue;
@@ -74,6 +78,40 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         return orig;
     }
 
+    private void LockScrollIntro(On.AnimatorSequence.orig_Skip orig, AnimatorSequence self)
+    {
+        if (_globalSettings.scrollLock)
+        {
+            return;
+        }
+        else
+        {
+            orig(self);
+            audioSource.Stop();
+        }
+    }
+    private void ChainSequenceOnUpdate(On.ChainSequence.orig_Update orig, ChainSequence self)
+    {
+        ChainSequenceR selfr = new(self);
+        if (selfr.CurrentSequence != null && !selfr.CurrentSequence.IsPlaying && !selfr.isSkipped && AudioUtils.IsPlaying())
+        {
+            selfr.Next();
+        }
+    }
+    private void MonomonIntro(OnAnimatorSequence.Delegates.Params_Begin args)
+    {
+        CoroutineHolder.StartCoroutine(WaitIg());
+    }
+
+    private IEnumerator WaitIg()
+    {
+        yield return null;
+        yield return null;
+        AudioUtils.TryPlayAudioFor("RANDOM_POEM_STUFF_0");
+    }
+    
+
+
     private void StopAudioOnDialogueBoxClose(On.DialogueBox.orig_HideText orig, DialogueBox self)
     {
         audioSource.Stop();
@@ -89,6 +127,8 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         float removeTime = self.currentPage - 1 == 0 ? 37f / 60f : 3f / 4f;
 
         bool audioPlayed = AudioUtils.TryPlayAudioFor(convo, removeTime);
+        
+     
         
         //this controls scroll lock and autoscroll
         if (audioPlayed)
@@ -128,6 +168,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     }
 
     private string LanguageGet(string key, string sheetTitle, string orig) {
+
         // Make sure this is dreamnail text
         if (lastDreamnailedEnemy == null) return orig;
 
@@ -159,7 +200,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         }
 
         AudioUtils.TryPlayAudioFor($"${name}$_{key}_0_{voiceActor}".ToUpper());
-
+        
         return orig;
     }
 
