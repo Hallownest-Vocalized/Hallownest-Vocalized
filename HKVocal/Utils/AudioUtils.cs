@@ -85,37 +85,30 @@ public static class AudioUtils
         {
             HKVocals.instance.CreateAudioSource();
         }
-        HKVocals.instance.LogError("GOT SOURCE");
 
         if (HeroController.instance != null)
         {
             asrc.transform.localPosition = HeroController.instance.transform.localPosition;
-            HKVocals.instance.LogError("hc set pos");
         }
         else
         {
+            //for monomon audio
             asrc.transform.localPosition = new Vector3(15f, 10f, 1f);
-            HKVocals.instance.LogError("Set Pos");
         }
 
         if (Dictionaries.NoAudioMixer.Contains(clip.name))
         {
             asrc.outputAudioMixerGroup = null;
-            HKVocals.instance.LogError("no mixer");
         }
         else if (!asrc.outputAudioMixerGroup) // might need to be rewritten if this changes, don't think it does
         {
             asrc.outputAudioMixerGroup = ObjectPool.instance.startupPools.First(o => o.prefab.name == "Audio Player Actor").prefab.GetComponent<AudioSource>().outputAudioMixerGroup;
-            HKVocals.instance.LogError("got mixer");
         }
         
         asrc.volume = HKVocals._globalSettings.Volume / 10f;
-        HKVocals.instance.LogError("set volume");
         asrc.Stop();
-        HKVocals.instance.LogError("stop");
         HKVocals.instance.LogDebug($"Playing {clip.name}");
         asrc.PlayOneShot(clip, 1f);
-        HKVocals.instance.LogError("playing one shot");
     }
 
     public static bool IsPlaying() => HKVocals.instance.audioSource.isPlaying;
