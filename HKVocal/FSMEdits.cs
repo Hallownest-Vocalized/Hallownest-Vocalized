@@ -7,44 +7,9 @@ using FsmUtil = Satchel.FsmUtil;
 namespace HKVocals;
 public static class FSMEdits
 {
-    public static void BoxOpenDream(PlayMakerFSM BoxOpenDream)
-    {
-        PlayMakerFSM msgFSM = BoxOpenDream.transform.Find("Dream Msg").gameObject.LocateMyFSM("Display");
-
-        //the only enabled action here is the convo title empty check
-        //when we play special audio, this state will be skipped as mod will setstate to "Cancel Existing" (the next one)
-        msgFSM.InsertMethod("Check Convo", () =>
-        {
-            HKVocals.PlayDNInFSM = true;
-        },0);
-        
-        msgFSM.AddMethod("Display Text", () =>
-        {
-            if (HKVocals._globalSettings.dnDialogue)
-            {
-                if (HKVocals.PlayDNInFSM)
-                {
-                    if (AudioUtils.HasAudioFor(msgFSM.FsmVariables.FindFsmString("Convo Title").Value + "_0"))
-                    {
-                        AudioUtils.TryPlayAudioFor(msgFSM.FsmVariables.FindFsmString("Convo Title").Value + "_0");
-                    }
-                    else
-                    {
-                        HKVocals.instance.LogWarn(
-                            $"Audio not found for: {msgFSM.FsmVariables.FindFsmString("Convo Title")}");
-
-                    }
-                }
-            }
-
-            HKVocals.PlayDNInFSM = true;
-        });
-
-    }
-
     public static void ConversationControl(PlayMakerFSM fsm)
     {
-        if (HKVocals.RemoveOrigNPCSounds /*&& _globalSettings.testSetting == 0*/)
+        if (HKVocals.RemoveOrigNPCSounds)
         {
             foreach (FsmState state in fsm.FsmStates)
             {

@@ -17,7 +17,6 @@ public static class Dictionaries
 
     public static readonly Dictionary<(string, string), Action<PlayMakerFSM>> GoFSMEdits = new Dictionary<(string, string), Action<PlayMakerFSM>>()
     {
-        { ("DialogueManager", "Box Open Dream"), FSMEdits.BoxOpenDream },
         { ("Absolute Radiance", "Control"), FSMEdits.RadianceControl },
         { ("Absolute Radiance", "Phase Control"), fsm => { if (BossSequenceController.IsInSequence) fsm.AddAction("Set Phase 2", new DreamDialogueAction("RADIANCE_2", "Enemy Dreams")); } },
         { ("Radiance", "Control"), FSMEdits.RadianceControl },
