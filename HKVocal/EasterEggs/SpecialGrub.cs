@@ -17,15 +17,15 @@ public static class SpecialGrub
             if (HKVocals._saveSettings.GrubConvo < 9) 
             {
                 HKVocals._saveSettings.GrubConvo += 1;
-                self.GetFsmStringVariable("Convo Name").Value = $"GRUB_BOTTLE_DREAM_S_REPEAT_0";
-                self.GetFsmStringVariable("Sheet Name").Value = "Elderbug";
-                AudioUtils.TryPlayAudioFor($"GRUB_BOTTLE_DREAM_S_REPEAT_0");
-            }
-            else
-            {
                 self.GetFsmStringVariable("Convo Name").Value = $"GRUB_BOTTLE_DREAM_S_{HKVocals._saveSettings.GrubConvo}";
                 self.GetFsmStringVariable("Sheet Name").Value = "Elderbug";
                 AudioUtils.TryPlayAudioFor($"GRUB_BOTTLE_DREAM_S_{HKVocals._saveSettings.GrubConvo}");
+            }
+            else
+            {
+                self.GetFsmStringVariable("Convo Name").Value = $"GRUB_BOTTLE_DREAM_S_REPEAT_0";
+                self.GetFsmStringVariable("Sheet Name").Value = "Elderbug";
+                AudioUtils.TryPlayAudioFor($"GRUB_BOTTLE_DREAM_S_REPEAT_0");
             }
         }
     }
