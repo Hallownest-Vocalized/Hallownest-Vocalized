@@ -35,7 +35,7 @@ public static class SpecialAudio
     }
     private static void PlayMonomonIntroPoem(OnAnimatorSequence.Delegates.Params_Begin args)
     {
-        MiscUtils.WaitForFramesBeforeInvoke(2, () => AudioUtils.TryPlayAudioFor("RANDOM_POEM_STUFF_0"));
+        MiscUtils.WaitForFramesBeforeInvoke(20, () => AudioUtils.TryPlayAudioFor("RANDOM_POEM_STUFF_0"));
     }
     
     private static string AddSpecialElderbugAudioKey(string key, string sheettitle, string orig)
