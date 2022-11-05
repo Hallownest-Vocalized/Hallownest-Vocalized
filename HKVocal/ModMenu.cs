@@ -8,17 +8,33 @@ public static class ModMenu
         {
             new TextPanel("To change volume, please use Audio Menu"),
             
-            Blueprints.HorizontalBoolOption("Auto Scroll?", 
+            Blueprints.HorizontalBoolOption("Auto Scroll", 
                 "Should dialogue autoscroll after the audio finishes",
-                (i) => HKVocals._globalSettings.autoScroll = i,
+                (i) => 
+                    {
+                        HKVocals._globalSettings.autoScroll = i;
+                        MenuRef.Find("Auto Scroll Speed").isVisible = i;
+                        MenuRef.Update();
+                    }
+                ,
                 () => HKVocals._globalSettings.autoScroll),
             
-            Blueprints.HorizontalBoolOption("Dream Nail Dialogue?", 
+            new HorizontalOption("Auto Scroll Speed", 
+                "How fast should it autoscroll on audio finish",
+                Enum.GetNames(typeof(MajorFeatures.AutoScroll.ScrollSpeed)).ToArray(),
+                (i) => HKVocals._globalSettings.ScrollSpeed = (MajorFeatures.AutoScroll.ScrollSpeed) i,
+                () => (int) HKVocals._globalSettings.ScrollSpeed,
+                Id: "Auto Scroll Speed")
+                {
+                    isVisible = HKVocals._globalSettings.autoScroll
+                },
+            
+            Blueprints.HorizontalBoolOption("Dream Nail Dialogue", 
                 "Should dream nail dialogue be voiced?",
                 (i) => HKVocals._globalSettings.dnDialogue = i,
                 () => HKVocals._globalSettings.dnDialogue),
             
-            Blueprints.HorizontalBoolOption("Scroll Lock?", 
+            Blueprints.HorizontalBoolOption("Scroll Lock", 
                 "Should first time dialogues be scroll locked until audio has finished?",
                 (i) => HKVocals._globalSettings.scrollLock = i,
                 () => HKVocals._globalSettings.scrollLock),

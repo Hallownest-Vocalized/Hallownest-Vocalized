@@ -5,6 +5,7 @@ public class GlobalSettings
     public int Volume = 10;
     public bool OrdealZoteSpeak = true;
     public bool autoScroll = false;
+    public MajorFeatures.AutoScroll.ScrollSpeed ScrollSpeed = MajorFeatures.AutoScroll.ScrollSpeed.Normal;
     public bool dnDialogue = false;
     public bool scrollLock = false;
 }
