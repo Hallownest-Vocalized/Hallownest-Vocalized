@@ -28,14 +28,17 @@ public static class SpecialAudio
     private static void WaitForAudioBeforeNextCutscene(On.ChainSequence.orig_Update orig, ChainSequence self)
     {
         ChainSequenceR chainSeq = self.Reflect();
-        if (chainSeq.CurrentSequence != null && !chainSeq.CurrentSequence.IsPlaying && !chainSeq.isSkipped && AudioUtils.IsPlaying())
+        if (!(chainSeq.CurrentSequence == null || 
+            chainSeq.CurrentSequence.IsPlaying || 
+            chainSeq.isSkipped ||
+            AudioUtils.IsPlaying()))
         {
             chainSeq.Next();
         }
     }
     private static void PlayMonomonIntroPoem(OnAnimatorSequence.Delegates.Params_Begin args)
     {
-        MiscUtils.WaitForFramesBeforeInvoke(100, () => AudioUtils.TryPlayAudioFor("RANDOM_POEM_STUFF_0"));
+        MiscUtils.WaitForSecondsBeforeInvoke(0.75f, () => AudioUtils.TryPlayAudioFor("RANDOM_POEM_STUFF_0"));
     }
     
     private static string AddSpecialElderbugAudioKey(string key, string sheettitle, string orig)
