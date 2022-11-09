@@ -4,11 +4,16 @@ public static class AutoScroll
 {
     public enum ScrollSpeed
     {
-        Instant, Normal, Slow
+        Instant, Fast, Normal, Slow
     }
-    public static float InstantScrollSpeed = 0f;
-    public static float NormalScrollSpeed = 1f/6f;
-    public static float SlowScrollSpeed = 1f/2f;
+
+    public static Dictionary<ScrollSpeed, float> ScrollSpeeds = new Dictionary<ScrollSpeed, float>()
+    {
+        { ScrollSpeed.Instant, 0f },
+        { ScrollSpeed.Fast, 0.25f },
+        { ScrollSpeed.Normal, 0.6f },
+        { ScrollSpeed.Slow, 1f }
+    };
     
     public const string CustomNextEvent = "NEXT_NOAUDIO"; //our custom transition
 
@@ -97,13 +102,7 @@ public class AutoScrollOnFinishPlaying : FsmStateAction
     public override void OnEnter()
     {
         timer = 0f;
-        WaitTime = HKVocals._globalSettings.ScrollSpeed switch
-        {
-            AutoScroll.ScrollSpeed.Instant => AutoScroll.InstantScrollSpeed,
-            AutoScroll.ScrollSpeed.Normal => AutoScroll.NormalScrollSpeed,
-            AutoScroll.ScrollSpeed.Slow => AutoScroll.SlowScrollSpeed,
-            _ => throw new NotImplementedException(),
-        };
+        WaitTime = AutoScroll.ScrollSpeeds[HKVocals._globalSettings.ScrollSpeed];
         CheckForFinish();
     }
 
