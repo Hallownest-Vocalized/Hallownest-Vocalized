@@ -20,7 +20,7 @@ public static class ScrollLock
         //before we let fsm continue. if lock == false, the LockScrollOnFinishPlaying will see that and not wait and just continue
         
         var newPageEnd = fsm.CreateEmptyState($"New {landingStateName}");
-        newPageEnd.AddAction(new LockScrollOnFinishPlaying());
+        newPageEnd.AddAction(new LockScrollUntilFinishPlaying());
         newPageEnd.AddTransition("FINISHED", landingStateName);
 
         var pageEndTransition =  fsm.FsmGlobalTransitions.First(s => s.EventName == eventName);
@@ -29,7 +29,7 @@ public static class ScrollLock
     }
 }
 
-public class LockScrollOnFinishPlaying : FsmStateAction
+public class LockScrollUntilFinishPlaying : FsmStateAction
 {
     public override void OnEnter()
     {

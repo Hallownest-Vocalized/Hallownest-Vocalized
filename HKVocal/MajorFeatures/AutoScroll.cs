@@ -10,7 +10,7 @@ public static class AutoScroll
     public static float NormalScrollSpeed = 1f/6f;
     public static float SlowScrollSpeed = 1f/2f;
     
-    public static string CustomNextEvent = "NEXT_NOAUDIO"; //our custom transition
+    public const string CustomNextEvent = "NEXT_NOAUDIO"; //our custom transition
 
     public static void Hook()
     {
@@ -27,7 +27,10 @@ public static class AutoScroll
     
     private static void ImplementAutoScroll_OnPageEnd(PlayMakerFSM fsm, FsmBool isConvoEnding)
     {
-        fsm.AddAction("Page End", new AutoScrollOnFinishPlaying(isConvoEnding));
+        fsm.GetState("Page End").AddAction(new AutoScrollOnFinishPlaying(isConvoEnding));
+        
+        // we dont want to always show next page prompt
+        RemoveNextPagePrompt(fsm, "Page End", 1);
         
         //we dont wanna play next page sound on autoscroll
         RemoveAudioOnAutoScroll(fsm,"Show Next Page", "Page End"); 
@@ -40,8 +43,12 @@ public static class AutoScroll
 
         fsm.AddAction("Conversation End", new AutoScrollOnFinishPlaying(isConvoEnding, shouldConsiderConvoEnding: true));
 
+        
+        // we dont want to always show next page prompt
+        RemoveNextPagePrompt(fsm, "Arrow", 2);
+        
         //we dont wanna play next page sound on autoscroll
-        RemoveAudioOnAutoScroll(fsm, "SFX", "End Conversation");
+        RemoveAudioOnAutoScroll(fsm, "SFX", "Conversation End");
     }
     
     private static void RemoveAudioOnAutoScroll(PlayMakerFSM fsm, string audioState, string previousState)
@@ -54,6 +61,20 @@ public static class AutoScroll
         SFX_NoAudio.RemoveAction(SFX_NoAudio.Actions.GetIndexOf(a => a is AudioPlayerOneShotSingle));
 
         fsm.AddFsmTransition(previousState, CustomNextEvent, SFX_NoAudio.Name);
+    }
+    
+    private static void RemoveNextPagePrompt(PlayMakerFSM fsm, string state, int arrowUpActionIndex)
+    {
+        fsm.GetState(state).DisableAction(arrowUpActionIndex);
+        fsm.GetState(state).InsertMethod(() =>
+        {
+            //only do this when autoscroll and scroll lock is on
+            if (!(NPCDialogue.DidPlayAudioOnDialogueBox && HKVocals._globalSettings.autoScroll &&
+                HKVocals._globalSettings.scrollLock))
+            {
+                fsm.Fsm.GameObject.gameObject.transform.parent.gameObject.Find("Arrow").LocateMyFSM("Arrow Anim").SendEvent("UP");
+            }
+        }, arrowUpActionIndex);
     }
 }
 
@@ -75,6 +96,7 @@ public class AutoScrollOnFinishPlaying : FsmStateAction
     
     public override void OnEnter()
     {
+        timer = 0f;
         WaitTime = HKVocals._globalSettings.ScrollSpeed switch
         {
             AutoScroll.ScrollSpeed.Instant => AutoScroll.InstantScrollSpeed,
