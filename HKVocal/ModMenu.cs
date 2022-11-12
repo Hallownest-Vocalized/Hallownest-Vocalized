@@ -4,9 +4,14 @@ public static class ModMenu
     public static Menu MenuRef;
     public static MenuScreen CreateModMenuScreen(MenuScreen modListMenu)
     {
-        MenuRef ??= new Menu("HK Vocals Menu", new Element[]
+        MenuRef ??= new Menu("Hallownest Vocalised", new Element[]
         {
             new TextPanel("To change volume, please use Audio Menu"),
+
+            Blueprints.HorizontalBoolOption("Scroll Lock", 
+                "Should first time dialogues be scroll locked until audio has finished?",
+                (i) => HKVocals._globalSettings.scrollLock = i,
+                () => HKVocals._globalSettings.scrollLock),
             
             Blueprints.HorizontalBoolOption("Auto Scroll", 
                 "Should dialogue autoscroll after the audio finishes",
@@ -29,15 +34,25 @@ public static class ModMenu
                     isVisible = HKVocals._globalSettings.autoScroll
                 },
             
-            Blueprints.HorizontalBoolOption("Dream Nail Dialogue", 
-                "Should dream nail dialogue be voiced?",
-                (i) => HKVocals._globalSettings.dnDialogue = i,
+            Blueprints.HorizontalBoolOption("Dream Nail Dialogues", 
+                "Should dream nail dialogues be voiced?",
+                (i) =>
+                {
+                    HKVocals._globalSettings.dnDialogue = i;
+                    MenuRef.Find("Automatic Boss Dialogue").isVisible = !i;
+                    MenuRef.Update();
+                },
                 () => HKVocals._globalSettings.dnDialogue),
             
-            Blueprints.HorizontalBoolOption("Scroll Lock", 
-                "Should first time dialogues be scroll locked until audio has finished?",
-                (i) => HKVocals._globalSettings.scrollLock = i,
-                () => HKVocals._globalSettings.scrollLock),
+            new HorizontalOption("Automatic Boss Shouts",
+                "Should some bosses automatically do shouts",
+                new []{"On", "Off"},
+                i => HKVocals._globalSettings.automaticBossDialogue = i == 0,
+                () => HKVocals._globalSettings.automaticBossDialogue ? 0 : 1,
+                Id: "Automatic Boss Dialogue")
+            {
+                isVisible = !HKVocals._globalSettings.dnDialogue
+            },
         });
             
         

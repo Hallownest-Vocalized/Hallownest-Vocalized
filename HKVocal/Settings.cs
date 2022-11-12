@@ -7,6 +7,7 @@ public class GlobalSettings
     public bool autoScroll = false;
     public MajorFeatures.AutoScroll.ScrollSpeed ScrollSpeed = MajorFeatures.AutoScroll.ScrollSpeed.Normal;
     public bool dnDialogue = false;
+    public bool automaticBossDialogue = false;
     public bool scrollLock = false;
 }
 public class SaveSettings

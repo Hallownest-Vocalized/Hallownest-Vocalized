@@ -25,12 +25,32 @@ public static class DreamNailDialogue
         }
     }
 
-    private static string PlayDreamNailDialogue(string key, string sheetTitle, string orig) 
+    private static string PlayDreamNailDialogue(string key, string sheetTitle, string orig)
     {
+        //check for if the passed in key is passed in by AutomaticBossDialogue
+        bool isAutomaticBossDialogue = false;
+        
+        if (key.StartsWith(AutomaticBossDialogue.ABDKeyPrefix))
+        {
+            //get the original key by removing the prefix cuz rn orig is #!#key#!#
+            orig = Language.Language.GetInternal(key.Remove(0,AutomaticBossDialogue.ABDKeyPrefix.Length), sheetTitle);
+            isAutomaticBossDialogue = true;
+        }
+        
         // Make sure this is dreamnail text
         if (lastDreamnailedEnemy == null)
         {
             return orig;
+        }
+
+        //dont play audio if the dn dialogue toggle is off
+        if (!HKVocals._globalSettings.dnDialogue)
+        {
+            //but also do play it if its an AutomaticBossDialogue and that setting is turned on
+            if (!(HKVocals._globalSettings.automaticBossDialogue && isAutomaticBossDialogue))
+            {
+                return orig;
+            }
         }
 
         // Grab the ID and name now
