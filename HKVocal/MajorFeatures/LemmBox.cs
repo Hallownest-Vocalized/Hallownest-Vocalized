@@ -8,26 +8,20 @@ public class LemmBox
     public static void Hook()
     {
         ModHooks.LanguageGetHook += LemmLang;
-        On.PlayMakerFSM.Awake += OnAwake;
+        UnityEngine.SceneManagement.SceneManager.activeSceneChanged += CheckScene;
     }
 
-    private static void OnAwake(On.PlayMakerFSM.orig_Awake orig, PlayMakerFSM self)
+    private static void CheckScene(Scene lastScene, Scene currentScene)
     {
-        orig(self);
-        if (self.gameObject.scene.name == LemmScene)
+        if (currentScene.name == LemmScene)
         {
-            HKVocals.instance.Log("IS lemm scene");
+            HKVocals.instance.Log("Is Lemm Scene");
             InitBox();
-            if (self.FsmName == "Bell-Bell Control")
-                    GameObject.Destroy(self);
-            HKVocals.instance.Log(self.FsmName);
-            
-                
-            if(self.gameObject.name == "Lemm")
-                LemmDialogue(self);
+            LemmDialogue();
         }
+           
     }
-    
+
     private static string LemmLang(string key, string sheettitle, string orig)
     {
         return orig = key switch
@@ -44,7 +38,10 @@ public class LemmBox
     private static void InitBox()
     {
          //Todo: load box and set position to it's correct place
+         HKVocals.instance.Log("setting up Box...");
          var box = GameObject.Instantiate(HKVocals.preloadedGO["Bell"],new Vector3(2000,300),Quaternion.identity);
+         box.SetActive(true);
+         GameObject.Destroy(box.LocateMyFSM("Bell-Bell COntrol"));
          PlayMakerFSM self = box.LocateMyFSM("Station Bell-Stag Bell");
          self.RemoveFsmAction("Init",6);
          self.RemoveTransition("Init","Opened");
@@ -61,9 +58,10 @@ public class LemmBox
          self.GetState("Pause Before Box Drop").AddTransition("FINISHED", "Out Of Range");
     }
 
-    private static void LemmDialogue(PlayMakerFSM self)
+    private static void LemmDialogue()
     {
         //Todo: change dialogue
+        HKVocals.instance.Log("setting up Lemm Dialogue...");
     }
 
     private static void Deposit()
