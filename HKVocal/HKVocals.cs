@@ -18,9 +18,11 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     public AudioSource audioSource;
     internal static HKVocals instance;
     public static NonBouncer CoroutineHolder;
-    
+
     public static List<string> audioExtentions = new List<string>() { ".mp3", ".wav" };
     public static List<string> audioNames = new List<string>();
+
+    public static Dictionary<string, GameObject> preloadedGO = new();
 
     public HKVocals() : base("Hallownest Vocalized")
     {
@@ -32,28 +34,40 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     //todo: add hash of audiobundle here, if not present warn users in get version
     public override string GetVersion() => "0.0.0.1";
 
-    public override void Initialize()
+    public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
     {
         instance = this;
+        preloadedGO["Bell"] = preloadedObjects["Abyss_22"]["Station Bell/Bell"];
 
         UIManager.EditMenus +=  ModMenu.AddAudioSlider;
 
         MajorFeatures.SpecialAudio.Hook();
         MajorFeatures.NPCDialogue.Hook();
+        MajorFeatures.LemmBox.Hook();
         MajorFeatures.DreamNailDialogue.Hook();
         MajorFeatures.AutoScroll.Hook();
         MajorFeatures.ScrollLock.Hook();
         MajorFeatures.AutomaticBossDialogue.Hook();
         MajorFeatures.UITextAudio.Hook();
-        
+
         EasterEggs.EternalOrdeal.Hook();
         EasterEggs.SpecialGrub.Hook();
         EasterEggs.PaleFlower.Hook();
+        
+        MajorFeatures.Credits.Hook();
         
         On.PlayMakerFSM.Awake += AddFSMEdits;
 
         LoadAssetBundle();
         CreateAudioSource();
+    }
+
+    public override List<(string, string)> GetPreloadNames()
+    {
+        return new List<(string, string)>
+        {
+            ("Abyss_22", "Station Bell/Bell")
+        };   
     }
 
     public void CreateAudioSource()
