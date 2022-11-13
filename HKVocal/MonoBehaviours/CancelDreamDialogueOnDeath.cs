@@ -3,10 +3,19 @@ public class CancelDreamDialogueOnDeath : MonoBehaviour
 {
     private void OnDestroy()
     {
-        PlayMakerFSM fsm = FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value.LocateMyFSM("Display");
-        if (fsm.FsmVariables.GetFsmGameObject("Last Enemy").Value == gameObject)
+        FsmGameObject enemyDreamMsg = FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg");
+        if (enemyDreamMsg != null && enemyDreamMsg.Value != null)
         {
-            fsm.SendEvent("CANCEL ENEMY DREAM");
+            PlayMakerFSM fsm = enemyDreamMsg.Value.LocateMyFSM("Display");
+
+            if (fsm != null)
+            {
+                FsmGameObject lastEnemy = fsm.FsmVariables.GetFsmGameObject("Last Enemy");
+                if (lastEnemy != null && lastEnemy.Value != null && lastEnemy.Value == gameObject)
+                {
+                    fsm.SendEvent("CANCEL ENEMY DREAM");
+                }
+            }
         }
     }
 }
