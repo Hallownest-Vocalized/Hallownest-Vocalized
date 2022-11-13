@@ -10,9 +10,10 @@ public static class NPCDialogue
         OnDialogueBox.BeforeOrig.HideText += StopAudioOnDialogueBoxClose;
         
         FSMEditData.AddAnyFsmEdit("Conversation Control", RemoveOriginalNPCSounds);
-        FSMEditData.AddGameObjectFsmEdit("Iselda", "Shop Anim", RemoveIsdelaShopAudio);
-        FSMEditData.AddGameObjectFsmEdit("Mr Mushroom NPC", "Control", MuteMrMushroomAudio);
         FSMEditData.AddGameObjectFsmEdit("Shop Menu", "shop_control", MuteShopOpenAudio);
+        FSMEditData.AddGameObjectFsmEdit("Iselda", "Shop Anim", RemoveIseldaAndSalubraShopAudio);
+        FSMEditData.AddGameObjectFsmEdit("Charm Slug", "Extra Anim", RemoveIseldaAndSalubraShopAudio);
+        FSMEditData.AddGameObjectFsmEdit("Mr Mushroom NPC", "Control", MuteMrMushroomAudio);
         FSMEditData.AddGameObjectFsmEdit("Maskmaker NPC", "Conversation Control", MuteMaskMakerAudio);
         FSMEditData.AddGameObjectFsmEdit("Fluke Hermit", "Conversation Control", MuteFlukeHermitAudio);
     }
@@ -24,9 +25,23 @@ public static class NPCDialogue
 
     private static void PlayNPCDialogue(OnDialogueBox.Delegates.Params_ShowPage args)
     {
-        var convo = args.self.currentConversation + "_" + (args.self.currentPage - 1);
+        //dialoguebox is a component of DialogueManager/Text
+        var dialogueManager = args.self.gameObject.transform.parent.gameObject;
 
-        float removeTime = args.self.currentPage - 1 == 0 ? 37f / 60f : 3f / 4f;
+        bool isDreamBoxOpen = dialogueManager.Find("Box Dream").GetComponent<MeshRenderer>().enabled;
+        bool isDialogueBoxOpen = dialogueManager.Find("DialogueBox").Find("backboard").GetComponent<SpriteRenderer>().enabled;
+
+        // we dont wanna play dn dialogue when toggled off
+        if (!HKVocals._globalSettings.dnDialogue && isDreamBoxOpen)
+        {
+            return;
+        }
+
+        //convos start at _0 but page numbers start from 1
+        int convoNumber = args.self.currentPage - 1;
+        string convo = args.self.currentConversation + "_" + convoNumber;
+
+        float removeTime = convoNumber == 0 ? 3/5f : 3/4f;
 
         //this controls scroll lock and autoscroll
         DidPlayAudioOnDialogueBox = AudioUtils.TryPlayAudioFor(convo, removeTime);
@@ -40,21 +55,9 @@ public static class NPCDialogue
         }
     }
     
-    //todo: re-implement. instead of enabling/disabling, just disable what is not required
-    public static void RemoveIsdelaShopAudio(PlayMakerFSM fsm)
+    public static void RemoveIseldaAndSalubraShopAudio(PlayMakerFSM fsm)
     {
-        foreach (FsmState state in fsm.FsmStates)
-        {
-            state.DisableActionsThatAre(action => action.IsAudioAction());
-        }
-
-        fsm.AddMethod("Shop Start", () =>
-        {
-            foreach (FsmState state in fsm.FsmStates)
-            {
-                state.EnableActionsThatAre(action => action.IsAudioAction());
-            }
-        });
+        fsm.GetState("Shop Start").DisableActionsThatAre(action => action.IsAudioAction());
     }
 
     //todo: re-implement. instead of enabling/disabling, just disable what is not required
