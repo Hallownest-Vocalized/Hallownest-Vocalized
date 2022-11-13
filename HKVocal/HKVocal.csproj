@@ -36,6 +36,10 @@
             <HintPath>$(HollowKnightFolder)\Mono.Cecil.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <Reference Include="MonoMod.RuntimeDetour">
+          <HintPath>$(HollowKnightFolder)\MonoMod.RuntimeDetour.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="MonoMod.RuntimeDetour, Version=21.4.29.1, Culture=neutral, PublicKeyToken=null">
             <HintPath>$(HollowKnightFolder)\MonoMod.RuntimeDetour.dll</HintPath>
             <Private>false</Private>

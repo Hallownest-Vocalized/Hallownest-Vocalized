@@ -1,23 +1,25 @@
-﻿namespace HKVocals.MajorFeatures;
+﻿using MonoMod.RuntimeDetour;
+
+namespace HKVocals.MajorFeatures;
 
 public static class NPCDialogue
 {
     public static bool DidPlayAudioOnDialogueBox = false;
-    
     public static void Hook()
     {
         OnDialogueBox.AfterOrig.ShowPage += PlayNPCDialogue;
         OnDialogueBox.BeforeOrig.HideText += StopAudioOnDialogueBoxClose;
         
         FSMEditData.AddAnyFsmEdit("Conversation Control", RemoveOriginalNPCSounds);
-        FSMEditData.AddGameObjectFsmEdit("Shop Menu", "shop_control", MuteShopOpenAudio);
-        FSMEditData.AddGameObjectFsmEdit("Iselda", "Shop Anim", RemoveIseldaAndSalubraShopAudio);
-        FSMEditData.AddGameObjectFsmEdit("Charm Slug", "Extra Anim", RemoveIseldaAndSalubraShopAudio);
-        FSMEditData.AddGameObjectFsmEdit("Mr Mushroom NPC", "Control", MuteMrMushroomAudio);
-        FSMEditData.AddGameObjectFsmEdit("Maskmaker NPC", "Conversation Control", MuteMaskMakerAudio);
-        FSMEditData.AddGameObjectFsmEdit("Fluke Hermit", "Conversation Control", MuteFlukeHermitAudio);
+        
+        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.Play), new Type[]{}), ExcludeSomeAudios_Play);
+        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.Play), new Type[] { typeof(ulong) }), ExcludeSomeAudios_Play_delay);
+        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.PlayDelayed)), ExcludeSomeAudios_PlayDelayed);
+        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.PlayScheduled)), ExcludeSomeAudios_PlayScheduled);
+        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.PlayOneShot), new Type[] { typeof(AudioClip)}), ExcludeSomeAudios_PlayOneShot_AudioClip);
+        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.PlayOneShot), new Type[] { typeof(AudioClip), typeof(float)}), ExcludeSomeAudios_PlayOneShot_AudioClip_float);
     }
-    
+
     private static void StopAudioOnDialogueBoxClose(OnDialogueBox.Delegates.Params_HideText args)
     {
         AudioUtils.StopPlaying();
@@ -54,48 +56,72 @@ public static class NPCDialogue
             state.DisableActionsThatAre(action => action.IsAudioAction());
         }
     }
-    
-    public static void RemoveIseldaAndSalubraShopAudio(PlayMakerFSM fsm)
-    {
-        fsm.GetState("Shop Start").DisableActionsThatAre(action => action.IsAudioAction());
-    }
 
-    //todo: re-implement. instead of enabling/disabling, just disable what is not required
-    public static void MuteMrMushroomAudio(PlayMakerFSM fsm)
+    public static bool ShouldPlayClip(AudioClip clip)
     {
-        foreach (FsmState state in fsm.FsmStates)
+        if (clip != null)
         {
-            state.DisableActionsThatAre(action => action.IsAudioAction());
+            if (ExcludedClipNames.Contains(clip.name))
+            {
+                HKVocals.instance.LogDebug($"Not playing clip with name {clip.name}");
+                return false; // dont play clip
+            }
         }
 
-        fsm.AddMethod("Bounce On", () =>
+        return true; //play clip
+    }
+    
+    private static void ExcludeSomeAudios_Play(Action<AudioSource> orig, AudioSource self)
+    {
+        if (ShouldPlayClip(self.clip)) orig(self);
+    }
+    private static void ExcludeSomeAudios_Play_delay(Action<AudioSource, ulong> orig, AudioSource self, ulong delay)
+    {
+        if (ShouldPlayClip(self.clip)) orig(self, delay);
+    }
+    private static void ExcludeSomeAudios_PlayDelayed(Action<AudioSource, float> orig, AudioSource self, float delay)
+    {
+        if (ShouldPlayClip(self.clip)) orig(self, delay);
+    }
+    private static void ExcludeSomeAudios_PlayScheduled(Action<AudioSource, double> orig, AudioSource self, double time)
+    {
+        if (ShouldPlayClip(self.clip)) orig(self, time);
+    }
+    private static void ExcludeSomeAudios_PlayOneShot_AudioClip(Action<AudioSource, AudioClip> orig, AudioSource self, AudioClip clip)
+    {
+        if (clip != null && ReduceVolumeClips.Contains(clip.name))
         {
-            foreach (FsmState state in fsm.FsmStates)
-            {
-                state.EnableActionsThatAre(action => action.IsAudioAction());
-            }
-        });
+            HKVocals.instance.LogDebug($"Reducing volume for {clip.name}");
+            self.PlayOneShot(clip, 1 / 2f);
+        }
+        else if (ShouldPlayClip(clip)) orig(self, clip);
     }
     
-    public static void MuteShopOpenAudio(PlayMakerFSM fsm)
+    private static void ExcludeSomeAudios_PlayOneShot_AudioClip_float(Action<AudioSource, AudioClip, float> orig, AudioSource self, AudioClip clip, float volumeScale)
     {
-        fsm.GetState("Slug").DisableActionsThatAre(action => action.IsAudioAction());
-        fsm.GetState("Iselda").DisableActionsThatAre(action => action.IsAudioAction());
-        fsm.GetState("Sly").DisableActionsThatAre(action => action.IsAudioAction());
-        fsm.GetState("Sly 2").DisableActionsThatAre(action => action.IsAudioAction());
-        fsm.GetState("Leg Eater").DisableActionsThatAre(action => action.IsAudioAction());
-    }
-    
-    public static void MuteMaskMakerAudio(PlayMakerFSM fsm)
-    {
-        fsm.GetState("Mask Choice").InsertMethod(() =>
+        if (clip != null && ReduceVolumeClips.Contains(clip.name))
         {
-            fsm.GetGameObjectVariable("Voice Loop").Value.gameObject.GetComponent<AudioSource>().Stop();
-        },0);
+            HKVocals.instance.LogDebug($"Reducing volume for {clip.name}");
+            orig(self, clip, volumeScale / 2f);
+        }
+        else if (ShouldPlayClip(clip)) orig(self, clip, volumeScale);
     }
-    public static void MuteFlukeHermitAudio(PlayMakerFSM fsm)
+
+    private static List<string> ExcludedClipNames = new List<string>()
     {
-        fsm.GetState("Reset").DisableAction(1);
-    }
+        "Salubra_Laugh_Loop",
+        "Sly_talk_02",
+        "Banker_talk_01",
+        "Stag_ambient_loop",
+        "Mr_Mush_Talk_Loop",
+        "junk_fluke_long_loop",
+        "Mask_Maker_masked_loop",
+        "Mask_Maker_unmasked_loop",
+        "Moss_Cultist_Loop",
+    };
     
+    private static List<string> ReduceVolumeClips = new List<string>()
+    {
+        "Iselda_Shop_Open", 
+    };
 }
