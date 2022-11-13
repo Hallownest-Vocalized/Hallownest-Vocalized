@@ -51,4 +51,30 @@ public static class MiscUtils
     }
 
     public static string GetCurrentSceneName() => UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+
+    public static void ForEach<T>(this IEnumerable<T> ienumarable, Action<T> action)
+    {
+        var arr = ienumarable.ToArray();
+        foreach (var t in arr)
+        {
+            action(t);
+        }
+    }
+    
+    public static void RemoveValues<T,V>(this Dictionary<T,V> dict, Func<V, bool> condition)
+    {
+        List<T> removeList = new List<T>();
+        foreach ((T key, V value) in dict)
+        {
+            if (condition(value))
+            {
+                removeList.Add(key);
+            }
+        }
+
+        foreach (var key in removeList)
+        {
+            dict.Remove(key);
+        }
+    }
 }

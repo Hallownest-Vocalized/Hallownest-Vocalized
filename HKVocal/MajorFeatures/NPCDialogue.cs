@@ -5,24 +5,24 @@ namespace HKVocals.MajorFeatures;
 public static class NPCDialogue
 {
     public static bool DidPlayAudioOnDialogueBox = false;
+
+    //key: clip name, value: The mute audio source data
+    private static Dictionary<string, MuteAudioSourceData> ToMuteAudioSources = new ();
+
     public static void Hook()
     {
         OnDialogueBox.AfterOrig.ShowPage += PlayNPCDialogue;
         OnDialogueBox.BeforeOrig.HideText += StopAudioOnDialogueBoxClose;
         
         FSMEditData.AddAnyFsmEdit("Conversation Control", RemoveOriginalNPCSounds);
+
+        FSMEditData.AddGameObjectFsmEdit("Iselda", "Shop Anim", ReduceIseldaOpenShopClipVolume);
         
         _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.Play), new Type[]{}), ExcludeSomeAudios_Play);
         _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.Play), new Type[] { typeof(ulong) }), ExcludeSomeAudios_Play_delay);
         _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.PlayDelayed)), ExcludeSomeAudios_PlayDelayed);
         _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.PlayScheduled)), ExcludeSomeAudios_PlayScheduled);
-        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.PlayOneShot), new Type[] { typeof(AudioClip)}), ExcludeSomeAudios_PlayOneShot_AudioClip);
-        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.PlayOneShot), new Type[] { typeof(AudioClip), typeof(float)}), ExcludeSomeAudios_PlayOneShot_AudioClip_float);
-    }
-
-    private static void StopAudioOnDialogueBoxClose(OnDialogueBox.Delegates.Params_HideText args)
-    {
-        AudioUtils.StopPlaying();
+        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.PlayOneShot), new Type[] { typeof(AudioClip), typeof(float)}), ExcludeSomeAudios_PlayOneShot);
     }
 
     private static void PlayNPCDialogue(OnDialogueBox.Delegates.Params_ShowPage args)
@@ -47,6 +47,34 @@ public static class NPCDialogue
 
         //this controls scroll lock and autoscroll
         DidPlayAudioOnDialogueBox = AudioUtils.TryPlayAudioFor(convo, removeTime);
+
+        if (DidPlayAudioOnDialogueBox) //removed for testing
+        {
+            ToMuteAudioSources.RemoveValues(data => data.originalAudioSource == null || data.originalAudioSource.clip == null);
+
+            ToMuteAudioSources.Values.ForEach(data =>
+            {
+                //we wanna make sure that audiosource is not playing something else
+                if (ClipsToMute.Contains(data.originalAudioSource.clip.name))
+                {
+                    HKVocals.instance.LogError($"Muting {data.originalAudioSource.clip.name}");
+                    data.Mute();
+                }
+            });
+        }
+    }
+    
+    private static void StopAudioOnDialogueBoxClose(OnDialogueBox.Delegates.Params_HideText args)
+    {
+        AudioUtils.StopPlaying();
+
+        ToMuteAudioSources.Values.ForEach(data =>
+        {
+            if (data.muted)
+            {
+                data.UnMute();
+            }
+        });
     }
     
     public static void RemoveOriginalNPCSounds(PlayMakerFSM fsm)
@@ -57,57 +85,49 @@ public static class NPCDialogue
         }
     }
 
-    public static bool ShouldPlayClip(AudioClip clip)
+    private static void ReduceIseldaOpenShopClipVolume(PlayMakerFSM fsm)
     {
-        if (clip != null)
-        {
-            if (ExcludedClipNames.Contains(clip.name))
-            {
-                HKVocals.instance.LogDebug($"Not playing clip with name {clip.name}");
-                return false; // dont play clip
-            }
-        }
+       fsm.GetAction<AudioPlayerOneShotSingle>("Shop Start", 1).volume = 0.1f;
+    }
 
-        return true; //play clip
+    private static void StoreAudioSource(AudioSource source) => StoreAudioSource(source, source.clip);
+    private static void StoreAudioSource(AudioSource source, AudioClip clip)
+    {
+        if (clip != null && ClipsToMute.Contains(clip.name))
+        {
+            ToMuteAudioSources[clip.name] = new(source);
+        }
     }
     
     private static void ExcludeSomeAudios_Play(Action<AudioSource> orig, AudioSource self)
     {
-        if (ShouldPlayClip(self.clip)) orig(self);
+        StoreAudioSource(self);
+        orig(self);
     }
     private static void ExcludeSomeAudios_Play_delay(Action<AudioSource, ulong> orig, AudioSource self, ulong delay)
     {
-        if (ShouldPlayClip(self.clip)) orig(self, delay);
+        StoreAudioSource(self);  
+        orig(self, delay);
     }
     private static void ExcludeSomeAudios_PlayDelayed(Action<AudioSource, float> orig, AudioSource self, float delay)
     {
-        if (ShouldPlayClip(self.clip)) orig(self, delay);
+        StoreAudioSource(self);  
+        orig(self, delay);
     }
     private static void ExcludeSomeAudios_PlayScheduled(Action<AudioSource, double> orig, AudioSource self, double time)
     {
-        if (ShouldPlayClip(self.clip)) orig(self, time);
-    }
-    private static void ExcludeSomeAudios_PlayOneShot_AudioClip(Action<AudioSource, AudioClip> orig, AudioSource self, AudioClip clip)
-    {
-        if (clip != null && ReduceVolumeClips.Contains(clip.name))
-        {
-            HKVocals.instance.LogDebug($"Reducing volume for {clip.name}");
-            self.PlayOneShot(clip, 1 / 2f);
-        }
-        else if (ShouldPlayClip(clip)) orig(self, clip);
-    }
-    
-    private static void ExcludeSomeAudios_PlayOneShot_AudioClip_float(Action<AudioSource, AudioClip, float> orig, AudioSource self, AudioClip clip, float volumeScale)
-    {
-        if (clip != null && ReduceVolumeClips.Contains(clip.name))
-        {
-            HKVocals.instance.LogDebug($"Reducing volume for {clip.name}");
-            orig(self, clip, volumeScale / 2f);
-        }
-        else if (ShouldPlayClip(clip)) orig(self, clip, volumeScale);
+        StoreAudioSource(self); 
+        orig(self, time);
     }
 
-    private static List<string> ExcludedClipNames = new List<string>()
+    private static void ExcludeSomeAudios_PlayOneShot(Action<AudioSource, AudioClip, float> orig, AudioSource self, AudioClip clip, float volumeScale)
+    {
+        StoreAudioSource(self, clip);   
+        orig(self, clip, volumeScale);
+    }
+
+    // we need to stop these from playing when voice actor (VA) is speaking
+    private static readonly List<string> ClipsToMute = new ()
     {
         "Salubra_Laugh_Loop",
         "Sly_talk_02",
@@ -119,9 +139,29 @@ public static class NPCDialogue
         "Mask_Maker_unmasked_loop",
         "Moss_Cultist_Loop",
     };
-    
-    private static List<string> ReduceVolumeClips = new List<string>()
+
+    private class MuteAudioSourceData
     {
-        "Iselda_Shop_Open", 
-    };
+        public AudioSource originalAudioSource;
+        public bool muted;
+        
+        public MuteAudioSourceData(AudioSource _originalAudioSource)
+        {
+            originalAudioSource = _originalAudioSource;
+            muted = false;
+        }
+
+        public void Mute()
+        {
+            originalAudioSource.mute = true;
+            muted = true;
+        }
+        
+        public void UnMute()
+        {
+            originalAudioSource.mute = false;
+            muted = false;
+        }
+        
+    }
 }
