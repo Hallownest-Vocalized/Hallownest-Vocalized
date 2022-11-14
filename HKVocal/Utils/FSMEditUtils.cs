@@ -127,7 +127,7 @@ public static class FSMEditUtils
         }
         else if (action is AudioPlaySimple audioPlaySimple)
         {
-            GameObject owner = audioPlaySimple.Fsm.GetOwnerDefaultTarget(audioPlaySimple.gameObject);
+            var owner = audioPlaySimple.Fsm.GetOwnerDefaultTarget(audioPlaySimple.gameObject);
             if (owner != null)
             {
                 var source = owner.GetComponent<AudioSource>();

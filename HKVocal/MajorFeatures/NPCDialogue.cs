@@ -4,77 +4,35 @@ namespace HKVocals.MajorFeatures;
 
 public static class NPCDialogue
 {
-    public static bool DidPlayAudioOnDialogueBox = false;
+    public static bool DidPlayAudioOnDialogueBox;
 
     //key: clip name, value: The mute audio source data
-    private static Dictionary<string, MuteAudioSourceData> ToMuteAudioSources = new ();
+    private static readonly Dictionary<string, MuteAudioSourceData> ToMuteAudioSources = new ();
 
     public static void Hook()
     {
-        OnDialogueBox.AfterOrig.ShowPage += PlayNPCDialogue;
+        OnDialogueBox.AfterOrig.ShowPage += PlayAudioForNPCDialogue;
         OnDialogueBox.BeforeOrig.HideText += StopAudioOnDialogueBoxClose;
 
         FSMEditData.AddAnyFsmEdit("Conversation Control", RemoveOriginalNPCSounds);
 
-        FSMEditData.AddGameObjectFsmEdit("DialogueManager", "Box Open", UnMuteAudios);
-        FSMEditData.AddGameObjectFsmEdit("Iselda", "Shop Anim", ReduceIseldaOpenShopClipVolume);
-        FSMEditData.AddGameObjectFsmEdit("Iselda", "Conversation Control", FindIfFirstIseldaConvo);
-        FSMEditData.AddGameObjectFsmEdit("Maskmaker NPC", "Conversation Control", RemoveMaskMakerAudio);
-        FSMEditData.AddGameObjectFsmEdit("Shop Region", "Shop Region", f =>
-        {
-            if (f.gameObject.scene.name == "Room_mapper")
-            {
-                f.GetAction<SetPlayerDataBool>("Box Up", 0).Enabled = false;
-                
-                var y =f.AddFsmBoolVariable("YO WTF");
-                y.Value = false;
-
-                f.InsertMethod("Check Intro Bool", () =>
-                {
-                    if (GameObject.Find("Iselda").LocateMyFSM("Shop Anim").FindFsmBoolVariable("LMAO_WTF").Value)
-                    {
-                        f.SetState("Title Up");
-                    }
-                    if (PlayerDataAccess.metIselda)
-                    {
-                        f.SetState("Sly Key Convo?");
-                    }
-                },0);
-                f.GetAction<PlayerDataBoolTest>("Check Intro Bool", 1).Enabled = false;
-                f.InsertMethod("Sly Key Convo?",() =>
-                {
-                    if (!y.Value)
-                    {
-                        if (GameObject.Find("Iselda").LocateMyFSM("Shop Anim").FindFsmBoolVariable("LMAO_WTF").Value)
-                        {
-                            f.SetState("Box Up");
-                        }
-                    }
-                }, 0);
-
-                f.InsertMethod("Box Down", () => y.Value = true, 0);
-                
-                f.MakeLog();
-            }
-            f.ChangeTransition("Voice", "LEMM", "Convo");
-            f.ChangeTransition("Voice", "SLY", "Convo");
-            f.GetState("Convo Relic").DisableActionsThatAre(a => a.IsAudioAction());
-        });
-        FSMEditData.AddGameObjectFsmEdit("Relic Dealer","Relic Discussions", f =>
-        { 
-            f.GetState("Convo").DisableActionsThatAre(a => a.IsAudioAction());
-        });
+        FSMEditData.AddGameObjectFsmEdit("DialogueManager", "Box Open", UnMuteAudiosThatWereMuted);
         
-        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.Play), new Type[]{}), ExcludeSomeAudios_Play);
-        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.Play), new Type[] { typeof(ulong) }), ExcludeSomeAudios_Play_delay);
-        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.PlayDelayed)), ExcludeSomeAudios_PlayDelayed);
-        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.PlayScheduled)), ExcludeSomeAudios_PlayScheduled);
-        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.PlayOneShot), new Type[] { typeof(AudioClip), typeof(float)}), ExcludeSomeAudios_PlayOneShot);
+        //remove audio in special 
+        FSMEditData.AddGameObjectFsmEdit("Iselda", "Conversation Control", DontSetMetIseldaPDBool);
+        FSMEditData.AddGameObjectFsmEdit("Iselda", "Shop Anim", ChangeIseldaShopAudio);
+        FSMEditData.AddGameObjectFsmEdit("Maskmaker NPC", "Conversation Control", RemoveMaskMakerAudio);
+        FSMEditData.AddGameObjectFsmEdit("Shop Region", "Shop Region", RemoveLemmAndSlyShopAudio);
+        FSMEditData.AddGameObjectFsmEdit("Relic Dealer","Relic Discussions", RemoveRelicDiscussionsAudio);
+        FSMEditData.AddGameObjectFsmEdit("Fluke Hermit", "Conversation Control", RemoveFlukeHermitAudio);
+        
+        //we need a way to get the AudioSources that play the to mute audios that not as expensive as Resources.FindObjectsOfTypeAll<AudioSource>() 
+        HookAudioSourcePlays();
     }
 
-    private static void PlayNPCDialogue(OnDialogueBox.Delegates.Params_ShowPage args)
+    private static void PlayAudioForNPCDialogue(OnDialogueBox.Delegates.Params_ShowPage args)
     {
-        //dialoguebox is a component of DialogueManager/Text
+        //DialogueBox is a component of DialogueManager/Text
         var dialogueManager = args.self.gameObject.transform.parent.gameObject;
 
         bool isDreamBoxOpen = dialogueManager.Find("Box Dream").GetComponent<MeshRenderer>().enabled;
@@ -95,21 +53,36 @@ public static class NPCDialogue
         //this controls scroll lock and autoscroll
         DidPlayAudioOnDialogueBox = AudioUtils.TryPlayAudioFor(convo, removeTime);
 
-        if (DidPlayAudioOnDialogueBox)
+        if (DidPlayAudioOnDialogueBox || true) //todo: change after testing complete
         {
-            ToMuteAudioSources.RemoveValues(data => data.originalAudioSource == null || data.originalAudioSource.clip == null);
+            ToMuteAudioSources.RemoveValues(data => data.IsNull());
 
             ToMuteAudioSources.Values.ForEach(data =>
             {
                 //we wanna make sure that audiosource is not playing something else
                 if (ClipsToMute.Contains(data.originalAudioSource.clip.name))
                 {
-                    HKVocals.instance.LogError($"Muting {data.originalAudioSource.clip.name}");
                     data.Mute();
-                    
                 }
             });
         }
+    }
+    
+    private static void UnMuteAudiosThatWereMuted(PlayMakerFSM fsm)
+    {
+        Action unmute = () =>
+        {
+            ToMuteAudioSources.RemoveValues(data => data.IsNull());
+            ToMuteAudioSources.Values.ForEach(data =>
+            {
+                data.UnMute();
+                
+                MiscUtils.WaitForFramesBeforeInvoke(20, data.ReplayAudio);
+            });
+        };
+
+        fsm.AddMethod("Box Down", unmute);
+        fsm.AddMethod("Box Down No HUD", unmute);
     }
     
     private static void StopAudioOnDialogueBoxClose(OnDialogueBox.Delegates.Params_HideText args)
@@ -121,124 +94,127 @@ public static class NPCDialogue
     {
         foreach (FsmState state in fsm.FsmStates)
         {
-            state.DisableActionsThatAre(action => action.IsAudioAction()); // && action.GetClipNames().Any(clip => ClipsToInclude.Contains(clip)));
+            state.DisableActionsThatAre(action => action.IsAudioAction() && !action.GetClipNames().Any(clip => ClipsToInclude.Contains(clip)));
         }
     }
 
-    private static void FindIfFirstIseldaConvo(PlayMakerFSM fsm)
+    #region Remove Audio Special Cases
+    private static void DontSetMetIseldaPDBool(PlayMakerFSM fsm)
     {
+        //disable the action that sets the pdBool
         fsm.GetAction<SetPlayerDataBool>("Meet", 2).Enabled = false;
-        var b1 = fsm.AddFsmBoolVariable("ISELDA_MEET");
-        b1.Value = false;
     }
-    
-    private static void ReduceIseldaOpenShopClipVolume(PlayMakerFSM fsm)
+
+    private static void ChangeIseldaShopAudio(PlayMakerFSM fsm)
     {
-        var action = fsm.GetAction<AudioPlayerOneShotSingle>("Shop Start", 1);
-        action.Enabled = false;
-        var wtf = fsm.AddFsmBoolVariable("LMAO_WTF");
-        wtf.Value = false;
-        fsm.AddMethod("Shop Start",() =>
+        //make the volume lower
+        var iseldaOpenAudio = fsm.GetAction<AudioPlayerOneShotSingle>("Shop Start", 1);
+        iseldaOpenAudio.volume = 0.4f;
+        
+        //only play the audio every time after the first. we need to wait a bit to set the pd bool cuz this fsm runs first
+        fsm.InsertMethod("Shop Start",() =>
         {
             if (!PlayerDataAccess.metIselda)
             {
-                wtf.Value = true;
-                if (fsm.gameObject.LocateMyFSM("Conversation Control").GetFsmBoolVariable("ISELDA_MEET").Value)
-                {
-                    HKVocals.instance.Log("I SEMI HATE ISELDA");
-                    PlayerDataAccess.metIselda = true;
-                }
-                else
-                {
-                    HKVocals.instance.Log("I HATE ISELDA");
-                    fsm.gameObject.LocateMyFSM("Conversation Control").GetFsmBoolVariable("ISELDA_MEET").Value = true;
-                }
+                iseldaOpenAudio.Enabled = false;
+                MiscUtils.WaitForSecondsBeforeInvoke(2f, () => PlayerDataAccess.metIselda = true);
             }
             else
             {
-                HKVocals.instance.Log("I KINDA HATE ISELDA");
-                if (action.audioPlayer.Value != null)
-                {
-                    action.storePlayer.Value = action.audioPlayer.Value.Spawn(action.spawnPoint.Value.transform.position, Quaternion.Euler(Vector3.up));
-                    var source = action.storePlayer.Value.GetComponent<AudioSource>();
-                    var clip = action.audioClip.Value as AudioClip;
-                    source.pitch = 1f;
-                    source.volume = 0.4f;
-                    if (clip != null) source.PlayOneShot(clip);
-                }
+                iseldaOpenAudio.Enabled = true;
             }
-        });
+        },1);
     }
     
     private static void RemoveMaskMakerAudio(PlayMakerFSM fsm)
     {
-        fsm.InsertMethod("Mask Choice", () => fsm.gameObject.transform.Find("Voice Loop").GetComponent<AudioSource>().Stop(), 0);
+        var source = fsm.gameObject.transform.Find("Voice Loop").GetComponent<AudioSource>();
 
-        fsm.ChangeTransition("Mask1", "CONVO_FINISH", "Play Audio");
-        fsm.ChangeTransition("Mask 2", "CONVO_FINISH", "Play Audio");
-        fsm.ChangeTransition("Mask 3", "CONVO_FINISH", "Play Audio");
-        fsm.ChangeTransition("Mask 4", "CONVO_FINISH", "Play Audio");
+        //we need restart audio after make masked dialogue 
+        foreach(string stateToReroute in new[] { "Mask1", "Mask 2", "Mask 3", "Mask 4" })
+        {
+            fsm.ChangeTransition(stateToReroute, "CONVO_FINISH", "Play Audio");
+        }
+
+        fsm.InsertMethod("Mask Choice", () => source.Stop(), 0);
         
         fsm.InsertMethod("Play Audio", () =>
         {
-            fsm.gameObject.transform.Find("Voice Loop").GetComponent<AudioSource>().volume = 1f;
-            fsm.gameObject.transform.Find("Voice Loop").GetComponent<AudioSource>().pitch = 1f;
-            fsm.gameObject.transform.Find("Voice Loop").GetComponent<AudioSource>().Play();
+            source.volume = 1f;
+            source.pitch = 1f;
+            source.Play();
         }, 0);
     }
-
-    private static void UnMuteAudios(PlayMakerFSM fsm)
+    
+    private static void RemoveLemmAndSlyShopAudio(PlayMakerFSM fsm)
     {
-        Action unmute = () =>
-        {
-            ToMuteAudioSources.Values.ForEach(data =>
-            {
-                if (data.muted)
-                {
-                    data.UnMute();
-                }
-            });
-        };
-
-        fsm.AddMethod("Box Down", unmute);
-        fsm.AddMethod("Box Down No HUD", unmute);
+        fsm.ChangeTransition("Voice", "LEMM", "Convo");
+        fsm.ChangeTransition("Voice", "SLY", "Convo");
+        fsm.GetState("Convo Relic").DisableActionsThatAre(a => a.IsAudioAction());
     }
+    
+    private static void RemoveRelicDiscussionsAudio(PlayMakerFSM fsm)
+    {
+        //we cant add this to mute list because we do want the same audios to play at other times
+        fsm.GetState("Convo").DisableActionsThatAre(a => a.IsAudioAction());
+    }
+    
+    private static void RemoveFlukeHermitAudio(PlayMakerFSM fsm)
+    {
+        //for some reason our hooks dont capture it so we'll do it manually
+        fsm.InsertMethod("Box Up", () =>
+        {
+            StoreAudioSourceToMute(fsm.gameObject.GetComponent<AudioSource>());
+        }, 0);
+    }
+    
+    #endregion
 
-    private static void StoreAudioSource(AudioSource source) => StoreAudioSource(source, source.clip);
-    private static void StoreAudioSource(AudioSource source, AudioClip clip)
+    #region Store AudioSources
+    private static void HookAudioSourcePlays()
+    {
+        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.Play), Array.Empty<Type>()), ExcludeSomeAudios_Play);
+        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.Play), new [] { typeof(ulong) }), ExcludeSomeAudios_Play_delay);
+        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.PlayDelayed)), ExcludeSomeAudios_PlayDelayed);
+        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.PlayScheduled)), ExcludeSomeAudios_PlayScheduled);
+        _ = new Hook(typeof(AudioSource).GetMethod(nameof(AudioSource.PlayOneShot), new [] { typeof(AudioClip), typeof(float)}), ExcludeSomeAudios_PlayOneShot);
+    }
+    private static bool StoreAudioSourceToMute(AudioSource source) => StoreAudioSourceToMute(source, source.clip);
+    private static bool StoreAudioSourceToMute(AudioSource source, AudioClip clip)
     {
         if (clip != null && ClipsToMute.Contains(clip.name))
         {
             ToMuteAudioSources[clip.name] = new(source);
+            HKVocals.instance.LogDebug($"Storing audio for mute {clip.name}");
+            return true;
         }
+
+        return false;
     }
     
     private static void ExcludeSomeAudios_Play(Action<AudioSource> orig, AudioSource self)
     {
-        StoreAudioSource(self);
-        orig(self);
+        if (!StoreAudioSourceToMute(self)) orig(self);
     }
     private static void ExcludeSomeAudios_Play_delay(Action<AudioSource, ulong> orig, AudioSource self, ulong delay)
     {
-        StoreAudioSource(self);  
-        orig(self, delay);
+        if (!StoreAudioSourceToMute(self)) orig(self, delay);
     }
     private static void ExcludeSomeAudios_PlayDelayed(Action<AudioSource, float> orig, AudioSource self, float delay)
     {
-        StoreAudioSource(self);  
-        orig(self, delay);
+        if (!StoreAudioSourceToMute(self)) orig(self, delay);
     }
     private static void ExcludeSomeAudios_PlayScheduled(Action<AudioSource, double> orig, AudioSource self, double time)
     {
-        StoreAudioSource(self); 
-        orig(self, time);
+        if (!StoreAudioSourceToMute(self)) orig(self, time);
     }
 
     private static void ExcludeSomeAudios_PlayOneShot(Action<AudioSource, AudioClip, float> orig, AudioSource self, AudioClip clip, float volumeScale)
     {
-        StoreAudioSource(self, clip);   
-        orig(self, clip, volumeScale);
+        if (!StoreAudioSourceToMute(self, clip)) orig(self, clip, volumeScale);
     }
+    
+    #endregion
 
     // we need to stop these from playing when voice actor (VA) is speaking
     private static readonly List<string> ClipsToMute = new ()
@@ -253,6 +229,7 @@ public static class NPCDialogue
         "Stag_ambient_loop",
         "Mr_Mush_Talk_Loop",
         "junk_fluke_long_loop",
+        "junk_fluke_long_loop_nervous",
         "Moss_Cultist_Loop",
         "Grimm_talk_02",
         "Grimm_talk_03",
@@ -267,7 +244,6 @@ public static class NPCDialogue
         "Hornet_Dialogue_Generic_03",
         "Hornet_Dialogue_Generic_04",
         "Hornet_Dialogue_Generic_05",
-
     };
 
     private static readonly List<string> ClipsToInclude = new()
@@ -288,14 +264,34 @@ public static class NPCDialogue
 
         public void Mute()
         {
+            HKVocals.instance.LogError($"Muting {originalAudioSource.clip.name}");
             originalAudioSource.mute = true;
             muted = true;
         }
         
         public void UnMute()
         {
+            HKVocals.instance.LogError($"UnMuting {originalAudioSource.clip.name}");
             originalAudioSource.mute = false;
             muted = false;
+        }
+
+        public bool IsNull()
+        {
+            return originalAudioSource == null || originalAudioSource.clip == null;
+        }
+
+        //for when loop audio sometimes doesnt restart
+        public void ReplayAudio()
+        {
+            if (!IsNull())
+            {
+                if (!originalAudioSource.isPlaying && originalAudioSource.loop)
+                {
+                    HKVocals.instance.LogDebug($"Re-playing {originalAudioSource.clip}");
+                    originalAudioSource.Play();
+                }
+            }
         }
         
     }
