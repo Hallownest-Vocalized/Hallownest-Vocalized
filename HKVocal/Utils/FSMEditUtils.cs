@@ -77,7 +77,7 @@ public static class FSMEditUtils
 
     public static void DisableActionsThatAre(this FsmState state, Func<FsmStateAction, bool> predicate)
     {
-        if (state.Actions.Any(action => action.IsAudioAction()))
+        if (state.Actions.Any(predicate))
         {
             foreach (var action in state.Actions.Where(predicate))
             {
@@ -88,7 +88,7 @@ public static class FSMEditUtils
     
     public static void EnableActionsThatAre(this FsmState state, Func<FsmStateAction, bool> predicate)
     {
-        if (state.Actions.Any(action => action.IsAudioAction()))
+        if (state.Actions.Any(predicate))
         {
             foreach (var action in state.Actions.Where(predicate))
             {
@@ -100,5 +100,51 @@ public static class FSMEditUtils
     public static bool IsAudioAction(this FsmStateAction action)
     {
         return action is AudioPlayerOneShot or AudioPlayerOneShotSingle or AudioPlaySimple;
+    }
+
+    public static string[] GetClipNames(this FsmStateAction action)
+    {
+        List<string> ret = new List<string>();
+        if (action is AudioPlayerOneShot audioPlayerOneShot)
+        {
+            if (audioPlayerOneShot.audioClips is { Length: > 0 })
+            {
+                audioPlayerOneShot.audioClips.ForEach(c =>
+                {
+                    if (c != null)
+                    {
+                        ret.Add(c.name);
+                    }
+                });
+            }
+        }
+        else if (action is AudioPlayerOneShotSingle audioPlayerOneShotSingle)
+        {
+            if (audioPlayerOneShotSingle.audioClip != null)
+            {
+                ret.Add(audioPlayerOneShotSingle.audioClip.Name);
+            }
+        }
+        else if (action is AudioPlaySimple audioPlaySimple)
+        {
+            var owner = audioPlaySimple.Fsm.GetOwnerDefaultTarget(audioPlaySimple.gameObject);
+            if (owner != null)
+            {
+                var source = owner.GetComponent<AudioSource>();
+                if (source != null)
+                {
+                    if (audioPlaySimple.oneShotClip != null)
+                    {
+                        ret.Add(audioPlaySimple.oneShotClip.Name);
+                    }
+                    else
+                    {
+                        ret.Add(source.clip.name);
+                    } 
+                }
+            }
+        }
+
+        return ret.ToArray();
     }
 }
