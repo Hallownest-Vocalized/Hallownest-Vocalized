@@ -1,8 +1,3 @@
-using System.Text.RegularExpressions;
-using HKMirror.Hooks.OnHooks;
-using HKMirror.Reflection;
-using HKMirror.Reflection.InstanceClasses;
-
 namespace HKVocals;
 
 public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<SaveSettings>, ICustomMenuMod
@@ -49,8 +44,8 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         EasterEggs.EternalOrdeal.Hook();
         EasterEggs.SpecialGrub.Hook();
         EasterEggs.PaleFlower.Hook();
-        
-        On.PlayMakerFSM.Awake += AddFSMEdits;
+
+        Hooks.PmFsmBeforeStartHook += AddFSMEdits;
 
         LoadAssetBundle();
         CreateAudioSource();
@@ -64,27 +59,25 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         Object.DontDestroyOnLoad(audioGO);
     }
 
-    private void AddFSMEdits(On.PlayMakerFSM.orig_Awake orig, PlayMakerFSM self)
+    private void AddFSMEdits(PlayMakerFSM fsm)
     {
-        orig(self);
-
         string sceneName = MiscUtils.GetCurrentSceneName();
-        string gameObjectName = self.gameObject.name;
-        string fsmName = self.FsmName;
+        string gameObjectName = fsm.gameObject.name;
+        string fsmName = fsm.FsmName;
 
         foreach (var fsmEdit in FSMEditData.SceneFsmEdits.FindAll(x => x.DoesMatch(sceneName, gameObjectName, fsmName)))
         {
-            fsmEdit.Invoke(self);
+            fsmEdit.Invoke(fsm);
         }
         
         foreach (var fsmEdit in FSMEditData.GameObjectFsmEdits.FindAll(x => x.DoesMatch(gameObjectName, fsmName)))
         {
-            fsmEdit.Invoke(self);
+            fsmEdit.Invoke(fsm);
         }
         
         foreach (var fsmEdit in FSMEditData.AnyFsmEdits.FindAll(x => x.DoesMatch(fsmName)))
         {
-            fsmEdit.Invoke(self);
+            fsmEdit.Invoke(fsm);
         }
     }
 

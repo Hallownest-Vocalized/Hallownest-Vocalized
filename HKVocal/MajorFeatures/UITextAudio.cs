@@ -1,5 +1,4 @@
 ﻿namespace HKVocals.MajorFeatures;
-
 public class UITextAudio
 {
     private static bool HunterNotesUnlocked = true;

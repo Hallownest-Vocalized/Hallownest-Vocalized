@@ -35,8 +35,8 @@ public static class NPCDialogue
         //DialogueBox is a component of DialogueManager/Text
         var dialogueManager = args.self.gameObject.transform.parent.gameObject;
 
-        bool isDreamBoxOpen = dialogueManager.Find("Box Dream").GetComponent<MeshRenderer>().enabled;
-        bool isDialogueBoxOpen = dialogueManager.Find("DialogueBox").Find("backboard").GetComponent<SpriteRenderer>().enabled;
+        bool isDreamBoxOpen = dialogueManager.transform.Find("Box Dream").GetComponent<MeshRenderer>().enabled;
+        bool isDialogueBoxOpen = dialogueManager.transform.Find("DialogueBox").Find("backboard").GetComponent<SpriteRenderer>().enabled;
 
         // we dont wanna play dn dialogue when toggled off
         if (!HKVocals._globalSettings.dnDialogue && isDreamBoxOpen)

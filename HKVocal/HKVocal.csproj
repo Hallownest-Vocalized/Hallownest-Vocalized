@@ -120,8 +120,8 @@
             <HintPath>$(HollowKnightFolder)\Mods\Satchel\Satchel.dll</HintPath>
             <Private>false</Private>
         </Reference>
-        <Reference Include="SFCore">
-            <HintPath>$(HollowKnightFolder)\Mods\SFCore\SFCore.dll</HintPath>
+        <Reference Include="Core_FsmUtil">
+            <HintPath>$(HollowKnightFolder)\Mods\Core_FsmUtil\Core_FsmUtil.dll</HintPath>
             <Private>false</Private>
         </Reference>
         <Reference Include="UnityEngine.AssetBundleModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">

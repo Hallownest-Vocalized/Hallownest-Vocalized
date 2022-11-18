@@ -1,8 +1,4 @@
-﻿using HKMirror.Hooks.OnHooks;
-using HKMirror.Reflection;
-
-namespace HKVocals.EasterEggs;
-
+﻿namespace HKVocals.EasterEggs;
 public static class EternalOrdeal
 {
     private static GameObject ZoteLeverGo;
@@ -17,17 +13,26 @@ public static class EternalOrdeal
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += DeleteZoteAudioPlayersOnSceneChange;
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += PlaceZoteLever;
 
-        FSMEditData.AddRange(
-            Zote_Normal.Select(goName => new GameObjectFsmEditData(goName, ZoteFsmName,
-                        fsm => EditFsmToPlayRandomDialogue(fsm, "Tumble Out")))
-                .Concat(Zote_Balloon.Select(goName => new GameObjectFsmEditData(goName, ZoteFsmName,
-                            fsm => EditFsmToPlayRandomDialogue(fsm, "Appear"))))
-                .Concat(Zote_Zoteling.Select(goName => new GameObjectFsmEditData(goName, ZoteFsmName,
-                            fsm => EditFsmToPlayRandomDialogue(fsm, "Ball"))))
-                .Concat(Zote_Other.Select(goName => new GameObjectFsmEditData(goName, ZoteFsmName,
-                            fsm => EditFsmToPlayRandomDialogue(fsm, "Antic"))))
-                .Concat(Zote_Thowmp.Select(goName => new GameObjectFsmEditData(goName, ZoteFsmName,
-                            fsm => EditFsmToPlayRandomDialogue(fsm, "Antic Shake")))));
+        foreach (var zote in Zote_Normal)
+        {
+            Hooks.HookStateEntered(new FSMData(zote, ZoteFsmName, "Tumble Out"), PlayRandomDialogue);
+        }
+        foreach (var zote in Zote_Balloon)
+        {
+            Hooks.HookStateEntered(new FSMData(zote, ZoteFsmName, "Appear"), PlayRandomDialogue);
+        }
+        foreach (var zote in Zote_Zoteling)
+        {
+            Hooks.HookStateEntered(new FSMData(zote, ZoteFsmName, "Ball"), PlayRandomDialogue);
+        }
+        foreach (var zote in Zote_Other)
+        {
+            Hooks.HookStateEntered(new FSMData(zote, ZoteFsmName, "Antic"), PlayRandomDialogue);
+        }
+        foreach (var zote in Zote_Thowmp)
+        {
+            Hooks.HookStateEntered(new FSMData(zote, ZoteFsmName, "Antic Shake"), PlayRandomDialogue);
+        }
     }
     
     public static void PlaceZoteLever(Scene From, Scene To)
@@ -156,18 +161,14 @@ public static class EternalOrdeal
     {
         "Zote Thwomp"
     };
-
-    public static void EditFsmToPlayRandomDialogue(PlayMakerFSM fsm, string stateName)
+    public static void PlayRandomDialogue(PlayMakerFSM fsm)
     {
         if (MiscUtils.GetCurrentSceneName() == "GG_Mighty_Zote")
         {
-            fsm.InsertMethod(stateName, () =>
+            if (HKVocals._globalSettings.OrdealZoteSpeak && Random.value <= 0.4f)
             {
-                if (HKVocals._globalSettings.OrdealZoteSpeak && Random.value <= 0.4f)
-                {
-                    AudioUtils.PlayAudioFor(ZoteDialogues[Random.Range(1, 4)], GetZoteAudioPlayer());
-                }
-            }, 0);
+                AudioUtils.PlayAudioFor(ZoteDialogues[Random.Range(1, 4)], GetZoteAudioPlayer());
+            }
         }
     }
 }

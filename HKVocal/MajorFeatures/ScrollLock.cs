@@ -1,5 +1,4 @@
 ﻿namespace HKVocals.MajorFeatures;
-
 public static class ScrollLock
 {
     public static void Hook()

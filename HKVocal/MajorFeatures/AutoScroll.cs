@@ -77,7 +77,7 @@ public static class AutoScroll
             if (!(NPCDialogue.DidPlayAudioOnDialogueBox && HKVocals._globalSettings.autoScroll &&
                 HKVocals._globalSettings.scrollLock))
             {
-                fsm.Fsm.GameObject.gameObject.transform.parent.gameObject.Find("Arrow").LocateMyFSM("Arrow Anim").SendEvent("UP");
+                fsm.Fsm.GameObject.gameObject.transform.parent.Find("Arrow").gameObject.LocateMyFSM("Arrow Anim").SendEvent("UP");
             }
         }, arrowUpActionIndex);
     }

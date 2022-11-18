@@ -10,7 +10,7 @@ global using System.Collections;
 global using System.Collections.Generic;
 global using System.Linq;
 global using HutongGames.PlayMaker;
-global using SFCore.Utils;
+global using Core.FsmUtil;
 global using HKMirror;
 global using HKMirror.Reflection;
 global using HKMirror.Reflection.InstanceClasses;

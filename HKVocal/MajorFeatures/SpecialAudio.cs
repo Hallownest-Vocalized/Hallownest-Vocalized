@@ -53,9 +53,9 @@ public static class SpecialAudio
     
     public static void MakeElderbugPlaySpecialAudio(PlayMakerFSM fsm)
     {
-        //the idea is to add a new statewhich plays the alt audio and we change the transitions of the intros that dont work well to the alt audio playing state
+        //the idea is to add a new state which plays the alt audio and we change the transitions of the intros that dont work well to the alt audio playing state
         var introMain = fsm.GetState("Intro Main");
-        var alt = fsm.CopyFsmState(introMain.Name, introMain.Name + " Alt");
+        var alt = fsm.CopyState(introMain.Name, introMain.Name + " Alt");
 
         alt.Actions = Array.Empty<FsmStateAction>();
         
