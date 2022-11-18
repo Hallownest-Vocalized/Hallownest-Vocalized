@@ -11,6 +11,7 @@ global using System.Collections.Generic;
 global using System.Linq;
 global using HutongGames.PlayMaker;
 global using Core.FsmUtil;
+global using Satchel;
 global using HKMirror;
 global using HKMirror.Reflection;
 global using HKMirror.Reflection.InstanceClasses;

@@ -1,4 +1,6 @@
-﻿namespace HKVocals;
+﻿using static UnityEngine.Object;
+
+namespace HKVocals;
 public static class ModMenu
 {
     public static Menu MenuRef;
@@ -65,14 +67,14 @@ public static class ModMenu
         GameObject MusicSlider = UIManager.instance.gameObject.transform.Find("UICanvas/AudioMenuScreen/Content/MusicVolume/MusicSlider").gameObject;
             
         //make clone
-        GameObject VolumeSlider = GameObject.Instantiate(MusicSlider, MusicSlider.transform.parent);
+        GameObject VolumeSlider = Instantiate(MusicSlider, MusicSlider.transform.parent);
             
         MenuAudioSlider VolumeSlider_MenuAudioSlider = VolumeSlider.GetComponent<MenuAudioSlider>();
         Slider VolumeSlider_Slider = VolumeSlider.GetComponent<Slider>();
             
         //all the other sliders are 0.6 down from each other
         VolumeSlider.transform.position -= new Vector3(0, 0.9f, 0f); 
-        VolumeSlider.name = "HkVocalsSlider";
+        VolumeSlider.name = "HK Vocals Slider";
 
         Action<float> StoreValue = f =>
         {
@@ -87,8 +89,8 @@ public static class ModMenu
         VolumeSlider_Slider.onValueChanged = SliderEvent ;
 
         //change the key of the text so it can be changed
-        UnityEngine.Object.Destroy(VolumeSlider.transform.Find("Label").GetComponent<AutoLocalizeTextUI>());
-        VolumeSlider.transform.Find("Label").GetComponent<Text>().text = "HK Vocals Volume: ";
+        Destroy(VolumeSlider.Find("Label").GetComponent<AutoLocalizeTextUI>());
+        VolumeSlider.Find("Label").GetComponent<Text>().text = "HK Vocals Volume: ";
         VolumeSlider.SetActive(true);
             
         //to make sure when go is cloned, it gets the value of the previous session not the value of the music slider

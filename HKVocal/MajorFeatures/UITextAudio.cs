@@ -18,17 +18,17 @@ public class UITextAudio
     
     public static void PlayCharmText(PlayMakerFSM fsm)
     {
-        fsm.AddMethod("Change Text", () => { fsm.PlayUIText("Convo Desc"); });
+        fsm.AddFsmMethod("Change Text", () => { fsm.PlayUIText("Convo Desc"); });
     }
 
     public static void PlayInventoryText(PlayMakerFSM fsm)
     {
-        fsm.AddMethod("Change Text", () => { fsm.PlayUIText("Convo Desc"); });
+        fsm.AddFsmMethod("Change Text", () => { fsm.PlayUIText("Convo Desc"); });
     }
     
     public static void PlayJournalText(PlayMakerFSM fsm)
     {
-        fsm.AddMethod("Get Details", () =>
+        fsm.AddFsmMethod("Get Details", () =>
         {
             HKVocals.CoroutineHolder.StopCoroutine(JournalWait());
             HKVocals.CoroutineHolder.StopCoroutine(JournalText(fsm));
@@ -36,7 +36,7 @@ public class UITextAudio
             fsm.PlayUIText("Item Desc Convo");
         });
 
-        fsm.AddMethod("Display Kills", () => { HunterNotesUnlocked = false; } );
+        fsm.AddFsmMethod("Display Kills", () => { HunterNotesUnlocked = false; } );
 
         IEnumerator JournalWait()
         {
@@ -71,20 +71,20 @@ public class UITextAudio
     public static void ShopMenuOpenClose(PlayMakerFSM fsm)
     {
         //Checks when you open the shop keeper menu
-        fsm.AddMethod("Open Window", () => { OpenedShopMenu = true; });
+        fsm.AddFsmMethod("Open Window", () => { OpenedShopMenu = true; });
         //Checks when you close a shop keeper menu
-        fsm.AddMethod("Down", () => { AudioUtils.StopPlaying(); });
+        fsm.AddFsmMethod("Down", () => { AudioUtils.StopPlaying(); });
     }
 
     public static void InventoryOpenClose(PlayMakerFSM fsm)
     {
-        fsm.AddMethod("Open", () => { OpenInvMenu = true; InvMenuClosed = false; });
-        fsm.AddMethod("Close", () => { AudioUtils.StopPlaying(); InvMenuClosed = true; });
+        fsm.AddFsmMethod("Open", () => { OpenInvMenu = true; InvMenuClosed = false; });
+        fsm.AddFsmMethod("Close", () => { AudioUtils.StopPlaying(); InvMenuClosed = true; });
     }
 
     public static void PlayShopText(PlayMakerFSM fsm)
     {
-        fsm.AddMethod("Get Details Init", () => { fsm.PlayUIText("Item Desc Convo"); });
-        fsm.AddMethod("Get Details", () => { fsm.PlayUIText("Item Desc Convo"); });
+        fsm.AddFsmMethod("Get Details Init", () => { fsm.PlayUIText("Item Desc Convo"); });
+        fsm.AddFsmMethod("Get Details", () => { fsm.PlayUIText("Item Desc Convo"); });
     }
 }

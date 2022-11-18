@@ -32,7 +32,7 @@ public static class AutoScroll
     
     private static void ImplementAutoScroll_OnPageEnd(PlayMakerFSM fsm, FsmBool isConvoEnding)
     {
-        fsm.GetState("Page End").AddAction(new AutoScrollOnFinishPlaying(isConvoEnding));
+        fsm.GetFsmState("Page End").AddFsmAction(new AutoScrollOnFinishPlaying(isConvoEnding));
         
         // we dont want to always show next page prompt
         RemoveNextPagePrompt(fsm, "Page End", 1);
@@ -43,10 +43,10 @@ public static class AutoScroll
 
     private static void ImplementAutoScroll_OnHalfConvoEnd(PlayMakerFSM fsm, FsmBool isConvoEnding)
     {
-        fsm.AddMethod("Arrow", () => isConvoEnding.Value = false);
-        fsm.AddMethod("Stop", () => isConvoEnding.Value = true);
+        fsm.AddFsmMethod("Arrow", () => isConvoEnding.Value = false);
+        fsm.AddFsmMethod("Stop", () => isConvoEnding.Value = true);
 
-        fsm.AddAction("Conversation End", new AutoScrollOnFinishPlaying(isConvoEnding, shouldConsiderConvoEnding: true));
+        fsm.AddFsmAction("Conversation End", new AutoScrollOnFinishPlaying(isConvoEnding, shouldConsiderConvoEnding: true));
 
         
         // we dont want to always show next page prompt
@@ -60,18 +60,18 @@ public static class AutoScroll
     {
         //create a new state with same actions as the normal state except the one that plays audio
         //we will go to this state via the next o audio event we invoke in AutoScrollOnFinishPlaying    
-        var SFX = fsm.GetState(audioState);
-        var SFX_NoAudio = fsm.CopyState(SFX.Name, $"{audioState} No Audio");
+        var SFX = fsm.GetFsmState(audioState);
+        var SFX_NoAudio = fsm.CopyFsmState(SFX.Name, $"{audioState} No Audio");
         SFX_NoAudio.Actions = SFX.Actions;
-        SFX_NoAudio.RemoveAction(SFX_NoAudio.Actions.GetIndexOf(a => a is AudioPlayerOneShotSingle));
+        SFX_NoAudio.RemoveFsmAction(SFX_NoAudio.Actions.GetIndexOf(a => a is AudioPlayerOneShotSingle));
 
         fsm.AddFsmTransition(previousState, CustomNextEvent, SFX_NoAudio.Name);
     }
     
     private static void RemoveNextPagePrompt(PlayMakerFSM fsm, string state, int arrowUpActionIndex)
     {
-        fsm.GetState(state).DisableAction(arrowUpActionIndex);
-        fsm.GetState(state).InsertMethod(() =>
+        fsm.GetFsmState(state).DisableFsmAction(arrowUpActionIndex);
+        fsm.GetFsmState(state).InsertFsmMethod(() =>
         {
             //only do this when autoscroll and scroll lock is on
             if (!(NPCDialogue.DidPlayAudioOnDialogueBox && HKVocals._globalSettings.autoScroll &&

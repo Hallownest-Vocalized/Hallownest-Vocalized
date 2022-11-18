@@ -74,26 +74,26 @@ public static class AutomaticBossDialogue
     private static void AddToFalseKnightAndFailedChampion(PlayMakerFSM fsm)
     {
         HKVocals.instance.LogDebug("Adding ABD to False Knight or Failed Champion");
-        fsm.InsertAction("Start Fall", new DreamDialogueAction(ABDKeyPrefix + "FALSE_KNIGHT_1", "Enemy Dreams") { waitTime = 10 }, 0);
-        fsm.InsertAction("Recover", new DreamDialogueAction(new string[] {ABDKeyPrefix + "FALSE_KNIGHT_2", ABDKeyPrefix + "FALSE_KNIGHT_3" }, "Enemy Dreams") { waitTime = 6, convoOccurances = new int[] { 0, 0, -1 } }, 0);
+        fsm.InsertFsmAction("Start Fall", new DreamDialogueAction(ABDKeyPrefix + "FALSE_KNIGHT_1", "Enemy Dreams") { waitTime = 10 }, 0);
+        fsm.InsertFsmAction("Recover", new DreamDialogueAction(new string[] {ABDKeyPrefix + "FALSE_KNIGHT_2", ABDKeyPrefix + "FALSE_KNIGHT_3" }, "Enemy Dreams") { waitTime = 6, convoOccurances = new int[] { 0, 0, -1 } }, 0);
            
     }
     private static void AddToPaleLurker(PlayMakerFSM fsm)
     {
         HKVocals.instance.LogDebug("Adiing ADB to Pale Lurker");
         DreamDialogueAction action = new DreamDialogueAction(new string[] { ABDKeyPrefix + "LURKER_1", ABDKeyPrefix + "LURKER_2", ABDKeyPrefix +"LURKER_3" }, "Enemy Dreams") { waitTime = 3f, convoMode = DreamDialogueAction.ConvoMode.Random, convoOccurances = new int[] { -1, 0 } };
-        fsm.InsertMethod("Aleart Anim", () => action.convoOccurances[0] = 0, 0);
-        fsm.InsertAction("Hop Antic", action, 0);
+        fsm.InsertFsmMethod("Aleart Anim", () => action.convoOccurances[0] = 0, 0);
+        fsm.InsertFsmAction("Hop Antic", action, 0);
     }
     private static void AddToRadiances(PlayMakerFSM fsm)
     {
         if (BossSequenceController.IsInSequence)
         {
             HKVocals.instance.LogDebug("Adiing ADB to Radiances");
-            fsm.InsertAction("Rage1 Start", new DreamDialogueAction(ABDKeyPrefix +"RADIANCE_3", "Enemy Dreams"), 0);
-            fsm.InsertAction("Tendrils1", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_4", "Enemy Dreams") { waitTime = 1f }, 0);
-            fsm.InsertAction("Arena 2 Start", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_5", "Enemy Dreams") { waitTime = 2f }, 0);
-            fsm.InsertAction("Ascend Tele", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_6", "Enemy Dreams") { waitTime = 5f }, 0);
+            fsm.InsertFsmAction("Rage1 Start", new DreamDialogueAction(ABDKeyPrefix +"RADIANCE_3", "Enemy Dreams"), 0);
+            fsm.InsertFsmAction("Tendrils1", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_4", "Enemy Dreams") { waitTime = 1f }, 0);
+            fsm.InsertFsmAction("Arena 2 Start", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_5", "Enemy Dreams") { waitTime = 2f }, 0);
+            fsm.InsertFsmAction("Ascend Tele", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_6", "Enemy Dreams") { waitTime = 5f }, 0);
         }
     }
     
@@ -104,7 +104,7 @@ public static class AutomaticBossDialogue
             HKVocals.instance.LogDebug("Adiing ADB to Radiances_Phase2");
             if (fsm.FsmName == "Phase Control")
             {
-                fsm.AddAction("Set Phase 2", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_2", "Enemy Dreams"));
+                fsm.AddFsmAction("Set Phase 2", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_2", "Enemy Dreams"));
             }
         }
     }
@@ -114,7 +114,7 @@ public static class AutomaticBossDialogue
         if (BossSequenceController.IsInSequence)
         {
             HKVocals.instance.LogDebug("Adiing ADB to Radiances_Spawn");
-            fsm.AddAction("Flash Down", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_1", "Enemy Dreams") { waitTime = 5 });
+            fsm.AddFsmAction("Flash Down", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_1", "Enemy Dreams") { waitTime = 5 });
         }
     }
     
@@ -138,7 +138,7 @@ public static class AutomaticBossDialogue
         {
             HKVocals.instance.LogDebug("Adiing ADB to Oro");
             AddHPDialogue(fsm.GetComponent<HealthManager>(), new DreamDialogueAction(ABDKeyPrefix + "ORO_1", "Enemy Dreams"), 150);
-            fsm.AddMethod("Death Start", () => 
+            fsm.AddFsmMethod("Death Start", () => 
                 {
                     if ((HKVocals.instance.audioSource.clip?.name.Contains("ORO")).GetValueOrDefault())
                     {
@@ -146,7 +146,7 @@ public static class AutomaticBossDialogue
                     } 
                 });
             
-            fsm.AddMethod("Reactivate", () => HKVocals.CoroutineHolder.StartCoroutine(DreamDialogue()));
+            fsm.AddFsmMethod("Reactivate", () => HKVocals.CoroutineHolder.StartCoroutine(DreamDialogue()));
             
             IEnumerator DreamDialogue()
             {
@@ -163,7 +163,7 @@ public static class AutomaticBossDialogue
     private static void AddToMato(PlayMakerFSM fsm)
     {
         HKVocals.instance.LogDebug("Adiing ADB to Mato");
-        fsm.AddMethod("Death Start", () =>
+        fsm.AddFsmMethod("Death Start", () =>
         {
             if (HKVocals.instance.audioSource.clip.name.Contains("MATO"))
             {
@@ -175,7 +175,7 @@ public static class AutomaticBossDialogue
     private static void AddToCollector(PlayMakerFSM fsm)
     {
         HKVocals.instance.LogDebug("Adiing ADB to Collector");
-        fsm.InsertAction("Slam", new DreamDialogueAction(new string[]{ABDKeyPrefix + "JAR_COLLECTOR_1",ABDKeyPrefix + "JAR_COLLECTOR_2",ABDKeyPrefix + "JAR_COLLECTOR_3" }, "Enemy Dreams") {convoMode = DreamDialogueAction.ConvoMode.Random, chance = 0.4f}, 0);
+        fsm.InsertFsmAction("Slam", new DreamDialogueAction(new string[]{ABDKeyPrefix + "JAR_COLLECTOR_1",ABDKeyPrefix + "JAR_COLLECTOR_2",ABDKeyPrefix + "JAR_COLLECTOR_3" }, "Enemy Dreams") {convoMode = DreamDialogueAction.ConvoMode.Random, chance = 0.4f}, 0);
     }
 
     private static void AddToSoulTyrant(PlayMakerFSM fsm)
@@ -190,14 +190,14 @@ public static class AutomaticBossDialogue
     {
         HKVocals.instance.LogDebug("Adiing ADB to Soul Tyrant Phase 2");
         //i chose music cuz its after the wait and its just when tyrant dives
-        fsm.InsertAction("Music", new DreamDialogueAction(ABDKeyPrefix + "MAGELORD_D_1","Enemy Dreams"), 0);
+        fsm.InsertFsmAction("Music", new DreamDialogueAction(ABDKeyPrefix + "MAGELORD_D_1","Enemy Dreams"), 0);
     }
 
     private static void AddToGreyPrinceZote(PlayMakerFSM fsm)
     {
         HKVocals.instance.LogDebug("Adiing ADB to Grey Prince Zote");
         string[] GPZDialogues = {ABDKeyPrefix + "GREY_PRINCE_1", ABDKeyPrefix + "GREY_PRINCE_2", ABDKeyPrefix + "GREY_PRINCE_3", ABDKeyPrefix + "GREY_PRINCE_4", ABDKeyPrefix + "GREY_PRINCE_5",};
-        fsm.InsertAction("Jump", new DreamDialogueAction(GPZDialogues, "Enemy Dreams"){convoMode = DreamDialogueAction.ConvoMode.Random},0);
-        fsm.InsertAction("Spit Dir", new DreamDialogueAction(GPZDialogues, "Enemy Dreams"){convoMode = DreamDialogueAction.ConvoMode.Random},0);
+        fsm.InsertFsmAction("Jump", new DreamDialogueAction(GPZDialogues, "Enemy Dreams"){convoMode = DreamDialogueAction.ConvoMode.Random},0);
+        fsm.InsertFsmAction("Spit Dir", new DreamDialogueAction(GPZDialogues, "Enemy Dreams"){convoMode = DreamDialogueAction.ConvoMode.Random},0);
     }
 }

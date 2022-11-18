@@ -86,7 +86,7 @@ public static class PaleFlower
                 *//*self.AddGlobalTransition("Pale Lurker 0 HP", "Dead");*//*
                 self.gameObject.LocateMyFSM("Lurker Control").SetState("Dead");
 
-                self.AddAction("Dead", new Tk2dPlayAnimation()
+                self.AddFsmAction("Dead", new Tk2dPlayAnimation()
                 {
                     gameObject = new FsmOwnerDefault()
                     {

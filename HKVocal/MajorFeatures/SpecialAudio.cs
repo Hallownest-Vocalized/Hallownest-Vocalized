@@ -54,19 +54,19 @@ public static class SpecialAudio
     public static void MakeElderbugPlaySpecialAudio(PlayMakerFSM fsm)
     {
         //the idea is to add a new state which plays the alt audio and we change the transitions of the intros that dont work well to the alt audio playing state
-        var introMain = fsm.GetState("Intro Main");
-        var alt = fsm.CopyState(introMain.Name, introMain.Name + " Alt");
+        var introMain = fsm.GetFsmState("Intro Main");
+        var alt = fsm.CopyFsmState(introMain.Name, introMain.Name + " Alt");
 
         alt.Actions = Array.Empty<FsmStateAction>();
         
-        alt.AddMethod(() =>
+        alt.AddFsmMethod(() =>
         {
             PlayerDataAccess.metElderbug = true;
-            var dialogueText = Satchel.FsmUtil.GetAction<CallMethodProper>(introMain, 1).gameObject.GameObject.Value;
+            var dialogueText = introMain.GetFsmAction<CallMethodProper>(1).gameObject.GameObject.Value;
             dialogueText.GetComponent<DialogueBox>().StartConversation("ELDERBUG_INTRO_MAIN_ALT", "Elderbug");
         });
         
-        fsm.GetState("Intro 2").ChangeTransition("CONVO_FINISH", alt.Name);
-        fsm.GetState("Intro 3").ChangeTransition("CONVO_FINISH", alt.Name);
+        fsm.GetFsmState("Intro 2").ChangeFsmTransition("CONVO_FINISH", alt.Name);
+        fsm.GetFsmState("Intro 3").ChangeFsmTransition("CONVO_FINISH", alt.Name);
     }
 }

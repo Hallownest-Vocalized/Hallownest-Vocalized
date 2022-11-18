@@ -54,17 +54,17 @@ public static class FSMEditUtils
     
     public static FsmState CreateEmptyState(this PlayMakerFSM fsm, string name)
     {
-        var empty = fsm.CopyState(fsm.FsmStates[0].Name, name);
+        var empty = fsm.CopyFsmState(fsm.FsmStates[0].Name, name);
         empty.Actions = Array.Empty<FsmStateAction>();
         empty.Transitions = Array.Empty<FsmTransition>();
         return empty;
     }
-    public static void DisableAction(this FsmState state, int index)
+    public static void DisableFsmAction(this FsmState state, int index)
     {
         Satchel.FsmUtil.GetAction(state, index).Enabled = false;
     }
 
-    public static void DisableActionInRange(this FsmState state, params int[] indexes)
+    public static void DisableFsmActionInRange(this FsmState state, params int[] indexes)
     {
         for (int i = 0; i < state.Actions.Length; i++)
         {
@@ -75,7 +75,7 @@ public static class FSMEditUtils
         }
     }
 
-    public static void DisableActionsThatAre(this FsmState state, Func<FsmStateAction, bool> predicate)
+    public static void DisableFsmActionsThatAre(this FsmState state, Func<FsmStateAction, bool> predicate)
     {
         if (state.Actions.Any(predicate))
         {
