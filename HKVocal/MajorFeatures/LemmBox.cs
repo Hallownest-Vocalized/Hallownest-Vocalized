@@ -39,12 +39,12 @@ public class LemmBox
     {
          //Todo: load box and set position to it's correct place
          HKVocals.instance.Log("setting up Box...");
-         var box = GameObject.Instantiate(HKVocals.preloadedGO["Bell"],new Vector3(2000,300),Quaternion.identity);
+         var box = GameObject.Instantiate(HKVocals.preloadedGO["Bell"],new Vector3(58.15809f, 23.40812f),Quaternion.identity);
          box.SetActive(true);
-         GameObject.Destroy(box.LocateMyFSM("Bell-Bell COntrol"));
+         GameObject.Destroy(box.LocateMyFSM("Bell-Bell Control"));
          PlayMakerFSM self = box.LocateMyFSM("Station Bell-Stag Bell");
          self.RemoveFsmAction("Init",6);
-         self.RemoveTransition("Init","Opened");
+         self.RemoveTransition("Init","OPENED");
          self.RemoveState("Opened");
          self.RemoveState("Bell Up");
          self.RemoveState("Bell Up Pause");
