@@ -246,6 +246,29 @@ public static class NPCDialogue
 
     private static readonly List<string> ClipsToInclude = new()
     {
+        "switch_gate_gate",
+        "dream_enter",
+        "dream_ghost_appear",
+        "Grey_Mourner_wake",
+        "stalactite_break",
+        "dream_ghost_appear",
+        "dream_plant_hit",
+        "dream_orb_pickup",
+        "dream_enter_pt_2",
+        "shaman_charging_spell",
+        "shaman_spell",
+        "shiny_item_pickup",
+        "misc_rumble_loop",
+        "misc_rumble_impact",
+        "mage_lord_summon_projectiles",
+        "dream_plant_hit",
+        "mawlek_spit",
+        "HK_Cloth_Battle_Cry",
+        "Nailmaster_roar_01",
+        "Nailmaster_roar_02",
+        "Nailmaster_Bama_01",
+        "Nailmaster_Bama_02",
+        "new_heartpiece_puzzle_bit"
         
     };
 

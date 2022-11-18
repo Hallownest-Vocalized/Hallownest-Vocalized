@@ -120,9 +120,9 @@ public static class FSMEditUtils
         }
         else if (action is AudioPlayerOneShotSingle audioPlayerOneShotSingle)
         {
-            if (audioPlayerOneShotSingle.audioClip != null)
+            if (audioPlayerOneShotSingle.audioClip.Value as AudioClip != null)
             {
-                ret.Add(audioPlayerOneShotSingle.audioClip.Name);
+                ret.Add(audioPlayerOneShotSingle.audioClip.Value.name);
             }
         }
         else if (action is AudioPlaySimple audioPlaySimple)
@@ -133,9 +133,9 @@ public static class FSMEditUtils
                 var source = owner.GetComponent<AudioSource>();
                 if (source != null)
                 {
-                    if (audioPlaySimple.oneShotClip != null)
+                    if (audioPlaySimple.oneShotClip.Value as AudioClip != null)
                     {
-                        ret.Add(audioPlaySimple.oneShotClip.Name);
+                        ret.Add(audioPlaySimple.oneShotClip.Value.name);
                     }
                     else
                     {
