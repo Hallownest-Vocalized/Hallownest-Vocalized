@@ -1,21 +1,21 @@
 ﻿using GlobalEnums;
-using Satchel.BetterMenus;
 using UnityEngine.EventSystems;
-using MenuButton = UnityEngine.UI.MenuButton;
-using SMenuButton = Satchel.BetterMenus.MenuButton;
+using UMenuButton = UnityEngine.UI.MenuButton;
+using MenuButton = Satchel.BetterMenus.MenuButton;
+using static HKVocals.AudioOptionsMenu;
 
 namespace HKVocals;
 public static class ModMenu
-{
-    public static Menu MenuRef;
+{ 
+    private static Menu MenuRef;
     public static MenuScreen CreateModMenuScreen(MenuScreen modListMenu)
     {
         MenuRef ??= new Menu("Hallownest Vocalised", new Element[]
         {
             //new TextPanel("To change volume, please use Audio Menu"),
-            new SMenuButton("Change Volume", "Change volume of voice actors", _ =>
+            new MenuButton("Change Volume", "Change volume of voice actors", _ =>
             {
-                UIManager.instance.UILeaveDynamicMenu(AudioOptionsMenu.AudioMenuScreen, MainMenuState.AUDIO_MENU);
+                UIManager.instance.UILeaveDynamicMenu(AudioMenuScreen, MainMenuState.AUDIO_MENU);
             }, proceed:true),
 
             Blueprints.HorizontalBoolOption("Scroll Lock", 
@@ -71,10 +71,10 @@ public static class ModMenu
     {
         //make clone
         GameObject HKVocalsVolume = new GameObject("HKVocals Volume");
-        HKVocalsVolume.transform.SetParent(AudioOptionsMenu.MusicSlider.transform.parent.parent);
+        HKVocalsVolume.transform.SetParent(MusicSlider.transform.parent.parent);
         HKVocalsVolume.transform.localScale = Vector3.one;
-        HKVocalsVolume.transform.localPosition = AudioOptionsMenu.MusicVolume.transform.localPosition + Vector3.down * 120;
-        GameObject VolumeSlider = Object.Instantiate(AudioOptionsMenu.MusicSlider, HKVocalsVolume.transform);
+        HKVocalsVolume.transform.localPosition = MusicVolume.transform.localPosition + Vector3.down * 120;
+        GameObject VolumeSlider = Object.Instantiate(MusicSlider, HKVocalsVolume.transform);
             
         MenuAudioSlider VolumeSlider_MenuAudioSlider = VolumeSlider.GetComponent<MenuAudioSlider>();
         Slider VolumeSlider_Slider = VolumeSlider.GetComponent<Slider>();
@@ -103,15 +103,15 @@ public static class ModMenu
         VolumeSlider_MenuAudioSlider.UpdateTextValue(HKVocals._globalSettings.Volume);
         VolumeSlider_Slider.value = HKVocals._globalSettings.Volume;
         
-        GameObject HKVocalsSettings = Object.Instantiate(AudioOptionsMenu.DefaultButton, AudioOptionsMenu.DefaultButton.transform.parent);
+        GameObject HKVocalsSettings = Object.Instantiate(DefaultButton, DefaultButton.transform.parent);
         HKVocalsSettings.name = "HK Vocals Settings";
         HKVocalsSettings.transform.localPosition = Vector3.up * 335f;
         HKVocalsVolume.RemoveComponent<EventTrigger>();
         HKVocalsSettings.Find("Text").RemoveComponent<AutoLocalizeTextUI>();
         HKVocalsSettings.Find("Text").GetComponent<Text>().text = "Go to Hallownest Vocalised Settings";
-        var mb = HKVocalsSettings.GetComponent<MenuButton>();
+        var mb = HKVocalsSettings.GetComponent<UMenuButton>();
         mb.proceed = true;
-        mb.buttonType = MenuButton.MenuButtonType.CustomSubmit;
+        mb.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
         mb.submitAction = _ =>
         {
             UIManager.instance.UIGoToDynamicMenu(MenuRef.GetMenuScreen(UIManager.instance.UICanvas.Find("ModListMenu").GetComponent<MenuScreen>()));

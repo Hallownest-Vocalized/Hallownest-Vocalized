@@ -61,7 +61,7 @@ public static class FSMEditUtils
     }
     public static void DisableFsmAction(this FsmState state, int index)
     {
-        Satchel.FsmUtil.GetAction(state, index).Enabled = false;
+        state.GetAction(index).Enabled = false;
     }
 
     public static void DisableFsmActionInRange(this FsmState state, params int[] indexes)

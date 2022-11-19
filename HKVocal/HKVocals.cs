@@ -78,7 +78,7 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         {
             action_2.TryInvokeActions(fsm);
         }
-        if (FSMEditData.FsmEdits.TryGetValue(new HKVocalsFsmData(gameObjectName, fsmName), out var action_3))
+        if (FSMEditData.FsmEdits.TryGetValue(new HKVocalsFsmData(fsmName), out var action_3))
         {
             action_3.TryInvokeActions(fsm);
         }
