@@ -24,8 +24,8 @@
             <HintPath>$(HollowKnightFolder)\Assembly-CSharp.dll</HintPath>
             <Private>false</Private>
         </Reference>
-        <Reference Include="Core_FsmUtil">
-          <HintPath>$(HollowKnightFolder)\Mods\Core_FsmUtil\Core_FsmUtil.dll</HintPath>
+        <Reference Include="Core.FsmUtil">
+          <HintPath>$(HollowKnightFolder)\Mods\Core.FsmUtil\Core_FsmUtil.dll</HintPath>
         </Reference>
         <Reference Include="HKMirror">
             <HintPath>$(HollowKnightFolder)\Mods\HKMirror\HKMirror.dll</HintPath>

@@ -5,34 +5,34 @@ public static class AutomaticBossDialogue
     // a string to prefix dn dialogue keys so that is can be distinguished in langauge get hook
     public const string ABDKeyPrefix = "HKVocals_ABD_"; 
     
-    private static List<Func<HealthManager, bool>> HpListeners = new List<Func<HealthManager, bool>>(); 
-    
-    private static readonly List<AnyFsmEditData> BossToAddList_AnyFsm = new List<AnyFsmEditData>()
+    private static List<Func<HealthManager, bool>> HpListeners = new List<Func<HealthManager, bool>>();
+
+    private static readonly Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>> BossToAddList_AnyFsm = new Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>>
     {
-        new("FalseyControl", AddToFalseKnightAndFailedChampion ),
-        new("LurkerControl", AddToPaleLurker),
-    };
-    
-    private static readonly List<GameObjectFsmEditData> BossToAddList_GoFsm = new List<GameObjectFsmEditData>()
-    {
-        new ("Absolute Radiance", "Control", AddToRadiances),
-        new ("Absolute Radiance", "Phase Control", AddToRadiances_Phase2),
-        new ("Radiance", "Control", AddToRadiances),
-        new ("Radiance", "Phase Control", AddToRadiances_Phase2),
-        new ("Hornet Boss 1", "Control", AddToHornets),
-        new ("Hornet Boss 2", "Control", AddToHornets),
-        new ("Oro", "nailmaster", AddToOro),
-        new ("Mato", "nailmaster", AddToMato),
-        new ("Jar Collector", "Control", AddToCollector),
-        new ("Dream Mage Lord Phase2", "Mage Lord 2", AddToSoulTyrant_Phase2),
-        new ("Dream Mage Lord", "Mage Lord", AddToSoulTyrant ),
-        new ("Grey Prince", "Control", AddToGreyPrinceZote ),
+        { new("FalseyControl"), AddToFalseKnightAndFailedChampion },
+        { new("LurkerControl"), AddToPaleLurker },
     };
 
-    private static List<SceneFsmEditData> BossToAddList_SceneFsm = new List<SceneFsmEditData>()
+    private static readonly Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>> BossToAddList_GoFsm = new Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>>
     {
-        new("GG_Radiance", "Boss Control", "Control", AddToRadiances_Spawn),
-        new("Dream_Final_Boss", "Boss Control", "Control", AddToRadiances_Spawn),
+        { new("Absolute Radiance", "Control"), AddToRadiances },
+        { new("Absolute Radiance", "Phase Control"), AddToRadiances_Phase2 },
+        { new("Radiance", "Control"), AddToRadiances },
+        { new("Radiance", "Phase Control"), AddToRadiances_Phase2 },
+        { new("Hornet Boss 1", "Control"), AddToHornets },
+        { new("Hornet Boss 2", "Control"), AddToHornets },
+        { new("Oro", "nailmaster"), AddToOro },
+        { new("Mato", "nailmaster"), AddToMato },
+        { new("Jar Collector", "Control"), AddToCollector },
+        { new("Dream Mage Lord Phase2", "Mage Lord 2"), AddToSoulTyrant_Phase2 },
+        { new("Dream Mage Lord", "Mage Lord"), AddToSoulTyrant },
+        { new("Grey Prince", "Control"), AddToGreyPrinceZote },
+    };
+
+    private static Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>> BossToAddList_SceneFsm = new Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>>
+    {
+        { new("GG_Radiance", "Boss Control", "Control"), AddToRadiances_Spawn },
+        { new("Dream_Final_Boss", "Boss Control", "Control"), AddToRadiances_Spawn },
     };
     public static void Hook()
     {

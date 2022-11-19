@@ -31,6 +31,14 @@ public static class FSMEditData
     {
         Add(new HKVocalsFsmData(fsmName), fsmEdits);
     }
+    
+    public static void AddRange(Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>> fsmEditsList)
+    {
+        foreach (var (data, fsmEdit) in fsmEditsList)
+        {
+            Add(data, fsmEdit);
+        }
+    }
 }
 
 /// <summary>
