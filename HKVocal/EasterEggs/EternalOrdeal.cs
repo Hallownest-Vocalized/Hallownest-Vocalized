@@ -77,7 +77,7 @@ public static class EternalOrdeal
 
             HKVocals._globalSettings.OrdealZoteSpeak = !HKVocals._globalSettings.OrdealZoteSpeak;
 
-            MiscUtils.WaitForSecondsBeforeInvoke(1f, () =>
+            CoroutineHelper.WaitForSecondsBeforeInvoke(1f, () =>
             {
                 ZoteLeverComponent.canToggle = true;
                 ZoteLeverComponent.leverAnimator.Play("Shine");

@@ -79,7 +79,7 @@ public static class NPCDialogue
             {
                 data.UnMute();
                 
-                MiscUtils.WaitForFramesBeforeInvoke(20, data.ReplayAudio);
+                CoroutineHelper.WaitForFramesBeforeInvoke(20, data.ReplayAudio);
             });
         };
 
@@ -116,7 +116,7 @@ public static class NPCDialogue
         if (!PlayerDataAccess.metIselda)
         {
             iseldaOpenAudio.Enabled = false;
-            MiscUtils.WaitForSecondsBeforeInvoke(2f, () => PlayerDataAccess.metIselda = true);
+            CoroutineHelper.WaitForSecondsBeforeInvoke(2f, () => PlayerDataAccess.metIselda = true);
         }
         else
         {
