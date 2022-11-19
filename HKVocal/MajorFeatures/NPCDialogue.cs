@@ -26,7 +26,7 @@ public static class NPCDialogue
         Hooks.HookStateEntered(new FSMData("Maskmaker NPC", "Conversation Control", "Play Audio"), MakeSureMaskMakerAudioIsReplayed);
         FSMEditData.AddGameObjectFsmEdit("Shop Region", "Shop Region", RemoveLemmAndSlyShopAudio);
         FSMEditData.AddGameObjectFsmEdit("Relic Dealer","Relic Discussions", RemoveRelicDiscussionsAudio);
-        FSMEditData.AddGameObjectFsmEdit("Fluke Hermit", "Conversation Control", RemoveFlukeHermitAudio);
+        Hooks.HookStateEntered(new FSMData("Fluke Hermit", "Conversation Control", "Box Up"), RemoveFlukeHermitAudio);
         
         //we need a way to get the AudioSources that play the to mute audios that not as expensive as Resources.FindObjectsOfTypeAll<AudioSource>() 
         HookAudioSourcePlays();
@@ -160,10 +160,7 @@ public static class NPCDialogue
     private static void RemoveFlukeHermitAudio(PlayMakerFSM fsm)
     {
         //for some reason our hooks dont capture it so we'll do it manually
-        fsm.InsertFsmMethod("Box Up", () =>
-        {
-            StoreAudioSourceToMute(fsm.gameObject.GetComponent<AudioSource>());
-        }, 0);
+        StoreAudioSourceToMute(fsm.gameObject.GetComponent<AudioSource>());
     }
     
     #endregion
