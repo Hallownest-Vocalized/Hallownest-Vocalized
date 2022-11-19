@@ -77,4 +77,23 @@ public static class MiscUtils
             dict.Remove(key);
         }
     }
+    
+    public static void TryInvokeActions(this Action<PlayMakerFSM> action, PlayMakerFSM fsm)
+    {
+        if (action != null)
+        {
+            Delegate[] invocationList = action.GetInvocationList();
+            for (int i = 0; i < invocationList.Length; i++)
+            {
+                try
+                {
+                    (invocationList[i] as Action<PlayMakerFSM>).Invoke(fsm);
+                }
+                catch (Exception ex)
+                {
+                    HKVocals.instance.LogError($"[Core][FsmUtil][Hooks] - {ex}");
+                }
+            }
+        }
+    }
 }

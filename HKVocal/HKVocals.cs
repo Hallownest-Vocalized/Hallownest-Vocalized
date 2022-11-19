@@ -69,19 +69,17 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         string gameObjectName = fsm.gameObject.name;
         string fsmName = fsm.FsmName;
 
-        foreach (var fsmEdit in FSMEditData.SceneFsmEdits.FindAll(x => x.DoesMatch(sceneName, gameObjectName, fsmName)))
+        if (FSMEditData.FsmEdits.TryGetValue(new HKVocalsFsmData(sceneName, gameObjectName, fsmName), out var action_1))
         {
-            fsmEdit.Invoke(fsm);
+            action_1.TryInvokeActions(fsm);
         }
-        
-        foreach (var fsmEdit in FSMEditData.GameObjectFsmEdits.FindAll(x => x.DoesMatch(gameObjectName, fsmName)))
+        if (FSMEditData.FsmEdits.TryGetValue(new HKVocalsFsmData(gameObjectName, fsmName), out var action_2))
         {
-            fsmEdit.Invoke(fsm);
+            action_2.TryInvokeActions(fsm);
         }
-        
-        foreach (var fsmEdit in FSMEditData.AnyFsmEdits.FindAll(x => x.DoesMatch(fsmName)))
+        if (FSMEditData.FsmEdits.TryGetValue(new HKVocalsFsmData(gameObjectName, fsmName), out var action_3))
         {
-            fsmEdit.Invoke(fsm);
+            action_3.TryInvokeActions(fsm);
         }
     }
 
