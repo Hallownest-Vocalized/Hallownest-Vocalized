@@ -1,4 +1,8 @@
-﻿using static UnityEngine.Object;
+﻿using GlobalEnums;
+using Satchel.BetterMenus;
+using UnityEngine.EventSystems;
+using MenuButton = UnityEngine.UI.MenuButton;
+using SMenuButton = Satchel.BetterMenus.MenuButton;
 
 namespace HKVocals;
 public static class ModMenu
@@ -8,7 +12,11 @@ public static class ModMenu
     {
         MenuRef ??= new Menu("Hallownest Vocalised", new Element[]
         {
-            new TextPanel("To change volume, please use Audio Menu"),
+            //new TextPanel("To change volume, please use Audio Menu"),
+            new SMenuButton("Change Volume", "Change volume of voice actors", _ =>
+            {
+                UIManager.instance.UILeaveDynamicMenu(AudioOptionsMenu.AudioMenuScreen, MainMenuState.AUDIO_MENU);
+            }, proceed:true),
 
             Blueprints.HorizontalBoolOption("Scroll Lock", 
                 "Should first time dialogues be scroll locked until audio has finished?",
@@ -56,24 +64,22 @@ public static class ModMenu
                 isVisible = !HKVocals._globalSettings.dnDialogue
             },
         });
-            
-        
         return MenuRef.GetMenuScreen(modListMenu);
     }
 
     public static void AddAudioSlider()
     {
-        //get go of a current slider
-        GameObject MusicSlider = UIManager.instance.gameObject.transform.Find("UICanvas/AudioMenuScreen/Content/MusicVolume/MusicSlider").gameObject;
-            
         //make clone
-        GameObject VolumeSlider = Instantiate(MusicSlider, MusicSlider.transform.parent);
+        GameObject HKVocalsVolume = new GameObject("HKVocals Volume");
+        HKVocalsVolume.transform.SetParent(AudioOptionsMenu.MusicSlider.transform.parent.parent);
+        HKVocalsVolume.transform.localScale = Vector3.one;
+        HKVocalsVolume.transform.localPosition = AudioOptionsMenu.MusicVolume.transform.localPosition + Vector3.down * 120;
+        GameObject VolumeSlider = Object.Instantiate(AudioOptionsMenu.MusicSlider, HKVocalsVolume.transform);
             
         MenuAudioSlider VolumeSlider_MenuAudioSlider = VolumeSlider.GetComponent<MenuAudioSlider>();
         Slider VolumeSlider_Slider = VolumeSlider.GetComponent<Slider>();
-            
-        //all the other sliders are 0.6 down from each other
-        VolumeSlider.transform.position -= new Vector3(0, 0.9f, 0f); 
+
+        VolumeSlider.transform.localPosition = new Vector3(303f, 0f, 0f);
         VolumeSlider.name = "HK Vocals Slider";
 
         Action<float> StoreValue = f =>
@@ -89,12 +95,30 @@ public static class ModMenu
         VolumeSlider_Slider.onValueChanged = SliderEvent ;
 
         //change the key of the text so it can be changed
-        Destroy(VolumeSlider.Find("Label").GetComponent<AutoLocalizeTextUI>());
+        VolumeSlider.Find("Label").RemoveComponent<AutoLocalizeTextUI>();
         VolumeSlider.Find("Label").GetComponent<Text>().text = "HK Vocals Volume: ";
         VolumeSlider.SetActive(true);
             
         //to make sure when go is cloned, it gets the value of the previous session not the value of the music slider
         VolumeSlider_MenuAudioSlider.UpdateTextValue(HKVocals._globalSettings.Volume);
         VolumeSlider_Slider.value = HKVocals._globalSettings.Volume;
+        
+        GameObject HKVocalsSettings = Object.Instantiate(AudioOptionsMenu.DefaultButton, AudioOptionsMenu.DefaultButton.transform.parent);
+        HKVocalsSettings.name = "HK Vocals Settings";
+        HKVocalsSettings.transform.localPosition = Vector3.up * 335f;
+        HKVocalsVolume.RemoveComponent<EventTrigger>();
+        HKVocalsSettings.Find("Text").RemoveComponent<AutoLocalizeTextUI>();
+        HKVocalsSettings.Find("Text").GetComponent<Text>().text = "Go to Hallownest Vocalised Settings";
+        var mb = HKVocalsSettings.GetComponent<MenuButton>();
+        mb.proceed = true;
+        mb.buttonType = MenuButton.MenuButtonType.CustomSubmit;
+        mb.submitAction = _ =>
+        {
+            UIManager.instance.UIGoToDynamicMenu(MenuRef.GetMenuScreen(UIManager.instance.UICanvas.Find("ModListMenu").GetComponent<MenuScreen>()));
+        };
+        
+
+
+
     }
 }

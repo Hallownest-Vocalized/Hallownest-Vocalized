@@ -23,33 +23,6 @@ public static class MiscUtils
         throw new ArgumentOutOfRangeException();
     }
 
-    public static void WaitForFramesBeforeInvoke(int numFrames, Action codeToRun)
-    {
-        HKVocals.CoroutineHolder.StartCoroutine(WaitBeforeInvokeRoutine(numFrames, codeToRun));
-    }
-
-    public static void WaitForSecondsBeforeInvoke(float seconds, Action codeToRun)
-    {
-        HKVocals.CoroutineHolder.StartCoroutine(WaitBeforeInvokeRoutine(seconds, codeToRun));
-    }
-    
-    private static IEnumerator WaitBeforeInvokeRoutine(int numFrames, Action codeToRun)
-    {
-        for (int i = 0; i < numFrames; i++)
-        {
-            yield return null;
-        }
-
-        codeToRun();
-    }
-
-    private static IEnumerator WaitBeforeInvokeRoutine(float seconds, Action codeToRun)
-    {
-        yield return new WaitForSeconds(seconds);
-
-        codeToRun();
-    }
-
     public static string GetCurrentSceneName() => UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 
     public static void ForEach<T>(this IEnumerable<T> ienumarable, Action<T> action)
@@ -95,5 +68,10 @@ public static class MiscUtils
                 }
             }
         }
+    }
+
+    public static GameObject Find(this Behaviour obj, string name)
+    {
+        return obj.transform.Find(name).gameObject;
     }
 }

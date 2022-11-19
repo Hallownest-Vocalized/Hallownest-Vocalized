@@ -54,11 +54,12 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     }
 
     public void CreateAudioSource()
-    {
+    { 
         LogDebug("creating new asrc");
         GameObject audioGO = new GameObject("HK Vocals Audio");
         audioSource = audioGO.AddComponent<AudioSource>();
-        //make our audio not be affected by any slider other than master
+        
+        //make our audio not be affected by any slider other than master. there are many groups called master but we need the one whose mixer is also master
         audioSource.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixerGroup>().First(x => x.name == "Master" && x.audioMixer != null && x.audioMixer.name == "Master");
         Object.DontDestroyOnLoad(audioGO);
     }
