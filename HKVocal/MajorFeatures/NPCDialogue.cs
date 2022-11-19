@@ -1,10 +1,12 @@
 ﻿using MonoMod.RuntimeDetour;
+using static HKVocals.AudioOptionsMenu;
 
 namespace HKVocals.MajorFeatures;
 
 public static class NPCDialogue
 {
-    public static bool DidPlayAudioOnDialogueBox;
+    public static bool DidPlayAudioOnDialogueBox; 
+    private static readonly float DampenValue = 0.7f; 
 
     //key: clip name, value: The mute audio source data
     private static readonly Dictionary<string, MuteAudioSourceData> ToMuteAudioSources = new ();
@@ -55,8 +57,10 @@ public static class NPCDialogue
         //this controls scroll lock and autoscroll
         DidPlayAudioOnDialogueBox = AudioUtils.TryPlayAudioFor(convo, removeTime);
 
-        if (DidPlayAudioOnDialogueBox || true) //todo: change after testing complete
+        if (DidPlayAudioOnDialogueBox)
         {
+            MasterMixer.SetFloat("MusicVolume", MiscUtils.GetDecibelVolume(GameManager.instance.gameSettings.musicVolume * DampenValue)); //reduce by 30%
+            MasterMixer.SetFloat("SFXVolume", MiscUtils.GetDecibelVolume(GameManager.instance.gameSettings.soundVolume * DampenValue)); //reduce by 30%
             ToMuteAudioSources.RemoveValues(data => data.IsNull());
 
             ToMuteAudioSources.Values.ForEach(data =>
@@ -74,6 +78,9 @@ public static class NPCDialogue
     {
         Action unmute = () =>
         {
+            MasterMixer.SetFloat("MusicVolume", MiscUtils.GetDecibelVolume(GameManager.instance.gameSettings.musicVolume));
+            MasterMixer.SetFloat("SFXVolume", MiscUtils.GetDecibelVolume(GameManager.instance.gameSettings.soundVolume));
+
             ToMuteAudioSources.RemoveValues(data => data.IsNull());
             ToMuteAudioSources.Values.ForEach(data =>
             {
@@ -97,6 +104,13 @@ public static class NPCDialogue
         foreach (FsmState state in fsm.FsmStates)
         {
             state.DisableFsmActionsThatAre(action => action.IsAudioAction() && !action.GetClipNames().Any(clip => ClipsToInclude.Contains(clip)));
+            foreach (var action in state.Actions)
+            {
+                if (action.IsAudioAction())
+                {
+                    action.GetClipNames().Where(x => ClipsToInclude.Contains(x)).ForEach(HKVocals.instance.Log);
+                }
+            }
         }
     }
 

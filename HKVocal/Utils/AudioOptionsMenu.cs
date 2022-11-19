@@ -1,3 +1,5 @@
+using UnityEngine.Audio;
+
 namespace HKVocals;
 
 /// <summary>
@@ -9,6 +11,7 @@ public static class AudioOptionsMenu
     private static GameObject _audioMenuContent;
     private static GameObject _musicVolume;
     private static GameObject _musicSlider;
+    private static AudioMixer _masterMixer;
     private static GameObject _defaultButton;
     
     public static MenuScreen AudioMenuScreen
@@ -60,6 +63,18 @@ public static class AudioOptionsMenu
             }
 
             return _musicSlider;
+        }
+    }
+    public static AudioMixer MasterMixer
+    {
+        get
+        {
+            if (_masterMixer == null)
+            {
+                _masterMixer = MusicSlider.GetComponent<MenuAudioSlider>().masterMixer;
+            }
+
+            return _masterMixer;
         }
     }
     

@@ -74,4 +74,12 @@ public static class MiscUtils
     {
         return obj.transform.Find(name).gameObject;
     }
+
+    public static float GetDecibelVolume(float value)
+    {
+        // 0 is max volume on this scale
+        return value <= 9 
+            ? AudioOptionsMenu.MusicSlider.GetComponent<MenuAudioSlider>().Reflect().GetVolumeLevel(value) 
+            : 0.0f;
+    }
 }
