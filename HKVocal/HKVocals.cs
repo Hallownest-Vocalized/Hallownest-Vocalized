@@ -1,3 +1,5 @@
+using UnityEngine.Audio;
+
 namespace HKVocals;
 
 public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<SaveSettings>, ICustomMenuMod
@@ -56,6 +58,8 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         LogDebug("creating new asrc");
         GameObject audioGO = new GameObject("HK Vocals Audio");
         audioSource = audioGO.AddComponent<AudioSource>();
+        //make our audio not be affected by any slider other than master
+        audioSource.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixerGroup>().First(x => x.name == "Master" && x.audioMixer != null && x.audioMixer.name == "Master");
         Object.DontDestroyOnLoad(audioGO);
     }
 
