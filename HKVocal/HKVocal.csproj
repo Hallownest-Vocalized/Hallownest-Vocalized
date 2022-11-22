@@ -26,6 +26,7 @@
         </Reference>
         <Reference Include="Core.FsmUtil">
           <HintPath>$(HollowKnightFolder)\Mods\Core.FsmUtil\Core_FsmUtil.dll</HintPath>
+            <Private>false</Private>
         </Reference>
         <Reference Include="HKMirror">
             <HintPath>$(HollowKnightFolder)\Mods\HKMirror\HKMirror.dll</HintPath>
@@ -136,7 +137,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="res/dn_groups.json" />
+        <EmbeddedResource Include="Resources\*" />
     </ItemGroup>
 
     <Target Name="CopyMod" AfterTargets="PostBuildEvent">
