@@ -1,5 +1,9 @@
-﻿namespace HKVocals;
-public static class AudioUtils
+﻿using GlobalEnums;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+namespace HKVocals;
+public static class AudioPlayer
 {
     public static bool TryPlayAudioFor(string convName, float removeTime = 0f)
     {
@@ -71,8 +75,6 @@ public static class AudioUtils
 
     public static bool IsPlaying() => HKVocals.instance.audioSource.isPlaying;
     public static void StopPlaying() => HKVocals.instance.audioSource.Stop();
-    public static bool HasAudioFor(string convName) => HKVocals.audioNames.Contains(convName);
-    public static AudioClip GetAudioFor(string convName) => HKVocals.instance.audioBundle.LoadAsset<AudioClip>(convName);
-    
-    
+    public static bool HasAudioFor(string convName) => AudioLoader.audioNames.Contains(convName);
+    public static AudioClip GetAudioFor(string convName) => AudioLoader.audioBundle.LoadAsset<AudioClip>(convName);
 }

@@ -15,13 +15,13 @@ public static class FSMEditUtils
     public static void PlayAudioFromFsmString(this PlayMakerFSM fsm, string audiokey)
     {
         HKVocals.instance.LogDebug("audio from fsm string is looking for: " + fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
-        AudioUtils.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
+        AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
     }
 
     public static void PlayUIText(this PlayMakerFSM fsm, string audiokey)
     {
         //when the UI updates and new text has to be played, no other text can be selected so it makes sense to stop all audio
-        AudioUtils.StopPlaying();
+        AudioPlayer.StopPlaying();
 
         if (UITextRoutine != null)
         {

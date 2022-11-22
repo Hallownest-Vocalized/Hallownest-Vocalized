@@ -152,9 +152,9 @@ public static class AutomaticBossDialogue
             {
                 yield return new WaitForSeconds(1f);
                 FSMEditUtils.CreateDreamDialogue(ABDKeyPrefix + "MATO_1", "Enemy Dreams");
-                yield return new WaitForSeconds(AudioUtils.GetAudioFor("MATO_1_0").length + 0.5f);
+                yield return new WaitForSeconds(AudioPlayer.GetAudioFor("MATO_1_0").length + 0.5f);
                 FSMEditUtils.CreateDreamDialogue(ABDKeyPrefix + "ORO_2", "Enemy Dreams");
-                yield return new WaitForSeconds(AudioUtils.GetAudioFor("ORO_2_0").length + 0.5f);
+                yield return new WaitForSeconds(AudioPlayer.GetAudioFor("ORO_2_0").length + 0.5f);
                 FSMEditUtils.CreateDreamDialogue(ABDKeyPrefix + "MATO_2", "Enemy Dreams");
             }
         }

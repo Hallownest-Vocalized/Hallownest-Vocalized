@@ -167,7 +167,7 @@ public static class EternalOrdeal
         {
             if (HKVocals._globalSettings.OrdealZoteSpeak && Random.value <= 0.4f)
             {
-                AudioUtils.PlayAudioFor(ZoteDialogues[Random.Range(1, 4)], GetZoteAudioPlayer());
+                AudioPlayer.PlayAudioFor(ZoteDialogues[Random.Range(1, 4)], GetZoteAudioPlayer());
             }
         }
     }

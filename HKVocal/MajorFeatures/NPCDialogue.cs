@@ -14,7 +14,7 @@ public static class NPCDialogue
     public static void Hook()
     {
         OnDialogueBox.AfterOrig.ShowPage += PlayAudioForNPCDialogue;
-        OnDialogueBox.BeforeOrig.HideText += _ => AudioUtils.StopPlaying();;
+        OnDialogueBox.BeforeOrig.HideText += _ => AudioPlayer.StopPlaying();;
     }
 
     private static void PlayAudioForNPCDialogue(OnDialogueBox.Delegates.Params_ShowPage args)
@@ -38,12 +38,9 @@ public static class NPCDialogue
         string convo = args.self.currentConversation + "_" + convoNumber;
 
         float removeTime = convoNumber == 0 ? 3 / 5f : 3 / 4f;
-        
-        HKVocals.instance.audioSource.outputAudioMixerGroup = HKVocals.instance.HKVAudio;
-        HKVocals.instance.On.TransitionTo(0.0f);
 
         //this controls scroll lock and autoscroll
-        DidPlayAudioOnDialogueBox = AudioUtils.TryPlayAudioFor(convo, removeTime);
+        DidPlayAudioOnDialogueBox = AudioPlayer.TryPlayAudioFor(convo, removeTime);
 
         if (DidPlayAudioOnDialogueBox)
         {

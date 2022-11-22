@@ -115,7 +115,7 @@ public class AutoScrollOnFinishPlaying : FsmStateAction
 
     public void CheckForFinish()
     {
-        if (AudioUtils.IsPlaying())
+        if (AudioPlayer.IsPlaying())
         {
             return;
         }

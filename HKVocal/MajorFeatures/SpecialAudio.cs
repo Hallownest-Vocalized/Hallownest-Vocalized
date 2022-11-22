@@ -31,14 +31,14 @@ public static class SpecialAudio
         if (!(chainSeq.CurrentSequence == null || 
             chainSeq.CurrentSequence.IsPlaying || 
             chainSeq.isSkipped ||
-            AudioUtils.IsPlaying()))
+            AudioPlayer.IsPlaying()))
         {
             chainSeq.Next();
         }
     }
     private static void PlayMonomonIntroPoem(OnAnimatorSequence.Delegates.Params_Begin args)
     {
-        CoroutineHelper.WaitForSecondsBeforeInvoke(1.164f, () => AudioUtils.TryPlayAudioFor("RANDOM_POEM_STUFF_0"));
+        CoroutineHelper.WaitForSecondsBeforeInvoke(1.164f, () => AudioPlayer.TryPlayAudioFor("RANDOM_POEM_STUFF_0"));
     }
     
     private static string AddSpecialElderbugAudioKey(string key, string sheettitle, string orig)

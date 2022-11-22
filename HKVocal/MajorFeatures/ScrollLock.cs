@@ -61,7 +61,7 @@ public class LockScrollUntilFinishPlaying : FsmStateAction
             return;
         }
 
-        if (AudioUtils.IsPlaying())
+        if (AudioPlayer.IsPlaying())
         {
             return;
         }

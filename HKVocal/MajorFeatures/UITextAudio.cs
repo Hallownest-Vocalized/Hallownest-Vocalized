@@ -47,7 +47,7 @@ public class UITextAudio
 
         IEnumerator JournalText(PlayMakerFSM fsm)
         {
-            yield return new WaitWhile(AudioUtils.IsPlaying);
+            yield return new WaitWhile(AudioPlayer.IsPlaying);
             if (HunterNotesUnlocked == false)
             {
                 HunterNotesUnlocked = true;
@@ -73,13 +73,13 @@ public class UITextAudio
         //Checks when you open the shop keeper menu
         fsm.AddFsmMethod("Open Window", () => { OpenedShopMenu = true; });
         //Checks when you close a shop keeper menu
-        fsm.AddFsmMethod("Down", () => { AudioUtils.StopPlaying(); });
+        fsm.AddFsmMethod("Down", () => { AudioPlayer.StopPlaying(); });
     }
 
     public static void InventoryOpenClose(PlayMakerFSM fsm)
     {
         fsm.AddFsmMethod("Open", () => { OpenInvMenu = true; InvMenuClosed = false; });
-        fsm.AddFsmMethod("Close", () => { AudioUtils.StopPlaying(); InvMenuClosed = true; });
+        fsm.AddFsmMethod("Close", () => { AudioPlayer.StopPlaying(); InvMenuClosed = true; });
     }
 
     public static void PlayShopText(PlayMakerFSM fsm)
