@@ -63,7 +63,7 @@ public static class DreamNailDialogue
         // For the special case of grouped (generic) enemies
         if (DNGroups.ContainsKey(name)) name = DNGroups[name];
 
-        List<string> availableClips = HKVocals.audioNames.FindAll(s => s.Contains($"${name}$_{key}".ToUpper()));
+        List<string> availableClips = AudioLoader.audioNames.FindAll(s => s.Contains($"${name}$_{key}".ToUpper()));
         if (availableClips == null || availableClips.Count == 0) 
         {
             HKVocals.instance.LogError($"No clips for ${name}$_{key}");
@@ -83,7 +83,7 @@ public static class DreamNailDialogue
             HKVocals._saveSettings.PersistentVoiceActors[id] = voiceActor;
         }
 
-        AudioUtils.TryPlayAudioFor($"${name}$_{key}_0_{voiceActor}".ToUpper());
+        AudioPlayer.TryPlayAudioFor($"${name}$_{key}_0_{voiceActor}".ToUpper());
         
         return orig;
     }

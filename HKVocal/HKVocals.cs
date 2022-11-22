@@ -2,26 +2,18 @@ using UnityEngine.Audio;
 
 namespace HKVocals;
 
-public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<SaveSettings>, ICustomMenuMod
+public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<SaveSettings>, ICustomMenuMod
 {
-    public static GlobalSettings _globalSettings { get; set; } = new GlobalSettings();
+    public static GlobalSettings _globalSettings { get; private set; } = new GlobalSettings();
     public void OnLoadGlobal(GlobalSettings s) => _globalSettings = s;
     public GlobalSettings OnSaveGlobal() => _globalSettings;
-    public static SaveSettings _saveSettings { get; set; } = new SaveSettings();
+    public static SaveSettings _saveSettings { get; private set; } = new SaveSettings();
     public void OnLoadLocal(SaveSettings s) => _saveSettings = s;
     public SaveSettings OnSaveLocal() => _saveSettings;
         
-    public AssetBundle audioBundle;
-    public AssetBundle mixerBundle;
     public AudioSource audioSource;
-    public AudioMixerGroup HKVAudio;
-    public AudioMixerSnapshot On;
-    public AudioMixerSnapshot Off;
     internal static HKVocals instance;
     public static NonBouncer CoroutineHolder;
-    
-    public static List<string> audioExtentions = new List<string>() { ".mp3", ".wav" };
-    public static List<string> audioNames = new List<string>();
 
     public HKVocals() : base("Hallownest Vocalized")
     {
@@ -55,7 +47,8 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
 
         Hooks.PmFsmBeforeStartHook += AddFSMEdits;
 
-        LoadAssetBundle();
+        AudioLoader.LoadAssetBundle();
+        MixerLoader.LoadAssetBundle();
         CreateAudioSource();
     }
 
@@ -90,39 +83,9 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
         }
     }
 
-    private void LoadAssetBundle()
-    {
-        Assembly asm = Assembly.GetExecutingAssembly();
-        audioBundle = AssetBundle.LoadFromStream(File.OpenRead(Path.GetDirectoryName(asm.Location) + "/audiobundle"));
-        string[] allAssetNames = audioBundle.GetAllAssetNames();
-        for (int i = 0; i < allAssetNames.Length; i++)
-        {
-            if (audioExtentions.Any(ext => allAssetNames[i].EndsWith(ext)))
-            {
-                audioNames.Add(Path.GetFileNameWithoutExtension(allAssetNames[i]).ToUpper());
-            }
-            LogDebug($"Object in audiobundle: {allAssetNames[i]} {Path.GetFileNameWithoutExtension(allAssetNames[i])?.ToUpper().Replace("KNGHT", "KNIGHT")}");
-        }
-        
-        mixerBundle = AssetBundle.LoadFromStream(File.OpenRead(Path.GetDirectoryName(asm.Location) + "/mixerbundle"));
-        string[] mixers = mixerBundle.GetAllAssetNames();
-        for (int i = 0; i < mixers.Length; i++)
-        {
-            LogDebug($"Object in mixer: {mixers[i]} {Path.GetFileNameWithoutExtension(mixers[i])?.ToUpper()}");
-        }
+    public static void DoLogDebug(object s) => instance.LogDebug(s);
+    public static void DoLog(object s) => instance.Log(s);
 
-        var objs = mixerBundle.LoadAllAssets();
-        HKVAudio = objs.First(x => x.name == "HKV Audio") as AudioMixerGroup;
-        On = objs.First(x => x.name == "On") as AudioMixerSnapshot;
-        Off = objs.First(x => x.name == "Off") as AudioMixerSnapshot;
-
-        foreach (var o in objs)
-        {
-            Object.DontDestroyOnLoad(o);
-        }
-    }
-    
-    
     public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates) => ModMenu.CreateModMenuScreen(modListMenu);
     public bool ToggleButtonInsideMenu => false;
 }

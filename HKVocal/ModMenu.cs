@@ -91,7 +91,7 @@ public static class ModMenu
         {
             VolumeSlider_MenuAudioSlider.UpdateTextValue(f);
             HKVocals._globalSettings.Volume = (int)f;
-            MixerLoader.SetVolume(f);
+            MixerLoader.SetMixerVolume(f);
         };
 
         // stuff to happen whenever slider is moved
