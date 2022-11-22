@@ -36,8 +36,8 @@ public static class MiscUtils
     
     public static void RemoveValues<T,V>(this Dictionary<T,V> dict, Func<V, bool> condition)
     {
-        List<T> removeList = new List<T>();
-        foreach ((T key, V value) in dict)
+        List<T> removeList = new ();
+        foreach (var (key, value) in dict)
         {
             if (condition(value))
             {

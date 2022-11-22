@@ -10,7 +10,7 @@ public static class ModMenu
     private static Menu MenuRef;
     public static MenuScreen CreateModMenuScreen(MenuScreen modListMenu)
     {
-        MenuRef ??= new Menu("Hallownest Vocalised", new Element[]
+        MenuRef ??= new Menu("Hallownest Vocalized", new Element[]
         {
             //new TextPanel("To change volume, please use Audio Menu"),
             new MenuButton("Change Volume", "Change volume of voice actors", _ =>
@@ -63,6 +63,11 @@ public static class ModMenu
             {
                 isVisible = !HKVocals._globalSettings.dnDialogue
             },
+            
+            Blueprints.HorizontalBoolOption("Dampen Audio",
+                "Should audio be damped when audio is played",
+                i => HKVocals._globalSettings.dampenAudio = i,
+                () => HKVocals._globalSettings.dampenAudio),
         });
         return MenuRef.GetMenuScreen(modListMenu);
     }
@@ -79,7 +84,7 @@ public static class ModMenu
         MenuAudioSlider VolumeSlider_MenuAudioSlider = VolumeSlider.GetComponent<MenuAudioSlider>();
         Slider VolumeSlider_Slider = VolumeSlider.GetComponent<Slider>();
 
-        VolumeSlider.transform.localPosition = new Vector3(303f, 0f, 0f);
+        VolumeSlider.transform.localPosition = Vector3.right * 303f;
         VolumeSlider.name = "HK Vocals Slider";
 
         Action<float> StoreValue = f =>
@@ -106,19 +111,18 @@ public static class ModMenu
         GameObject HKVocalsSettings = Object.Instantiate(DefaultButton, DefaultButton.transform.parent);
         HKVocalsSettings.name = "HK Vocals Settings";
         HKVocalsSettings.transform.localPosition = Vector3.up * 335f;
-        HKVocalsVolume.RemoveComponent<EventTrigger>();
+        HKVocalsSettings.RemoveComponent<EventTrigger>();
         HKVocalsSettings.Find("Text").RemoveComponent<AutoLocalizeTextUI>();
-        HKVocalsSettings.Find("Text").GetComponent<Text>().text = "Go to Hallownest Vocalised Settings";
+        HKVocalsSettings.Find("Text").GetComponent<Text>().text = "Go to Hallownest Vocalized Settings";
         var mb = HKVocalsSettings.GetComponent<UMenuButton>();
         mb.proceed = true;
         mb.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
         mb.submitAction = _ =>
         {
-            UIManager.instance.UIGoToDynamicMenu(MenuRef.GetMenuScreen(UIManager.instance.UICanvas.Find("ModListMenu").GetComponent<MenuScreen>()));
+            // we cant garuntee our modmenu has been created yet so our MenuRef.menuScreen might be null. hence we manually find modist menu and use that
+            UIManager.instance.UIGoToDynamicMenu(MenuRef.menuScreen != null 
+                ? MenuRef.menuScreen 
+                : MenuRef.GetMenuScreen(UIManager.instance.UICanvas.Find("ModListMenu").GetComponent<MenuScreen>()));
         };
-        
-
-
-
     }
 }

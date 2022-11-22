@@ -9,6 +9,7 @@ public class GlobalSettings
     public bool dnDialogue = false;
     public bool automaticBossDialogue = false;
     public bool scrollLock = false;
+    public bool dampenAudio = true;
 }
 public class SaveSettings
 {
