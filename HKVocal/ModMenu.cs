@@ -24,7 +24,7 @@ public static class ModMenu
                 () => HKVocals._globalSettings.scrollLock),
             
             Blueprints.HorizontalBoolOption("Auto Scroll", 
-                "Should dialogue autoscroll after the audio finishes",
+                "Should dialogue autoscroll after the audio finishes?",
                 (i) => 
                     {
                         HKVocals._globalSettings.autoScroll = i;
@@ -35,7 +35,7 @@ public static class ModMenu
                 () => HKVocals._globalSettings.autoScroll),
             
             new HorizontalOption("Auto Scroll Speed", 
-                "How fast should it autoscroll on audio finish",
+                "How fast should it autoscroll after audio finishes playing?",
                 Enum.GetNames(typeof(MajorFeatures.AutoScroll.ScrollSpeed)).ToArray(),
                 (i) => HKVocals._globalSettings.ScrollSpeed = (MajorFeatures.AutoScroll.ScrollSpeed) i,
                 () => (int) HKVocals._globalSettings.ScrollSpeed,
@@ -44,8 +44,8 @@ public static class ModMenu
                     isVisible = HKVocals._globalSettings.autoScroll
                 },
             
-            Blueprints.HorizontalBoolOption("Dream Nail Dialogues", 
-                "Should dream nail dialogues be voiced?",
+            Blueprints.HorizontalBoolOption("Dream Nail Dialogue", 
+                "Should dream nail dialogue be voiced?",
                 (i) =>
                 {
                     HKVocals._globalSettings.dnDialogue = i;
@@ -55,7 +55,7 @@ public static class ModMenu
                 () => HKVocals._globalSettings.dnDialogue),
             
             new HorizontalOption("Automatic Boss Shouts",
-                "Should some bosses automatically do shouts",
+                "Should some bosses automatically do shouts?",
                 new []{"On", "Off"},
                 i => HKVocals._globalSettings.automaticBossDialogue = i == 0,
                 () => HKVocals._globalSettings.automaticBossDialogue ? 0 : 1,
@@ -65,7 +65,7 @@ public static class ModMenu
             },
             
             Blueprints.HorizontalBoolOption("Dampen Audio",
-                "Should audio be damped when audio is played",
+                "Should audio be dampened when audio is played?",
                 i => HKVocals._globalSettings.dampenAudio = i,
                 () => HKVocals._globalSettings.dampenAudio),
         });
@@ -91,6 +91,7 @@ public static class ModMenu
         {
             VolumeSlider_MenuAudioSlider.UpdateTextValue(f);
             HKVocals._globalSettings.Volume = (int)f;
+            MixerLoader.SetVolume(f);
         };
 
         // stuff to happen whenever slider is moved
