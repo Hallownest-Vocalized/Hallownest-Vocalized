@@ -12,7 +12,11 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
     public SaveSettings OnSaveLocal() => _saveSettings;
         
     public AssetBundle audioBundle;
+    public AssetBundle mixerBundle;
     public AudioSource audioSource;
+    public AudioMixerGroup HKVAudio;
+    public AudioMixerSnapshot On;
+    public AudioMixerSnapshot Off;
     internal static HKVocals instance;
     public static NonBouncer CoroutineHolder;
     
@@ -37,6 +41,8 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
 
         MajorFeatures.SpecialAudio.Hook();
         MajorFeatures.NPCDialogue.Hook();
+        MajorFeatures.MuteOriginalAudio.Hook();
+        MajorFeatures.DampenAudio.Hook();
         MajorFeatures.DreamNailDialogue.Hook();
         MajorFeatures.AutoScroll.Hook();
         MajorFeatures.ScrollLock.Hook();
@@ -96,6 +102,23 @@ public class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<Save
                 audioNames.Add(Path.GetFileNameWithoutExtension(allAssetNames[i]).ToUpper());
             }
             LogDebug($"Object in audiobundle: {allAssetNames[i]} {Path.GetFileNameWithoutExtension(allAssetNames[i])?.ToUpper().Replace("KNGHT", "KNIGHT")}");
+        }
+        
+        mixerBundle = AssetBundle.LoadFromStream(File.OpenRead(Path.GetDirectoryName(asm.Location) + "/mixerbundle"));
+        string[] mixers = mixerBundle.GetAllAssetNames();
+        for (int i = 0; i < mixers.Length; i++)
+        {
+            LogDebug($"Object in mixer: {mixers[i]} {Path.GetFileNameWithoutExtension(mixers[i])?.ToUpper()}");
+        }
+
+        var objs = mixerBundle.LoadAllAssets();
+        HKVAudio = objs.First(x => x.name == "HKV Audio") as AudioMixerGroup;
+        On = objs.First(x => x.name == "On") as AudioMixerSnapshot;
+        Off = objs.First(x => x.name == "Off") as AudioMixerSnapshot;
+
+        foreach (var o in objs)
+        {
+            Object.DontDestroyOnLoad(o);
         }
     }
     
