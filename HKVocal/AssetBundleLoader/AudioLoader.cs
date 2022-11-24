@@ -11,7 +11,6 @@ public static class AudioLoader
 
     public static void LoadAssetBundle()
     {
-        audioBundle = AssetBundle.LoadFromStream(File.OpenRead(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/audiobundle"));
         string[] allAssetNames = audioBundle.GetAllAssetNames();
         foreach (var asset in allAssetNames)
         {

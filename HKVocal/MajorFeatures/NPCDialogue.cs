@@ -25,13 +25,23 @@ public static class NPCDialogue
         bool isDreamBoxOpen = dialogueManager.Find("Box Dream").GetComponent<MeshRenderer>().enabled;
         bool isDialogueBoxOpen = dialogueManager.Find("DialogueBox").Find("backboard").GetComponent<SpriteRenderer>().enabled;
 
-        //todo: apply dream effects here
-        
-        // we dont wanna play dn dialogue when toggled off
-        if (!HKVocals._globalSettings.dnDialogue && isDreamBoxOpen)
+        if (isDialogueBoxOpen)
         {
-            return;
+            MixerLoader.SetSnapshot(MiscUtils.GetCurrentSceneName());
         }
+        else if (isDreamBoxOpen)
+        {
+            // we dont wanna play dn dialogue when toggled off
+            if (!HKVocals._globalSettings.dnDialogue)
+            {
+                return;
+            }
+            else
+            {
+                MixerLoader.SetSnapshot(Snapshots.Dream);
+            }
+        }
+         
 
         //convos start at _0 but page numbers start from 1
         int convoNumber = args.self.currentPage - 1;

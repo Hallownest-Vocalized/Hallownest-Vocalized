@@ -60,11 +60,11 @@ public static class MiscUtils
             {
                 try
                 {
-                    (invocationList[i] as Action<PlayMakerFSM>).Invoke(fsm);
+                    (invocationList[i] as Action<PlayMakerFSM>)!.Invoke(fsm);
                 }
-                catch (Exception ex)
+                catch (Exception e)
                 {
-                    HKVocals.instance.LogError($"[Core][FsmUtil][Hooks] - {ex}");
+                    HKVocals.instance.LogError(e);
                 }
             }
         }
@@ -78,8 +78,8 @@ public static class MiscUtils
     public static float GetDecibelVolume(float value)
     {
         // 0 is max volume on this scale
-        return value <= 9 
-            ? AudioOptionsMenu.MusicSlider.GetComponent<MenuAudioSlider>().Reflect().GetVolumeLevel(value) 
+        return value <= 9
+            ? AudioOptionsMenu.MusicSlider.GetComponent<MenuAudioSlider>().Reflect().GetVolumeLevel(value)
             : 0.0f;
     }
 }

@@ -24,7 +24,6 @@ public static class AudioPlayer
             HKVocals.instance.LogWarn($"Audio doesn't exist {convName}");
             return false;
         }
-
     }
 
     public static void PlayAudioFor(string convName) => PlayAudio(GetAudioFor(convName.ToLower())); 
@@ -56,21 +55,19 @@ public static class AudioPlayer
         {
             HKVocals.instance.CreateAudioSource();
         }
-
-        if (HeroController.instance != null)
-        {
-            asrc.transform.localPosition = HeroController.instance.transform.localPosition;
-        }
-        else
-        {
-            //for monomon audio
-            asrc.transform.localPosition = new Vector3(15f, 10f, 1f);
-        }
         
-        asrc.volume = HKVocals._globalSettings.Volume / 10f;
         asrc.Stop();
-        HKVocals.instance.LogDebug($"Playing {clip.name}");
+
+        asrc.transform.localPosition = HeroController.instance != null 
+            ? HeroController.instance.transform.localPosition :
+            new Vector3(15f, 10f, 1f); //for monomon audio
+
+        asrc.SetMixerGroup();
+
+        MixerLoader.SetMixerVolume();
         asrc.PlayOneShot(clip, 1f);
+        
+        HKVocals.instance.LogDebug($"Playing {clip.name}");
     }
 
     public static bool IsPlaying() => HKVocals.instance.audioSource.isPlaying;

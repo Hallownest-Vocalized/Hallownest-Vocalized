@@ -82,6 +82,8 @@ public static class DreamNailDialogue
             voiceActor = Random.Range(1, availableClips.Count);
             HKVocals._saveSettings.PersistentVoiceActors[id] = voiceActor;
         }
+        
+        MixerLoader.SetSnapshot(Snapshots.Dream);
 
         AudioPlayer.TryPlayAudioFor($"${name}$_{key}_0_{voiceActor}".ToUpper());
         

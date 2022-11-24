@@ -46,6 +46,8 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
         EasterEggs.PaleFlower.Hook();
 
         Hooks.PmFsmBeforeStartHook += AddFSMEdits;
+        MixerLoader.mixerBundle = AssetBundle.LoadFromStream(File.OpenRead(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/mixerbundle"));
+        AudioLoader.audioBundle = AssetBundle.LoadFromStream(File.OpenRead(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/audiobundle"));
 
         AudioLoader.LoadAssetBundle();
         MixerLoader.LoadAssetBundle();
@@ -58,8 +60,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
         GameObject audioGO = new GameObject("HK Vocals Audio");
         audioSource = audioGO.AddComponent<AudioSource>();
         
-        //make our audio not be affected by any slider other than master. there are many groups called master but we need the one whose mixer is also master
-        audioSource.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixerGroup>().First(x => x.name == "Master" && x.audioMixer != null && x.audioMixer.name == "Master");
+        audioSource.SetMixerGroup();
         Object.DontDestroyOnLoad(audioGO);
     }
 
