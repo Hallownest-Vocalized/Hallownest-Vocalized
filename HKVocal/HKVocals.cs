@@ -29,8 +29,6 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     {
         instance = this;
 
-        UIManager.EditMenus +=  ModMenu.AddAudioSlider;
-
         MajorFeatures.SpecialAudio.Hook();
         MajorFeatures.NPCDialogue.Hook();
         MajorFeatures.MuteOriginalAudio.Hook();
@@ -45,13 +43,15 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
         EasterEggs.SpecialGrub.Hook();
         EasterEggs.PaleFlower.Hook();
 
-        Hooks.PmFsmBeforeStartHook += AddFSMEdits;
         MixerLoader.mixerBundle = AssetBundle.LoadFromStream(File.OpenRead(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/mixerbundle"));
         AudioLoader.audioBundle = AssetBundle.LoadFromStream(File.OpenRead(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/audiobundle"));
 
         AudioLoader.LoadAssetBundle();
         MixerLoader.LoadAssetBundle();
         CreateAudioSource();
+        
+        UIManager.EditMenus += ModMenu.AddAudioSlider;
+        Hooks.PmFsmBeforeStartHook += AddFSMEdits;
     }
 
     public void CreateAudioSource()
