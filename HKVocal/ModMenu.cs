@@ -2,7 +2,6 @@
 using UnityEngine.EventSystems;
 using UMenuButton = UnityEngine.UI.MenuButton;
 using MenuButton = Satchel.BetterMenus.MenuButton;
-using static HKVocals.AudioOptionsMenu;
 
 namespace HKVocals;
 public static class ModMenu
@@ -15,7 +14,7 @@ public static class ModMenu
             //new TextPanel("To change volume, please use Audio Menu"),
             new MenuButton("Change Volume", "Change volume of voice actors", _ =>
             {
-                UIManager.instance.UILeaveDynamicMenu(AudioMenuScreen, MainMenuState.AUDIO_MENU);
+                UIManager.instance.UILeaveDynamicMenu(AudioOptionsMenu.AudioMenuScreen, MainMenuState.AUDIO_MENU);
             }, proceed:true),
 
             Blueprints.HorizontalBoolOption("Scroll Lock", 
@@ -76,10 +75,10 @@ public static class ModMenu
     {
         //make clone
         GameObject HKVocalsVolume = new GameObject("HKVocals Volume");
-        HKVocalsVolume.transform.SetParent(MusicSlider.transform.parent.parent);
+        HKVocalsVolume.transform.SetParent(AudioOptionsMenu.MusicSlider.transform.parent.parent);
         HKVocalsVolume.transform.localScale = Vector3.one;
-        HKVocalsVolume.transform.localPosition = MusicVolume.transform.localPosition + Vector3.down * 120;
-        GameObject VolumeSlider = Object.Instantiate(MusicSlider, HKVocalsVolume.transform);
+        HKVocalsVolume.transform.localPosition = AudioOptionsMenu.MusicVolume.transform.localPosition + Vector3.down * 120;
+        GameObject VolumeSlider = Object.Instantiate(AudioOptionsMenu.MusicSlider, HKVocalsVolume.transform);
             
         MenuAudioSlider VolumeSlider_MenuAudioSlider = VolumeSlider.GetComponent<MenuAudioSlider>();
         Slider VolumeSlider_Slider = VolumeSlider.GetComponent<Slider>();
@@ -91,7 +90,7 @@ public static class ModMenu
         {
             VolumeSlider_MenuAudioSlider.UpdateTextValue(f);
             HKVocals._globalSettings.Volume = (int)f;
-            MixerLoader.SetMixerVolume(f);
+            MixerLoader.SetMixerVolume();
         };
 
         // stuff to happen whenever slider is moved
@@ -109,7 +108,7 @@ public static class ModMenu
         VolumeSlider_MenuAudioSlider.UpdateTextValue(HKVocals._globalSettings.Volume);
         VolumeSlider_Slider.value = HKVocals._globalSettings.Volume;
         
-        GameObject HKVocalsSettings = Object.Instantiate(DefaultButton, DefaultButton.transform.parent);
+        GameObject HKVocalsSettings = Object.Instantiate(AudioOptionsMenu.DefaultButton, AudioOptionsMenu.DefaultButton.transform.parent);
         HKVocalsSettings.name = "HK Vocals Settings";
         HKVocalsSettings.transform.localPosition = Vector3.up * 335f;
         HKVocalsSettings.RemoveComponent<EventTrigger>();

@@ -1,5 +1,3 @@
-using static HKVocals.AudioOptionsMenu;
-
 namespace HKVocals.MajorFeatures;
 public static class DampenAudio
 {
@@ -50,11 +48,11 @@ public static class DampenAudio
 
             //if dampen = true, we get the first value of lerp as the original volume and 2nd value as the reduced and vice versa
             
-            MasterMixer.SetFloat("MusicVolume",
+            AudioOptionsMenu.MasterMixer.SetFloat("MusicVolume",
                 Mathf.Lerp(MiscUtils.GetDecibelVolume(musicVolume * (dampen ? 1f: multiplier)),
                     MiscUtils.GetDecibelVolume(musicVolume * (dampen ? multiplier : 1f)), currentTime / DampenTime));
 
-            MasterMixer.SetFloat("SFXVolume",
+            AudioOptionsMenu.MasterMixer.SetFloat("SFXVolume",
                 Mathf.Lerp(MiscUtils.GetDecibelVolume(soundVolume * (dampen ? 1f: multiplier)),
                     MiscUtils.GetDecibelVolume(soundVolume * (dampen ? multiplier : 1f)), currentTime / DampenTime));
             
