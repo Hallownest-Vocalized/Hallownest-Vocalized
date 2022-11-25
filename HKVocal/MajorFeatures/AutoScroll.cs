@@ -62,7 +62,7 @@ public static class AutoScroll
         //we will go to this state via the next o audio event we invoke in AutoScrollOnFinishPlaying    
         var SFX = fsm.GetFsmState(audioState);
         var SFX_NoAudio = fsm.CopyFsmState(SFX.Name, $"{audioState} No Audio");
-        SFX_NoAudio.Actions = SFX.Actions;
+        SFX_NoAudio.ReplaceAllActions(SFX.Actions);
         SFX_NoAudio.RemoveFsmAction(SFX_NoAudio.Actions.GetIndexOf(a => a is AudioPlayerOneShotSingle));
 
         fsm.AddFsmTransition(previousState, CustomNextEvent, SFX_NoAudio.Name);

@@ -14,7 +14,7 @@ public static class NPCDialogue
     public static void Hook()
     {
         OnDialogueBox.AfterOrig.ShowPage += PlayAudioForNPCDialogue;
-        OnDialogueBox.BeforeOrig.HideText += _ => AudioPlayer.StopPlaying();;
+        OnDialogueBox.BeforeOrig.HideText += _ => AudioPlayer.StopPlaying();
     }
 
     private static void PlayAudioForNPCDialogue(OnDialogueBox.Delegates.Params_ShowPage args)

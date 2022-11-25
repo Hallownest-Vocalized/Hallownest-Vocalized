@@ -8,8 +8,59 @@ public static class DampenAudio
     public static void Hook()
     {
         NPCDialogue.OnPlayNPCDialogue += StartDampingAudio;
+        DreamNailDialogue.OnPlayDreamDialogue += StartDampingAudio;
+        
         OnDialogueBox.BeforeOrig.HideText += _ => StopDampenAudio();
+        Hooks.HookStateEntered(new FSMData("DialogueManager","Box Open Dream", "Stop Audio"), _ => StopDampenAudio());
+        Hooks.HookStateEntered(new FSMData("Dream Msg","Display", "Full Cancel"), _ => StopDampenAudio());
+        Hooks.HookStateEntered(new FSMData("Dream Msg","Display", "Text Down"), _ => StopDampenAudio());
+        Hooks.HookStateEntered(new FSMData("DialogueManager","Box Open Dream", "Stop Audio"), _ => StopDampenAudio());
+        
+        FSMEditData.AddGameObjectFsmEdit("Text","Dialogue Page Control", DontCallHideTextOnHalfConvoFinish);
     }
+
+    private static void DontCallHideTextOnHalfConvoFinish(PlayMakerFSM fsm)
+    {
+        var endConversation = fsm.GetFsmState("End Conversation");
+        
+        //replace the action that calls hide text so we can manually call our orig_HideText
+        endConversation.ReplaceFsmAction(new Core.FsmUtil.Actions.MethodAction()
+        {
+            Method = () =>
+            {
+                var useStop = fsm.GetFsmBoolVariable("Use Stop");
+                var dialogueBox = fsm.Fsm.GameObject.gameObject.GetComponent<DialogueBox>().Reflect();
+                
+                //if its a half convo
+                if (!useStop.Value)
+                {
+                    //this avoids our on hook
+                    orig_DialogueBox_HideText(dialogueBox);
+                }
+                else
+                {
+                    //this goes through our on hook
+                    dialogueBox.HideText();
+                }
+
+                useStop.Value = true;
+            }
+        }, 3);
+        
+        //remove the one that sets use stop (that controls half convo) and set it ourself so we can read the value
+        endConversation.RemoveFsmAction(0);
+    }
+
+    private static void orig_DialogueBox_HideText(DialogueBoxR box)
+    {
+        if (box.typing)
+        {
+            box.StopTypewriter();
+        }
+        box.textMesh.maxVisibleCharacters = 0;
+        box.hidden = true;
+    }
+    
 
     private static void StartDampingAudio()
     {
@@ -35,6 +86,7 @@ public static class DampenAudio
             yield break;
         }
         
+        HKVocals.DoLogDebug((dampen ? "Dampening" : "Undampening") + " audio");
         AudioDampened = dampen;
         
         float currentTime = 0f;

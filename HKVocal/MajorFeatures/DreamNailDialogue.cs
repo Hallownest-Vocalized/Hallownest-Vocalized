@@ -6,6 +6,11 @@ public static class DreamNailDialogue
 {
     private static GameObject lastDreamnailedEnemy;
     private static Regex enemyTrimRegex = new Regex("([^0-9\\(\\)]+)", RegexOptions.Compiled);
+    
+    public delegate void OnPlayDreamDialogueHandler();
+    
+    public static event OnPlayDreamDialogueHandler OnPlayDreamDialogue;
+    
     public static void Hook()
     {
         ModHooks.LanguageGetHook += PlayDreamNailDialogue;
@@ -85,7 +90,12 @@ public static class DreamNailDialogue
         
         MixerLoader.SetSnapshot(Snapshots.Dream);
 
-        AudioPlayer.TryPlayAudioFor($"${name}$_{key}_0_{voiceActor}".ToUpper());
+        bool didPlay = AudioPlayer.TryPlayAudioFor($"${name}$_{key}_0_{voiceActor}".ToUpper());
+
+        if (didPlay)
+        {
+            OnPlayDreamDialogue?.Invoke();
+        }
         
         return orig;
     }
