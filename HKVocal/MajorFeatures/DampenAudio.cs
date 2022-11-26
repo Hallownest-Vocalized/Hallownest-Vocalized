@@ -1,14 +1,16 @@
 namespace HKVocals.MajorFeatures;
 public static class DampenAudio
 {
-    private static readonly float DampenValue = 30f; //a percentage 
+    private static float DampenValue; //a percentage 
+    private static readonly float DampenValueNormal = 30f;  
+    private static readonly float DampenValueDream = 30f;  
     private static readonly float DampenTime = 1f;
     private static bool AudioDampened = false;
 
     public static void Hook()
     {
-        NPCDialogue.OnPlayNPCDialogue += StartDampingAudio;
-        DreamNailDialogue.OnPlayDreamDialogue += StartDampingAudio;
+        NPCDialogue.OnPlayNPCDialogue += StartDampingAudioNormal;
+        DreamNailDialogue.OnPlayDreamDialogue += StartDampingAudioDream;
         
         OnDialogueBox.BeforeOrig.HideText += _ => StopDampenAudio();
         Hooks.HookStateEntered(new FSMData("DialogueManager","Box Open Dream", "Stop Audio"), _ => StopDampenAudio());
@@ -62,8 +64,17 @@ public static class DampenAudio
     }
     
 
-    private static void StartDampingAudio()
+    private static void StartDampingAudioNormal()
     {
+        DampenValue = DampenValueNormal;
+        if (HKVocals._globalSettings.dampenAudio)
+        {
+            HKVocals.CoroutineHolder.StartCoroutine(DoDampenAudio(dampen: true));
+        }
+    }
+    private static void StartDampingAudioDream()
+    {
+        DampenValue = DampenValueDream;
         if (HKVocals._globalSettings.dampenAudio)
         {
             HKVocals.CoroutineHolder.StartCoroutine(DoDampenAudio(dampen: true));
@@ -91,23 +102,16 @@ public static class DampenAudio
         
         float currentTime = 0f;
         float multiplier = (100 - DampenValue) / 100f;
-        float soundVolume = GameManager.instance.gameSettings.soundVolume;
-        float musicVolume = GameManager.instance.gameSettings.musicVolume;
-
+        float masterVolume = GameManager.instance.gameSettings.masterVolume;
         while (currentTime <= DampenTime)
         {
             currentTime += Time.deltaTime;
 
             //if dampen = true, we get the first value of lerp as the original volume and 2nd value as the reduced and vice versa
             
-            AudioOptionsMenu.MasterMixer.SetFloat("MusicVolume",
-                Mathf.Lerp(MiscUtils.GetDecibelVolume(musicVolume * (dampen ? 1f: multiplier)),
-                    MiscUtils.GetDecibelVolume(musicVolume * (dampen ? multiplier : 1f)), currentTime / DampenTime));
-
-            AudioOptionsMenu.MasterMixer.SetFloat("SFXVolume",
-                Mathf.Lerp(MiscUtils.GetDecibelVolume(soundVolume * (dampen ? 1f: multiplier)),
-                    MiscUtils.GetDecibelVolume(soundVolume * (dampen ? multiplier : 1f)), currentTime / DampenTime));
-            
+            AudioOptionsMenu.MasterMixer.SetFloat("MasterVolume",
+                Mathf.Lerp(MiscUtils.GetDecibelVolume(masterVolume * (dampen ? 1f: multiplier)),
+                    MiscUtils.GetDecibelVolume(masterVolume * (dampen ? multiplier : 1f)), currentTime / DampenTime));
 
             yield return null;
         }

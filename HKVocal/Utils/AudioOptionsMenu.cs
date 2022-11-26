@@ -71,7 +71,7 @@ public static class AudioOptionsMenu
         {
             if (_masterMixer == null)
             {
-                _masterMixer = MusicSlider.GetComponent<MenuAudioSlider>().masterMixer;
+                _masterMixer = AudioMenuContent.Find("MasterVolume").Find("MasterSlider").GetComponent<MenuAudioSlider>().masterMixer;
             }
 
             return _masterMixer;
