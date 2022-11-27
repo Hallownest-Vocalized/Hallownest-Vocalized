@@ -1,11 +1,19 @@
+using UnityEngine.Audio;
+
 namespace HKVocals.MajorFeatures;
 public static class DampenAudio
 {
     private static float DampenValue; //a percentage 
-    private static readonly float DampenValueNormal = 30f;  
-    private static readonly float DampenValueDream = 30f;  
-    private static readonly float DampenTime = 1f;
-    private static bool AudioDampened = false;
+    private static bool AudioDampened;
+    
+    private const float DampenValueNormal = 30f;  
+    private const float DampenValueDream = 30f;  
+    private const float DampenTime = 1f;
+
+    private static AudioSource _dreamDialogueMusic;
+    private static AudioSource _dreamNailSlash;
+    private static AudioMixerGroup DreamDialogueMusicGroup;
+    private static AudioMixerGroup DreamNailSlashGroup;
 
     public static void Hook()
     {
@@ -77,6 +85,7 @@ public static class DampenAudio
         DampenValue = DampenValueDream;
         if (HKVocals._globalSettings.dampenAudio)
         {
+            SetDampenExceptions();
             HKVocals.CoroutineHolder.StartCoroutine(DoDampenAudio(dampen: true));
         }
     }
@@ -85,19 +94,24 @@ public static class DampenAudio
     {
         if (HKVocals._globalSettings.dampenAudio)
         {
-            HKVocals.CoroutineHolder.StartCoroutine(DoDampenAudio(dampen: false));
+            ForceStopDampenAudio();
         }
+    }
+    public static void ForceStopDampenAudio()
+    {
+        UnsetDampenExceptions();
+        HKVocals.CoroutineHolder.StartCoroutine(DoDampenAudio(dampen: false));
     }
     
     private static IEnumerator DoDampenAudio(bool dampen)
     {
-        //we shouldn't re dampen if already dampened or un dampen if it wasnt dampned
+        //we shouldn't re dampen if already dampened or un dampen if it wasn't dampened
         if (dampen && AudioDampened || !dampen && !AudioDampened)
         {
             yield break;
         }
         
-        HKVocals.DoLogDebug((dampen ? "Dampening" : "Undampening") + " audio");
+        HKVocals.DoLogDebug((dampen ? "Dampening" : "UnDampening") + " audio");
         AudioDampened = dampen;
         
         float currentTime = 0f;
@@ -114,6 +128,69 @@ public static class DampenAudio
                     MiscUtils.GetDecibelVolume(masterVolume * (dampen ? multiplier : 1f)), currentTime / DampenTime));
 
             yield return null;
+        }
+    }
+
+    private static void SetDampenExceptions()
+    {
+        if (DreamDialogueMusic.outputAudioMixerGroup != null 
+            && DreamDialogueMusic.outputAudioMixerGroup != MixerLoader.DampenExcludeMusic)
+        {
+            if (DreamDialogueMusic.outputAudioMixerGroup != null)
+            {
+                DreamDialogueMusicGroup = DreamDialogueMusic.outputAudioMixerGroup;
+            }
+            DreamDialogueMusic.outputAudioMixerGroup = MixerLoader.DampenExcludeMusic;
+        }
+        if (DreamNailSlash.outputAudioMixerGroup != null &&
+            DreamNailSlash.outputAudioMixerGroup != MixerLoader.DampenExcludeSFX)
+        {
+            if (DreamNailSlash.outputAudioMixerGroup != null)
+            {
+                DreamNailSlashGroup = DreamNailSlash.outputAudioMixerGroup;
+            }
+            DreamNailSlash.outputAudioMixerGroup = MixerLoader.DampenExcludeSFX;
+        }
+    }
+    
+    private static void UnsetDampenExceptions()
+    {
+        if (DreamDialogueMusic.outputAudioMixerGroup != null &&
+            DreamDialogueMusic.outputAudioMixerGroup == MixerLoader.DampenExcludeMusic &&
+            DreamDialogueMusicGroup != null)
+        {
+            DreamDialogueMusic.outputAudioMixerGroup = DreamDialogueMusicGroup;
+        }
+        if (DreamNailSlash.outputAudioMixerGroup != null &&
+            DreamNailSlash.outputAudioMixerGroup == MixerLoader.DampenExcludeSFX &&
+            DreamNailSlashGroup != null)
+        {
+            DreamNailSlash.outputAudioMixerGroup = DreamNailSlashGroup;
+        }
+    }
+    
+    
+    private static AudioSource DreamDialogueMusic
+    {
+        get
+        {
+            if (_dreamDialogueMusic == null)
+            {
+                _dreamDialogueMusic = GameCameras.instance.cameraParent.Find("tk2dCamera").Find("Audio").Find("Dream Dialogue").GetComponent<AudioSource>();
+            }
+
+            return _dreamDialogueMusic;
+        }
+    }
+    private static AudioSource DreamNailSlash
+    {
+        get
+        {
+            if (_dreamNailSlash == null)
+            {
+                _dreamNailSlash = HeroController.instance.transform.Find("Sounds").Find("Dream Nail").GetComponent<AudioSource>();
+            }
+            return _dreamNailSlash;
         }
     }
 }

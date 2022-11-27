@@ -65,7 +65,14 @@ public static class ModMenu
             
             Blueprints.HorizontalBoolOption("Dampen Audio",
                 "Should audio be dampened when audio is played?",
-                i => HKVocals._globalSettings.dampenAudio = i,
+                i =>
+                {
+                    HKVocals._globalSettings.dampenAudio = i;
+                    if (!HKVocals._globalSettings.dampenAudio)
+                    {
+                        MajorFeatures.DampenAudio.ForceStopDampenAudio();
+                    }
+                },
                 () => HKVocals._globalSettings.dampenAudio),
         });
         return MenuRef.GetMenuScreen(modListMenu);

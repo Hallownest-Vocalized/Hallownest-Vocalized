@@ -6,6 +6,8 @@ public static class MixerLoader
 {
     public static AssetBundle mixerBundle;
     public static AudioMixerGroup HKVAudioGroup;
+    public static AudioMixerGroup DampenExcludeMusic;
+    public static AudioMixerGroup DampenExcludeSFX;
     private static AudioMixer HKVMixer;
     private static readonly Dictionary<string, AudioMixerSnapshot> AudioMixerSnapshots = new();
 
@@ -19,10 +21,20 @@ public static class MixerLoader
         
         mixerBundle.LoadAllAssets(typeof(AudioMixerGroup)).ForEach(x =>
         {
-            if (x.name != "Master")
+            if (x.name == "HKV AudioMixerGroup")
             {
                 HKVAudioGroup = x as AudioMixerGroup;
                 Object.DontDestroyOnLoad(HKVAudioGroup);
+            }
+            else if (x.name == "Dampen Exclude Music")
+            {
+                DampenExcludeMusic = x as AudioMixerGroup;
+                Object.DontDestroyOnLoad(DampenExcludeMusic);
+            }
+            else if (x.name == "Dampen Exclude SFX")
+            {
+                DampenExcludeSFX = x as AudioMixerGroup;
+                Object.DontDestroyOnLoad(DampenExcludeSFX);
             }
         });
 
@@ -30,6 +42,12 @@ public static class MixerLoader
         {
             AudioMixerSnapshots[snaphotName] = HKVMixer.FindSnapshot(snaphotName);
         }
+        
+        HKVMixer.SetFloat("Dampen Exclude Music Volume", MiscUtils.GetDecibelVolume(GameManager.instance.gameSettings.musicVolume));
+        HKVMixer.SetFloat("Dampen Exclude SFX Volume", MiscUtils.GetDecibelVolume(GameManager.instance.gameSettings.soundVolume));
+
+        OnMenuAudioSlider.AfterOrig.SetMusicLevel += SetDampenExcludeMusicVolume;
+        OnMenuAudioSlider.AfterOrig.SetSoundLevel += SetDampenExcludeSFXVolume;
     }
 
     /// <summary>
@@ -38,7 +56,6 @@ public static class MixerLoader
     /// <param name="snapshot"></param>
     public static void SetSnapshot(Snapshots snapshot)
     {
-        HKVocals.DoLogDebug($"Setting to {snapshot.ToString()}");
         AudioMixerSnapshots[snapshot.ToString()].TransitionTo(0.1f);
     }
     
@@ -63,7 +80,7 @@ public static class MixerLoader
     /// </summary>
     public static void SetMixerVolume()
     {
-        HKVMixer.SetFloat("Volume", MiscUtils.GetDecibelVolume(HKVocals._globalSettings.Volume));
+        HKVMixer.SetFloat("VA Volume", MiscUtils.GetDecibelVolume(HKVocals._globalSettings.Volume));
     }
     /// <summary>
     /// Sets the volume level of the mixer to the value in gs.
@@ -74,6 +91,15 @@ public static class MixerLoader
         {
             source.outputAudioMixerGroup = HKVAudioGroup;
         }
+    }
+    
+    private static void SetDampenExcludeMusicVolume(OnMenuAudioSlider.Delegates.Params_SetMusicLevel args)
+    {
+        HKVMixer.SetFloat("Dampen Exclude Music Volume", MiscUtils.GetDecibelVolume(args.musicLevel));
+    }
+    private static void SetDampenExcludeSFXVolume(OnMenuAudioSlider.Delegates.Params_SetSoundLevel args)
+    {
+        HKVMixer.SetFloat("Dampen Exclude SFX Volume", MiscUtils.GetDecibelVolume(args.soundLevel));
     }
 
     private static readonly Dictionary<string, Snapshots> SnapshotsByScene = new ()
