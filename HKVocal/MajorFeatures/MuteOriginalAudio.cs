@@ -248,8 +248,22 @@ public static class MuteOriginalAudio
         "Nailmaster_roar_02",
         "Nailmaster_Bama_01",
         "Nailmaster_Bama_02",
-        "new_heartpiece_puzzle_bit"
-        
+        "new_heartpiece_puzzle_bit",
+        "manhole_key_turn",
+        "coccoon_burst_open",
+        "manhole_key_turn",
+        "misc_rumble_loop",
+        "misc_rumble_impact",
+        "coccoon_god_body_fall_out",
+        "godseeker_groan_01",
+        "godseeker_ground_hit",
+        "bathhouse_door_open",
+        "manhole_key_turn",
+        "jiji_door_open_pt_1",
+        "jiji_door_open_pt_2",
+        "focus_health_charging",
+        "GS_engine_hum_loop",
+        "Sly_dazed_loop",
     };
 
     private class MuteAudioSourceData
