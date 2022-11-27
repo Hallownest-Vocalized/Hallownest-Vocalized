@@ -11,14 +11,15 @@ public static class AudioLoader
 
     public static void LoadAssetBundle()
     {
-        string[] allAssetNames = audioBundle.GetAllAssetNames();
-        foreach (var asset in allAssetNames)
+        audioBundle = AssetBundle.LoadFromStream(File.OpenRead(HKVocals.BundleLocation));
+        
+        foreach (var audio in audioBundle.GetAllAssetNames())
         {
-            if (audioExtentions.Any(ext => asset.EndsWith(ext)))
+            if (audioExtentions.Any(extension => audio.EndsWith(extension)))
             {
-                audioNames.Add(Path.GetFileNameWithoutExtension(asset).ToUpper());
+                audioNames.Add(Path.GetFileNameWithoutExtension(audio).ToUpper());
+                HKVocals.DoLogDebug($"{audio} {Path.GetFileNameWithoutExtension(audio)?.ToUpper()}");
             }
-            HKVocals.instance.LogDebug($": {asset} {Path.GetFileNameWithoutExtension(asset)?.ToUpper()}");
         }
     }
 }

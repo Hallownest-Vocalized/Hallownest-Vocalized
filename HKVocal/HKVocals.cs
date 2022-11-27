@@ -4,54 +4,73 @@ namespace HKVocals;
 
 public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettings<SaveSettings>, ICustomMenuMod
 {
-    public static GlobalSettings _globalSettings { get; private set; } = new GlobalSettings();
+    public static GlobalSettings _globalSettings { get; private set; } = new ();
     public void OnLoadGlobal(GlobalSettings s) => _globalSettings = s;
     public GlobalSettings OnSaveGlobal() => _globalSettings;
-    public static SaveSettings _saveSettings { get; private set; } = new SaveSettings();
+    public static SaveSettings _saveSettings { get; private set; } = new ();
     public void OnLoadLocal(SaveSettings s) => _saveSettings = s;
     public SaveSettings OnSaveLocal() => _saveSettings;
         
     public AudioSource audioSource;
     internal static HKVocals instance;
     public static NonBouncer CoroutineHolder;
-
-    public HKVocals() : base("Hallownest Vocalized")
-    {
-        var go = new GameObject("HK Vocals Coroutine Holder");
-        CoroutineHolder = go.AddComponent<NonBouncer>();
-        Object.DontDestroyOnLoad(CoroutineHolder);
-    }
     
-    //todo: add hash of audiobundle here, if not present warn users in get version
-    public override string GetVersion() => "0.0.0.1";
+    public static readonly string BundleLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/audiobundle";
+    public static bool BundleExists => File.Exists(BundleLocation);
+
+    public HKVocals() : base("Hallownest Vocalized") { }
+
+    public static string Version = "0.0.0.1";
+
+    public override string GetVersion()
+    {
+        if (BundleExists)
+        {
+            return $"{Version} ({MiscUtils.GetFileHash(BundleLocation)})";
+        }
+        else
+        {
+            return $"{Version} Did not load. Missing audios";
+        }
+    }
 
     public override void Initialize()
     {
         instance = this;
 
-        MajorFeatures.SpecialAudio.Hook();
-        MajorFeatures.NPCDialogue.Hook();
-        MajorFeatures.MuteOriginalAudio.Hook();
-        MajorFeatures.DampenAudio.Hook();
-        MajorFeatures.DreamNailDialogue.Hook();
-        MajorFeatures.AutoScroll.Hook();
-        MajorFeatures.ScrollLock.Hook();
-        MajorFeatures.AutomaticBossDialogue.Hook();
-        MajorFeatures.UITextAudio.Hook();
-        
-        EasterEggs.EternalOrdeal.Hook();
-        EasterEggs.SpecialGrub.Hook();
-        EasterEggs.PaleFlower.Hook();
+        if (BundleExists)
+        {
+            AudioLoader.LoadAssetBundle();
+            MixerLoader.LoadAssetBundle();
 
-        MixerLoader.mixerBundle = AssetBundle.LoadFromStream(File.OpenRead(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/mixerbundle"));
-        AudioLoader.audioBundle = AssetBundle.LoadFromStream(File.OpenRead(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/audiobundle"));
+            MajorFeatures.SpecialAudio.Hook();
+            MajorFeatures.NPCDialogue.Hook();
+            MajorFeatures.MuteOriginalAudio.Hook();
+            MajorFeatures.DampenAudio.Hook();
+            MajorFeatures.DreamNailDialogue.Hook();
+            MajorFeatures.AutoScroll.Hook();
+            MajorFeatures.ScrollLock.Hook();
+            MajorFeatures.AutomaticBossDialogue.Hook();
+            MajorFeatures.UITextAudio.Hook();
 
-        AudioLoader.LoadAssetBundle();
-        MixerLoader.LoadAssetBundle();
-        CreateAudioSource();
-        
-        UIManager.EditMenus += ModMenu.AddAudioSlider;
-        Hooks.PmFsmBeforeStartHook += AddFSMEdits;
+            EasterEggs.EternalOrdeal.Hook();
+            EasterEggs.SpecialGrub.Hook();
+            EasterEggs.PaleFlower.Hook();
+
+            UIManager.EditMenus += ModMenu.AddAudioSlider;
+            Hooks.PmFsmBeforeStartHook += AddFSMEdits;
+
+            CoroutineHolder = new GameObject("HK Vocals Coroutine Holder").AddComponent<NonBouncer>();
+            Object.DontDestroyOnLoad(CoroutineHolder);
+
+            CreateAudioSource();
+            
+            Log("HKVocals initialized");
+        }
+        else
+        {
+            LogError("HKVocals Did not load because there was no audio bundle");
+        }
     }
 
     public void CreateAudioSource()

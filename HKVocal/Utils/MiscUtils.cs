@@ -1,4 +1,6 @@
-﻿namespace HKVocals;
+﻿using System.Security.Cryptography;
+
+namespace HKVocals;
 
 public static class MiscUtils
 {
@@ -82,4 +84,16 @@ public static class MiscUtils
             ? AudioOptionsMenu.MusicSlider.GetComponent<MenuAudioSlider>().Reflect().GetVolumeLevel(value)
             : 0.0f;
     }
+
+    public static string GetFileHash(string file)
+    {
+        var sha1 = SHA1.Create();
+        var stream = File.OpenRead(file);
+        var hashBytes = sha1.ComputeHash(stream);
+        var hash = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+        stream.Close();
+        sha1.Clear();
+        return $"{hash.Substring(0, 6)}";
+    }
+    
 }

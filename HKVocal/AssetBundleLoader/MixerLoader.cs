@@ -13,6 +13,8 @@ public static class MixerLoader
 
     public static void LoadAssetBundle()
     {
+        mixerBundle = AssetBundle.LoadFromMemory(AssemblyUtils.GetBytesFromResources("Resources.mixerbundle"));
+
         mixerBundle.LoadAllAssets(typeof(AudioMixer)).ForEach(x =>
         {
             HKVMixer = x as AudioMixer;
