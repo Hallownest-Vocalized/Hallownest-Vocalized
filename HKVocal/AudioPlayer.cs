@@ -1,22 +1,18 @@
-﻿using GlobalEnums;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-
-namespace HKVocals;
+﻿namespace HKVocals;
 public static class AudioPlayer
 {
-    public static bool TryPlayAudioFor(string convName, float removeTime = 0f)
+    public static bool TryPlayAudioFor(string convName, float removeTime = 0f, AudioSource asrc = null)
     {
         HKVocals.instance.LogDebug($"Trying to play audio for {convName}");
         if (HasAudioFor(convName))
         {
             if (removeTime != 0f)
             {
-                PlayAudioForWithTrim(convName, removeTime);
+                PlayAudioWithTrim(GetAudioClip(convName), removeTime);
                 return true;
             }
             
-            PlayAudioFor(convName);
+            PlayAudio(GetAudioClip(convName), asrc);
             return true;
         }
         else
@@ -26,11 +22,9 @@ public static class AudioPlayer
         }
     }
 
-    public static void PlayAudioFor(string convName) => PlayAudio(GetAudioFor(convName.ToLower())); 
-    public static void PlayAudioForWithTrim(string convName, float removeTime) => PlayAudioWithTrim(GetAudioFor(convName.ToLower()), removeTime);
-    public static void PlayAudioFor(string convName, AudioSource asrc) => PlayAudio(GetAudioFor(convName.ToLower()), asrc);
+    private static AudioClip GetAudioClip(string convoName) => GetAudioFor(convoName.ToLower());
     
-    public static void PlayAudioWithTrim(AudioClip clip, float removeTime)
+    private static void PlayAudioWithTrim(AudioClip clip, float removeTime)
     {
         HKVocals.instance.LogDebug($"Trimming {clip.name}");
         int remove = (int) (clip.frequency * removeTime);
@@ -43,7 +37,7 @@ public static class AudioPlayer
                 
         PlayAudio(newclip);
     }
-    public static void PlayAudio(AudioClip clip, AudioSource asrc = null)
+    private static void PlayAudio(AudioClip clip, AudioSource asrc = null)
     {
         //if supplied is null, use default
         if (asrc == null)
@@ -66,8 +60,6 @@ public static class AudioPlayer
 
         MixerLoader.SetMixerVolume();
         asrc.PlayOneShot(clip, 1f);
-        
-        HKVocals.instance.LogDebug($"Playing {clip.name}");
     }
 
     public static bool IsPlaying() => HKVocals.instance.audioSource.isPlaying;

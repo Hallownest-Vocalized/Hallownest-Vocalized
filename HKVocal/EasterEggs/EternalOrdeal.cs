@@ -120,11 +120,12 @@ public static class EternalOrdeal
     public static void AddZoteAudioPlayer()
     {
         AudioSource asrc = new GameObject("HKVocal ZoteAudioPlayer").AddComponent<AudioSource>();
+        asrc.outputAudioMixerGroup = MixerLoader.HKVAudioGroup;
         ZoteAudioPlayers.Add(asrc);
         Object.DontDestroyOnLoad(asrc.gameObject);
     }
 
-    public static List<string> Zote_Normal = new List<string>()
+    private static readonly List<string> Zote_Normal = new List<string>()
     {
         "Zote Boss",
         "Zote Crew Normal (1)",
@@ -138,26 +139,26 @@ public static class EternalOrdeal
         "Zote Crew Tall",
     };
     
-    public static List<string> Zote_Balloon = new List<string>()
+    private static readonly List<string> Zote_Balloon = new List<string>()
     {
         "Zote Balloon (1)",
         "Zote Balloon Ordeal",
     };
     
-    public static List<string> Zote_Zoteling = new List<string>()
+    private static readonly List<string> Zote_Zoteling = new List<string>()
     {
         "Ordeal Zoteling", 
         "Ordeal Zoteling (1)", 
     };
     
-    public static List<string> Zote_Other = new List<string>()
+    private static readonly List<string> Zote_Other = new List<string>()
     {
         "Zote Fluke",
         "Zote Salubra",
         "Zote Turret",
     };
     
-    public static List<string> Zote_Thowmp = new List<string>()
+    private static readonly List<string> Zote_Thowmp = new List<string>()
     {
         "Zote Thwomp"
     };
@@ -167,7 +168,7 @@ public static class EternalOrdeal
         {
             if (HKVocals._globalSettings.OrdealZoteSpeak && Random.value <= 0.4f)
             {
-                AudioPlayer.PlayAudioFor(ZoteDialogues[Random.Range(1, 4)], GetZoteAudioPlayer());
+                AudioPlayer.TryPlayAudioFor(ZoteDialogues[Random.Range(0, 3)], asrc: GetZoteAudioPlayer());
             }
         }
     }
