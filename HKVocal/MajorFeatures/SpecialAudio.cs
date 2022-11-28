@@ -14,7 +14,8 @@ public static class SpecialAudio
         
         //elderbugs intro audio doesnt transition well so we add special audio for that
         FSMEditData.AddGameObjectFsmEdit("Elderbug", "Conversation Control", MakeElderbugPlaySpecialAudio);
-        ModHooks.LanguageGetHook += AddSpecialElderbugAudioKey;
+        FSMEditData.AddGameObjectFsmEdit("Shiny Item RoyalCharm", "Shiny Control", ChangeNameOfClashingKey);
+        ModHooks.LanguageGetHook += AddSpecialAudioKeys;
     }
 
     private static void LockSkippingMonomonIntro(On.AnimatorSequence.orig_Skip orig, AnimatorSequence self)
@@ -41,11 +42,15 @@ public static class SpecialAudio
         CoroutineHelper.WaitForSecondsBeforeInvoke(1.164f, () => AudioPlayer.TryPlayAudioFor("RANDOM_POEM_STUFF_0"));
     }
     
-    private static string AddSpecialElderbugAudioKey(string key, string sheettitle, string orig)
+    private static string AddSpecialAudioKeys(string key, string sheettitle, string orig)
     {
         if (key == "ELDERBUG_INTRO_MAIN_ALT" && sheettitle == "Elderbug")
         {
             orig = Language.Language.Get("ELDERBUG_INTRO_MAIN", sheettitle);
+        }
+        if (key == "KING_SOUL_PICKUP_KING_FINAL_WORDS" && sheettitle == "Minor NPC")
+        {
+            orig = Language.Language.Get("KING_FINAL_WORDS", sheettitle);
         }
 
         return orig;
@@ -68,5 +73,12 @@ public static class SpecialAudio
         
         fsm.GetFsmState("Intro 2").ChangeFsmTransition("CONVO_FINISH", alt.Name);
         fsm.GetFsmState("Intro 3").ChangeFsmTransition("CONVO_FINISH", alt.Name);
+    }
+    
+    public static void ChangeNameOfClashingKey(PlayMakerFSM fsm)
+    {
+        var msg = fsm.GetFsmState("King Msg");
+        msg.DisableFsmAction(2);
+        msg.GetFirstActionOfType<CallMethodProper>().parameters[0].stringValue = "KING_SOUL_PICKUP_KING_FINAL_WORDS";
     }
 }

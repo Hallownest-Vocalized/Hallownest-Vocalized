@@ -34,7 +34,7 @@ public static class DampenAudio
         var endConversation = fsm.GetFsmState("End Conversation");
         
         //replace the action that calls hide text so we can manually call our orig_HideText
-        endConversation.ReplaceFsmAction(new Core.FsmUtil.Actions.MethodAction()
+        endConversation.ReplaceFsmAction(new MethodAction()
         {
             Method = () =>
             {

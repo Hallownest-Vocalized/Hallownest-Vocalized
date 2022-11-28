@@ -6,6 +6,7 @@ global using UnityEngine.UI;
 global using Satchel.BetterMenus;
 global using Random = UnityEngine.Random;
 global using Object = UnityEngine.Object;
+global using MethodAction = Core.FsmUtil.Actions.MethodAction;
 global using System.Collections;
 global using System.Collections.Generic;
 global using System.Linq;
