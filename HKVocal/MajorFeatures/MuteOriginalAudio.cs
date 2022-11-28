@@ -221,7 +221,12 @@ public static class MuteOriginalAudio
         "Hornet_Dialogue_Generic_03",
         "Hornet_Dialogue_Generic_04",
         "Hornet_Dialogue_Generic_05",
-        "Bow_Repeat"
+        "Bow_Repeat",
+        "Nailmaster_Bama_01",
+        "Nailmaster_Bama_02",
+        "WD_outro",
+        "Stag_02",
+        "Hornet_Greenpath_01",
     };
 
     private static readonly List<string> ClipsToInclude = new()
