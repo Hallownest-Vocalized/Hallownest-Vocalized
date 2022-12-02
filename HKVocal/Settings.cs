@@ -13,6 +13,9 @@ public class GlobalSettings
 }
 public class SaveSettings
 {
+    public int OrdealFails = 0;
+    public int Precepts = 1;
+    public List<string> FinshedOrdealLines = new List<string>();
     public int GrubConvo = -1;
     public List<string> FinishedConvos = new List<string>();
     public Dictionary<string, int> PersistentVoiceActors = new Dictionary<string, int>();

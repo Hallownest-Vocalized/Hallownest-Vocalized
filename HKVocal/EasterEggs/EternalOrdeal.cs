@@ -3,6 +3,8 @@ public static class EternalOrdeal
 {
     private static GameObject ZoteLeverGo;
     private static string[] ZoteDialogues = new[] {"ZOTE_1", "ZOTE_2", "ZOTE_3",};
+    private static string[] ZoteHit = new[] { "ZOTE_EO_HIT_A1_0", "ZOTE_EO_HIT_A2_0", "ZOTE_EO_HIT_A3_0", };
+    private static string[] ZoteOw = new[] {"ZOTE_EO_OW_1_0", "ZOTE_EO_OW_2_0", "ZOTE_EO_OW_3_0", "ZOTE_EO_OW_4_0", "ZOTE_EO_OW_5_0", "ZOTE_EO_OW_6_0", "ZOTE_EO_OW_7_0", "ZOTE_EO_OW_8_0", };
     private static string ZoteFsmName = "Control";
         
     public static List<AudioSource> ZoteAudioPlayers = new List<AudioSource>();
@@ -12,6 +14,8 @@ public static class EternalOrdeal
         OnBossStatueLever.WithOrig.OnTriggerEnter2D += UseZoteLever;
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += DeleteZoteAudioPlayersOnSceneChange;
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += PlaceZoteLever;
+        ModHooks.BeforePlayerDeadHook += ZoteFail;
+        ModHooks.HeroUpdateHook += HeroUpdate;
 
         foreach (var zote in Zote_Normal)
         {
@@ -34,14 +38,92 @@ public static class EternalOrdeal
             Hooks.HookStateEntered(new FSMData(zote, ZoteFsmName, "Antic Shake"), PlayRandomDialogue);
         }
     }
-    
+
+    private static void ZoteFail()
+    {
+        OnGameManager.BeforeOrig.BeginSceneTransition += args =>
+        {
+            if (MiscUtils.GetCurrentSceneName() == "GG_Mighty_Zote" && args.info.SceneName == "GG_Workshop")
+            {
+                if (GameObject.Find("Battle Control").LocateMyFSM("Kill Counter").FindIntVariable("Kills").Value < 57)
+                {
+  
+                }
+                else if (GameObject.Find("Battle Control").LocateMyFSM("Kill Counter").FindIntVariable("Kills").Value >= 57)
+                {
+
+                }
+            }
+        };
+    }
+
+    static IEnumerator FirstFailZoteAudioChecks()
+    {
+        yield return new WaitUntil(AudioPlayer.IsPlaying);
+        if (AudioPlayer.IsPlaying() == true && HKVocals._globalSettings.OrdealZoteSpeak == false)
+        {
+            AudioPlayer.StopPlaying();
+            yield break;
+        }
+        else if (AudioPlayer.IsPlaying() == false && HKVocals._globalSettings.OrdealZoteSpeak == true)
+        {
+            HKVocals._saveSettings.FinshedOrdealLines.Add("ZOTE_EO_F_FIRST_0");
+            yield break;
+        }
+    }
+
+    private static void HeroUpdate()
+    {
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+/*            HKVocals.instance.Log(ZoteOw[Random.Range(0, 8)]);
+            ZoteRandomOw();*/
+            var join = string.Join("-", HKVocals._saveSettings.FinshedOrdealLines);
+
+            HKVocals.instance.Log(join);
+            HKVocals.instance.Log(HKVocals._saveSettings.OrdealFails);
+
+
+
+        }
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            Precepts();
+        }
+
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            if (HKVocals._saveSettings.OrdealFails == 0)
+            {
+                HKVocals._saveSettings.OrdealFails = 1;
+            }
+
+            if (HKVocals._saveSettings.OrdealFails == 1)
+            {
+                if (!HKVocals._saveSettings.FinshedOrdealLines.Contains("ZOTE_EO_F_FIRST_0"))
+                {
+                    AudioPlayer.TryPlayAudioFor("ZOTE_EO_F_FIRST_0");
+                    HKVocals.CoroutineHolder.StartCoroutine(FirstFailZoteAudioChecks());
+
+                }
+            }
+
+        }
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            HKVocals._saveSettings.OrdealFails = 0;
+            HKVocals._saveSettings.FinshedOrdealLines.Clear();
+        }
+
+    }
+
     public static void PlaceZoteLever(Scene From, Scene To)
     {
         if (To.name == "GG_Workshop")
         {
             ZoteLeverGo = Object.Instantiate(GameObject.Find("GG_Statue_MantisLords/alt_lever/GG_statue_switch_lever"), new Vector3(196.8f, 63.5f, 1), Quaternion.identity);
             ZoteLeverGo.name = "ZoteLever";
-            ZoteLeverGo.GetComponent<BossStatueLever>().SetOwner(null);
+            ZoteLeverGo.GetComponent<BossStatueLever>().SetOwner(new BossStatue());
         }
     }
     public static void UseZoteLever(On.BossStatueLever.orig_OnTriggerEnter2D orig, BossStatueLever self, Collider2D collision)
@@ -83,6 +165,30 @@ public static class EternalOrdeal
                 ZoteLeverComponent.leverAnimator.Play("Shine");
             });
         }
+
+        if (HKVocals._globalSettings.OrdealZoteSpeak == false)
+        {
+            ZoteRandomOw();
+        } 
+        else if (HKVocals._globalSettings.OrdealZoteSpeak == true)
+        {
+            AudioPlayer.TryPlayAudioFor(ZoteHit[Random.Range(0, 3)]);
+            if (!HKVocals._saveSettings.FinshedOrdealLines.Contains("ZOTE_EO_PATIENCE_0"))
+            {
+                AudioPlayer.TryPlayAudioFor("ZOTE_EO_HIT_B2_0");
+            } 
+            else if (HKVocals._saveSettings.Precepts < 57)
+            {
+                AudioPlayer.TryPlayAudioFor("ZOTE_EO_HIT_B3_0");
+                HKVocals._saveSettings.Precepts = 1;
+                Precepts();
+            }
+            else
+            {
+                AudioPlayer.TryPlayAudioFor("ZOTE_EO_HIT_B1_0");
+            }
+        }
+
     }
 
     public static void DeleteZoteAudioPlayersOnSceneChange(Scene from, Scene to)
@@ -168,8 +274,54 @@ public static class EternalOrdeal
         {
             if (HKVocals._globalSettings.OrdealZoteSpeak && Random.value <= 0.4f)
             {
-                AudioPlayer.TryPlayAudioFor(ZoteDialogues[Random.Range(0, 3)], asrc: GetZoteAudioPlayer());
+                AudioPlayer.TryPlayAudioFor(ZoteDialogues[Random.Range(1, 4)]);
             }
         }
+    }
+    public static void ZoteRandomOw()
+    {
+        AudioPlayer.TryPlayAudioFor(ZoteOw[Random.Range(0, 8)]);
+    }
+
+    public static void Precepts()
+    {
+        HKVocals.CoroutineHolder.StartCoroutine(ZotePrecepts());
+    }
+
+    static IEnumerator ZotePrecepts()
+    {
+        yield return new WaitWhile(AudioPlayer.IsPlaying);
+        if (HKVocals._saveSettings.Precepts == 1)
+        {
+            AudioPlayer.TryPlayAudioFor("PRECEPT_1_R_0");  
+        }
+        else if (HKVocals._saveSettings.Precepts == 2)
+        {
+            AudioPlayer.TryPlayAudioFor("PRECEPT_2_0");
+            yield return new WaitWhile(AudioPlayer.IsPlaying);
+            AudioPlayer.TryPlayAudioFor("PRECEPT_2_1");
+        } 
+        else if(HKVocals._saveSettings.Precepts == 55)
+        {
+            AudioPlayer.TryPlayAudioFor("PRECEPT_55_0");
+            yield return new WaitWhile(AudioPlayer.IsPlaying);
+            AudioPlayer.TryPlayAudioFor("PRECEPT_55_1");
+        } 
+        else if (HKVocals._saveSettings.Precepts == 57)
+        {
+            AudioPlayer.TryPlayAudioFor("PRECEPT_57_0");
+            yield return new WaitWhile(AudioPlayer.IsPlaying);
+            AudioPlayer.TryPlayAudioFor("PRECEPT_57_1");
+            HKVocals.instance.Log("stopped");
+            yield break;
+        }
+        else
+        {
+            AudioPlayer.TryPlayAudioFor("PRECEPT_" + HKVocals._saveSettings.Precepts + "_0");
+        }
+        HKVocals.instance.Log("Audio Played");
+        HKVocals._saveSettings.Precepts += 1;
+        HKVocals.instance.Log(HKVocals._saveSettings.Precepts);
+        Precepts();
     }
 }

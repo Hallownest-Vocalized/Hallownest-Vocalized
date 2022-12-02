@@ -32,10 +32,10 @@ public static class FSMEditUtils
             
         IEnumerator PlayAudioAfterDelay()
         {
-            if (UITextAudio.OpenedShopMenu)
+            if (UITextAudio.OpenShopMenu)
             {
                 yield return new WaitForSeconds(1f);
-                UITextAudio.OpenInvMenu = false;
+                UITextAudio.OpenShopMenu = false;
             }
             else if (UITextAudio.OpenInvMenu)
             {
@@ -46,7 +46,13 @@ public static class FSMEditUtils
             {
                 yield return new WaitForSeconds(0.3f);
             }
-            fsm.PlayAudioFromFsmString(audiokey);
+            if (UITextAudio.ShopMenuClosed == true)
+            {
+                yield break;
+            } else
+            {
+                fsm.PlayAudioFromFsmString(audiokey);
+            }
         }
     }
     

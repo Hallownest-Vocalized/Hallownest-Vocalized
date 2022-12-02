@@ -76,9 +76,9 @@ public static class PaleFlower
         orig(self);
 
 
-        if (self.gameObject.scene.name == "GG_Lurker" && self.FsmName == "Lurker Control" && self.gameObject.name == "Pale Lurker")
-        {
-            GameManager.instance.transform.Find("_GameManager/AudioManager/Music/Action").gameObject.SetActive(false);
+            if (self.gameObject.scene.name == "GG_Lurker" && self.FsmName == "Lurker Control" && self.gameObject.name == "Pale Lurker")
+            {
+                GameManager.instance.transform.Find("_GameManager/AudioManager/Music/Action").gameObject.SetActive(false);
 
                 
 

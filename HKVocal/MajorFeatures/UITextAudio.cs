@@ -2,8 +2,9 @@
 public class UITextAudio
 {
     private static bool HunterNotesUnlocked = true;
-    public static bool OpenedShopMenu = false;
+    public static bool OpenShopMenu = false;
     public static bool OpenInvMenu = false;
+    public static bool ShopMenuClosed = true;
     public static bool InvMenuClosed = true;
     
     public static void Hook()
@@ -71,9 +72,9 @@ public class UITextAudio
     public static void ShopMenuOpenClose(PlayMakerFSM fsm)
     {
         //Checks when you open the shop keeper menu
-        fsm.AddFsmMethod("Open Window", () => { OpenedShopMenu = true; });
+        fsm.AddFsmMethod("Open Window", () => { OpenShopMenu = true; ShopMenuClosed = false; });
         //Checks when you close a shop keeper menu
-        fsm.AddFsmMethod("Down", () => { AudioPlayer.StopPlaying(); });
+        fsm.AddFsmMethod("Down", () => { AudioPlayer.StopPlaying(); ShopMenuClosed = true; OpenShopMenu = false; });
     }
 
     public static void InventoryOpenClose(PlayMakerFSM fsm)
