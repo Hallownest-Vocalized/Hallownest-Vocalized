@@ -1,4 +1,5 @@
-using UnityEngine.Audio;
+using GlobalEnums;
+using Language;
 
 namespace HKVocals;
 
@@ -14,23 +15,27 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     public AudioSource audioSource;
     internal static HKVocals instance;
     public static NonBouncer CoroutineHolder;
+
+    public static string BundleLocation;
+    public static bool AudioExists => File.Exists(BundleLocation);
+
+    public HKVocals() : base("Hallownest Vocalized")
+    {
+        BundleLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/audiobundle";
+        OnMenuStyleTitle.AfterOrig.SetTitle += AddCustomBanner;
+    }
     
-    public static readonly string BundleLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/audiobundle";
-    public static bool BundleExists => File.Exists(BundleLocation);
-
-    public HKVocals() : base("Hallownest Vocalized") { }
-
     public static string Version = "0.0.0.1";
 
     public override string GetVersion()
     {
-        if (BundleExists)
+        if (AudioExists)
         {
             return $"{Version} ({MiscUtils.GetFileHash(BundleLocation)})";
         }
         else
         {
-            return $"{Version} Did not load. Missing audios";
+            return $"{Version} DID NOT LOAD. MISSING AUDIOS";
         }
     }
 
@@ -38,7 +43,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     {
         instance = this;
 
-        if (BundleExists)
+        if (AudioExists)
         {
             AudioLoader.LoadAssetBundle();
             MixerLoader.LoadAssetBundle();
@@ -101,6 +106,23 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
         {
             action_3.TryInvokeActions(fsm);
         }
+    }
+    
+    private void AddCustomBanner(OnMenuStyleTitle.Delegates.Params_SetTitle args)
+    {
+        //only change for english language. i doubt people on other languages want it
+        if (Language.Language.CurrentLanguage() == LanguageCode.EN)
+        {
+            if (AudioExists)
+            {
+                args.self.Title.sprite = AssemblyUtils.GetSpriteFromResources(Random.Range(1,1000) == 1 ? "Resources.Title_alt.png" : "Resources.Title.png");
+            }
+            else
+            {
+                args.self.Title.sprite = AssemblyUtils.GetSpriteFromResources("Resources.Title_missingDeps.png");
+            }
+        }
+        
     }
 
     public static void DoLogDebug(object s) => instance.LogDebug(s);

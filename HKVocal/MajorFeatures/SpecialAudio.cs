@@ -39,7 +39,11 @@ public static class SpecialAudio
     }
     private static void PlayMonomonIntroPoem(OnAnimatorSequence.Delegates.Params_Begin args)
     {
-        CoroutineHelper.WaitForSecondsBeforeInvoke(1.164f, () => AudioPlayer.TryPlayAudioFor("RANDOM_POEM_STUFF_0"));
+        CoroutineHelper.WaitForSecondsBeforeInvoke(1.164f, () =>
+        {
+            MixerLoader.SetSnapshot(MiscUtils.GetCurrentSceneName());
+            AudioPlayer.TryPlayAudioFor("RANDOM_POEM_STUFF_0");
+        });
     }
     
     private static string AddSpecialAudioKeys(string key, string sheettitle, string orig)
