@@ -64,6 +64,6 @@ public static class AudioPlayer
 
     public static bool IsPlaying() => HKVocals.instance.audioSource.isPlaying;
     public static void StopPlaying() => HKVocals.instance.audioSource.Stop();
-    public static bool HasAudioFor(string convName) => AudioLoader.audioNames.Contains(convName);
-    public static AudioClip GetAudioFor(string convName) => AudioLoader.audioBundle.LoadAsset<AudioClip>(convName);
+    public static bool HasAudioFor(string convName) => HallownestVocalizedAudioLoaderMod.AudioNames.Contains(convName);
+    public static AudioClip GetAudioFor(string convName) => HallownestVocalizedAudioLoaderMod.AudioBundle.LoadAsset<AudioClip>(convName);
 }

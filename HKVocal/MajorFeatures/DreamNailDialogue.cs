@@ -68,7 +68,7 @@ public static class DreamNailDialogue
         // For the special case of grouped (generic) enemies
         if (DNGroups.ContainsKey(name)) name = DNGroups[name];
 
-        List<string> availableClips = AudioLoader.audioNames.FindAll(s => s.Contains($"${name}$_{key}".ToUpper()));
+        List<string> availableClips = HallownestVocalizedAudioLoaderMod.AudioNames.FindAll(s => s.Contains($"${name}$_{key}".ToUpper()));
         if (availableClips == null || availableClips.Count == 0) 
         {
             HKVocals.instance.LogError($"No clips for ${name}$_{key}");

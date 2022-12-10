@@ -15,37 +15,27 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     public AudioSource audioSource;
     internal static HKVocals instance;
     public static NonBouncer CoroutineHolder;
-
-    public static string BundleLocation;
-    public static bool AudioExists => File.Exists(BundleLocation);
+    public static bool AudioLoaderExists => ModHooks.GetMod("Hallownest Vocalized AudioLoader") is Mod;
 
     public HKVocals() : base("Hallownest Vocalized")
     {
-        BundleLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/audiobundle";
         OnMenuStyleTitle.AfterOrig.SetTitle += AddCustomBanner;
     }
     
-    public static string Version = "0.0.0.1";
+    private static string Version = "1.0.0.0";
 
-    public override string GetVersion()
-    {
-        if (AudioExists)
-        {
-            return $"{Version} ({MiscUtils.GetFileHash(BundleLocation)})";
-        }
-        else
-        {
-            return $"{Version} DID NOT LOAD. MISSING AUDIOS";
-        }
-    }
+    public override string GetVersion() => $"{Version}" + (AudioLoaderExists ? "" : $"ERROR: Missing Hallownest Vocalized AudioLoader");
 
     public override void Initialize()
     {
         instance = this;
 
-        if (AudioExists)
+        //all mods are added to ModInstanceNameMap before any Inits are called. At this point we only
+        //care that the audio loader exists and not the actual audio because we don't really need
+        //the actual data in bundle until we wanna play audio which happens way after. Also the audiobundle
+        //is embedded within the dll, so if the audioloader exists, it is safe to assume the audio should also exist
+        if (AudioLoaderExists)
         {
-            AudioLoader.LoadAssetBundle();
             MixerLoader.LoadAssetBundle();
 
             MajorFeatures.SpecialAudio.Hook();
@@ -57,6 +47,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             MajorFeatures.ScrollLock.Hook();
             MajorFeatures.AutomaticBossDialogue.Hook();
             MajorFeatures.UITextAudio.Hook();
+            MajorFeatures.Credits.Hook();
 
             EasterEggs.EternalOrdeal.Hook();
             EasterEggs.SpecialGrub.Hook();
@@ -113,7 +104,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
         //only change for english language. i doubt people on other languages want it
         if (Language.Language.CurrentLanguage() == LanguageCode.EN)
         {
-            if (AudioExists)
+            if (AudioLoaderExists)
             {
                 args.self.Title.sprite = AssemblyUtils.GetSpriteFromResources(Random.Range(1,1000) == 1 ? "Resources.Title_alt.png" : "Resources.Title.png");
             }
