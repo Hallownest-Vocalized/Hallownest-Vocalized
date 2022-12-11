@@ -1,3 +1,4 @@
 Satchel
 Core.FsmUtil
 HKMirror
+Hallownest-Vocalized-AudioLoader from https://cdn.discordapp.com/attachments/1029889431462739980/1051628126146408458/Hallownest-Vocalized-AudioLoader.zip
