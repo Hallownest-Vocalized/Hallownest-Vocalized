@@ -32,11 +32,12 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
 
         //all mods are added to ModInstanceNameMap before any Inits are called. At this point we only
         //care that the audio loader exists and not the actual audio because we don't really need
-        //the actual data in bundle until we wanna play audio which happens way after. Also the audiobundle
+        ////the actual data in bundle until we wanna play audio which happens way after. Also the audiobundle
         //is embedded within the dll, so if the audioloader exists, it is safe to assume the audio should also exist
         if (AudioLoaderExists)
         {
             MixerLoader.LoadAssetBundle();
+            CreditsLoader.LoadAssetBundle();
 
             MajorFeatures.SpecialAudio.Hook();
             MajorFeatures.NPCDialogue.Hook();
@@ -47,6 +48,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             MajorFeatures.ScrollLock.Hook();
             MajorFeatures.AutomaticBossDialogue.Hook();
             MajorFeatures.UITextAudio.Hook();
+            MajorFeatures.RollCredits.Hook();
 
             EasterEggs.EternalOrdeal.Hook();
             EasterEggs.SpecialGrub.Hook();
@@ -70,7 +72,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
 
     public void CreateAudioSource()
     { 
-        LogDebug("creating new asrc");
+        LogDebug("creating new asrc"); 
         GameObject audioGO = new GameObject("HK Vocals Audio");
         audioSource = audioGO.AddComponent<AudioSource>();
         
