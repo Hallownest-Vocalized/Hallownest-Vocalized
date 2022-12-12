@@ -155,13 +155,15 @@ public static class DampenAudio
     
     private static void UnsetDampenExceptions()
     {
-        if (DreamDialogueMusic.outputAudioMixerGroup != null &&
+        if (DreamDialogueMusic != null &&
+            DreamDialogueMusic.outputAudioMixerGroup != null &&
             DreamDialogueMusic.outputAudioMixerGroup == MixerLoader.DampenExcludeMusic &&
             DreamDialogueMusicGroup != null)
         {
             DreamDialogueMusic.outputAudioMixerGroup = DreamDialogueMusicGroup;
         }
-        if (DreamNailSlash.outputAudioMixerGroup != null &&
+        if (DreamNailSlash != null && 
+            DreamNailSlash.outputAudioMixerGroup != null &&
             DreamNailSlash.outputAudioMixerGroup == MixerLoader.DampenExcludeSFX &&
             DreamNailSlashGroup != null)
         {
@@ -174,7 +176,7 @@ public static class DampenAudio
     {
         get
         {
-            if (_dreamDialogueMusic == null)
+            if (_dreamDialogueMusic == null && GameCameras.instance != null)
             {
                 _dreamDialogueMusic = GameCameras.instance.cameraParent.Find("tk2dCamera").Find("Audio").Find("Dream Dialogue").GetComponent<AudioSource>();
             }
@@ -186,7 +188,7 @@ public static class DampenAudio
     {
         get
         {
-            if (_dreamNailSlash == null)
+            if (_dreamNailSlash == null && HeroController.instance != null)
             {
                 _dreamNailSlash = HeroController.instance.transform.Find("Sounds").Find("Dream Nail").GetComponent<AudioSource>();
             }

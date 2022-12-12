@@ -6,8 +6,12 @@ public static class RollCredits
 {
     private static float fadeTime = 1f;
     public static float RollSpeed = 150f;
+    public static float MouseScrollSpeed = 60f;
+    public static float UpDownSpeed = 20f;
     public static float ScrollMaxY = 46600f;
     private const string CreditsSceneName = "CreditsScene";
+    private static bool isFromMenu;
+    private static bool doWantToLoadEndCredits;
 
     public static void Hook()
     {
@@ -20,14 +24,26 @@ public static class RollCredits
                 HKVocals.CoroutineHolder.StartCoroutine(CreditsRoll());
             }
         };
+
+        ModHooks.BeforeSceneLoadHook += scene =>
+        {
+            if (scene == "End_Credits" && !doWantToLoadEndCredits)
+            {
+                doWantToLoadEndCredits = false;
+                return CreditsSceneName;
+            }
+
+            return scene;
+        };
+            
         
         //for the time being
         On.UIManager.GoToMenuCredits += GoToCredits;
 
         //to make GameManager.IsNonGamePlayScene return correct value
         OnInGameCutsceneInfo.WithOrig.get_IsInCutscene += MakeCreditsSceneNonGamePlay;
-
-        //casual NRE prevention
+        
+        //without doing this my fps tanks to like 6 not too inclined to find out why so idm doing this
         OnGameManager.WithOrig.SetupHeroRefs += PreventNREsInCreditsScene_SetupHeroRefs;
         OnGameManager.WithOrig.LevelActivated += PreventNREsInCreditsScene_LevelActivated;
         OnInputHandler.WithOrig.AttachHeroController += PreventNREsInCreditsScene_AttachHeroController;
@@ -40,11 +56,12 @@ public static class RollCredits
 
     private static IEnumerator GoToCredits(On.UIManager.orig_GoToMenuCredits orig, UIManager self)
     {
-        UIManagerR.ih.StopUIInput();
+        InputHandler.Instance.StopUIInput();
         yield return HKVocals.CoroutineHolder.StartCoroutine(UIManagerR.HideCurrentMenu());
         GameCameras.instance.cameraController.FadeOut(CameraFadeType.START_FADE);
         yield return new WaitForSeconds(2.5f);
-        UIManagerR.gm.LoadScene(CreditsSceneName);
+        isFromMenu = true;
+        GameManagerR.LoadScene(CreditsSceneName);
     }
     private static Transform CreditsParent => GameObject.Find("Canvas").transform.GetChild(1);
     private static GameObject ModName => CreditsParent.GetChild(0).gameObject;
@@ -55,6 +72,11 @@ public static class RollCredits
 
     private static IEnumerator CreditsRoll()
     {
+        if (!isFromMenu) yield return new WaitForSeconds(2f);
+
+        //increase title size
+        ModName.GetComponentInChildren<Image>(true).rectTransform.sizeDelta = new Vector2(1315, 512);
+        
         yield return ModName.FadeInAndOut();
         yield return Director.FadeInAndOut();
         yield return Programmer.FadeInAndOut();
@@ -62,34 +84,47 @@ public static class RollCredits
  
         ScrollParent.FixFonts();
         ScrollParent.SetActive(true);
-        ScrollParent.AddComponent<ScrollConsistentSpeed>();
+        yield return ScrollParent.GetAddComponent<ScrollMainCredits>().WaitForScrollEnd();
+        ScrollParent.SetActive(false);
+        
+        GoBackToGame();
+    }
+
+    private static void GoBackToGame()
+    {
+        if (isFromMenu)
+        {
+            HKVocals.CoroutineHolder.StartCoroutine(GameManager.instance.ReturnToMainMenu(GameManager.ReturnToMainMenuSaveModes.DontSave));
+        }
+        else
+        {
+            doWantToLoadEndCredits = true;
+            GameManager.instance.LoadScene("End_Credits");
+        }
+
+        isFromMenu = false;
     }
 
     private static IEnumerator FadeInAndOut(this GameObject go)
     {
         yield return go.FadeIn();
-        yield return new WaitForSecondsRealtime(5f);
+        yield return new WaitForSeconds(5f);
         yield return go.FadeOut();
         go.SetActive(false);
     }
 
     private static IEnumerator FadeIn(this GameObject go)
     {
-        HKVocals.DoLog("Fading in");
         go.FixFonts();
         go.SetAlphaZero();
         go.SetActive(true);
 
         yield return go.Fade(fadeTime, true);
-        
-        HKVocals.DoLog("Fading in complete");
     }
     private static IEnumerator FadeOut(this GameObject go)
     {
-        HKVocals.DoLog("Fading out");
         yield return go.Fade(fadeTime, false);
         go.SetActive(false);
-        HKVocals.DoLog("Fading out complete");
     }
 
     private static IEnumerator Fade(this GameObject go, float time, bool fadeIn)
@@ -170,20 +205,63 @@ public static class RollCredits
     }
 }
 
-public class ScrollConsistentSpeed : MonoBehaviour
+public class ScrollMainCredits : MonoBehaviour
 {
-    public void Update()
+    private bool stopScrolling;
+    private Coroutine stopScrollingCoroutine;
+
+    private HeroActions InputActions;
+    public void Start()
     {
-        transform.Translate(Vector3.up * Time.deltaTime * RollCredits.RollSpeed);
+        InputActions = InputHandler.Instance.inputActions;
+    }
+    public void FixedUpdate()
+    {
+        
+        if (Input.mouseScrollDelta.y == 0f 
+            && !InputActions.up.IsPressed 
+            && !InputActions.down.IsPressed)
+        {
+            if (!stopScrolling)
+            {
+                transform.Translate(Vector3.up * Time.deltaTime * RollCredits.RollSpeed);
+            }
+        }
+        else
+        {
+            if (stopScrollingCoroutine != null)
+            {
+                StopCoroutine(stopScrollingCoroutine);
+            }
+            stopScrolling = true;
+            stopScrollingCoroutine = StartCoroutine(ResetStopScrolling());
+
+            if (Input.mouseScrollDelta.y != 0)
+            {
+                transform.Translate(Vector3.up * Input.mouseScrollDelta.y * RollCredits.MouseScrollSpeed);
+            }
+            else if (InputActions.down.IsPressed)
+            {
+                transform.Translate(Vector3.up * RollCredits.UpDownSpeed);
+            }
+            else if (InputActions.up.IsPressed)
+            {
+                transform.Translate(Vector3.down * RollCredits.UpDownSpeed);
+            }
+        }
     }
 
-    public void LateUpdate()
+    IEnumerator ResetStopScrolling()
     {
-        if (transform.position.y > RollCredits.ScrollMaxY)
+        yield return new WaitForSeconds(0.8f);
+        stopScrolling = false;
+    }
+
+    public IEnumerator WaitForScrollEnd()
+    {
+        while (transform.position.y < RollCredits.ScrollMaxY)
         {
-            HKVocals.CoroutineHolder.StartCoroutine(GameManager.instance.ReturnToMainMenu(GameManager.ReturnToMainMenuSaveModes.DontSave));
-            
-            gameObject.SetActive(false);
+            yield return null;
         }
     }
 }
