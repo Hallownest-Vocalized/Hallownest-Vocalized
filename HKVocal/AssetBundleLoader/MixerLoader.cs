@@ -85,7 +85,7 @@ public static class MixerLoader
         HKVMixer.SetFloat("VA Volume", MiscUtils.GetDecibelVolume(HKVocals._globalSettings.Volume));
     }
     /// <summary>
-    /// Sets the volume level of the mixer to the value in gs.
+    /// Sets the output mixer group of the source to ours
     /// </summary>
     public static void SetMixerGroup(this AudioSource source)
     {

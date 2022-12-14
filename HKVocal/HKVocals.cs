@@ -29,7 +29,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     public override void Initialize()
     {
         instance = this;
-
+        
         //all mods are added to ModInstanceNameMap before any Inits are called. At this point we only
         //care that the audio loader exists and not the actual audio because we don't really need
         ////the actual data in bundle until we wanna play audio which happens way after. Also the audiobundle

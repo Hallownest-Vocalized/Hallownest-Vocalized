@@ -14,6 +14,7 @@ public static class SpecialGrub
 
         if (self.gameObject.scene.name == SpeicalGrubSceneName && self.gameObject.name == "Dream Dialogue" && self.FsmName == "npc_dream_dialogue")
         {
+            MixerLoader.SetSnapshot(Snapshots.Dream);
             if (HKVocals._saveSettings.GrubConvo < 9) 
             {
                 HKVocals._saveSettings.GrubConvo += 1;

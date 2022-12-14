@@ -12,12 +12,6 @@ public static class FSMEditUtils
         fsm.SendEvent("DISPLAY DREAM MSG");
     }
 
-    public static void PlayAudioFromFsmString(this PlayMakerFSM fsm, string audiokey)
-    {
-        HKVocals.instance.LogDebug("audio from fsm string is looking for: " + fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
-        AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
-    }
-
     public static void PlayUIText(this PlayMakerFSM fsm, string audiokey)
     {
         //when the UI updates and new text has to be played, no other text can be selected so it makes sense to stop all audio
@@ -46,12 +40,12 @@ public static class FSMEditUtils
             {
                 yield return new WaitForSeconds(0.3f);
             }
-            if (UITextAudio.ShopMenuClosed == true)
+            
+            
+            if (!UITextAudio.ShopMenuClosed)
             {
-                yield break;
-            } else
-            {
-                fsm.PlayAudioFromFsmString(audiokey);
+                MixerLoader.SetSnapshot(Snapshots.No_Effect); //we dont want effects on ui audio
+                AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
             }
         }
     }
