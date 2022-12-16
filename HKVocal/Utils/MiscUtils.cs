@@ -52,6 +52,17 @@ public static class MiscUtils
             dict.Remove(key);
         }
     }
+    public static void RemoveNullValues<T>(this List<T> list)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (list[i] == null)
+            {
+                list.RemoveAt(i);
+                i--;
+            }
+        }
+    }
     
     public static void TryInvokeActions(this Action<PlayMakerFSM> action, PlayMakerFSM fsm)
     {
@@ -81,7 +92,7 @@ public static class MiscUtils
     {
         // 0 is max volume on this scale
         return value <= 9
-            ? AudioOptionsMenu.MusicSlider.GetComponent<MenuAudioSlider>().Reflect().GetVolumeLevel(value)
+            ? RefVanillaMenu.MusicVolumeSlider.GetComponent<MenuAudioSlider>().Reflect().GetVolumeLevel(value)
             : 0.0f;
     }
 

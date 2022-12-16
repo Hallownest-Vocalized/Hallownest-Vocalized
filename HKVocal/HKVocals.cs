@@ -1,4 +1,3 @@
-using GlobalEnums;
 using Language;
 
 namespace HKVocals;
@@ -54,12 +53,12 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             EasterEggs.SpecialGrub.Hook();
             EasterEggs.PaleFlower.Hook();
 
-            UIManager.EditMenus += ModMenu.AddAudioSlider;
+            UIManager.EditMenus += ModMenu.AddAudioSliderandSettingsButton;
+            UIManager.EditMenus += ModMenu.AddCreditsButton;
             Hooks.PmFsmBeforeStartHook += AddFSMEdits;
 
             CoroutineHolder = new GameObject("HK Vocals Coroutine Holder").AddComponent<NonBouncer>();
             Object.DontDestroyOnLoad(CoroutineHolder);
-
             CreateAudioSource();
             
             Log("HKVocals initialized");

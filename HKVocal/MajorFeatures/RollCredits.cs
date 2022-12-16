@@ -35,10 +35,6 @@ public static class RollCredits
 
             return scene;
         };
-            
-        
-        //for the time being
-        On.UIManager.GoToMenuCredits += GoToCredits;
 
         //to make GameManager.IsNonGamePlayScene return correct value
         OnInGameCutsceneInfo.WithOrig.get_IsInCutscene += MakeCreditsSceneNonGamePlay;
@@ -52,16 +48,6 @@ public static class RollCredits
     private static bool MakeCreditsSceneNonGamePlay(Func<bool> orig)
     {
        return orig() || MiscUtils.GetCurrentSceneName() == CreditsSceneName;
-    }
-
-    private static IEnumerator GoToCredits(On.UIManager.orig_GoToMenuCredits orig, UIManager self)
-    {
-        InputHandler.Instance.StopUIInput();
-        yield return HKVocals.CoroutineHolder.StartCoroutine(UIManagerR.HideCurrentMenu());
-        GameCameras.instance.cameraController.FadeOut(CameraFadeType.START_FADE);
-        yield return new WaitForSeconds(2.5f);
-        isFromMenu = true;
-        GameManagerR.LoadScene(CreditsSceneName);
     }
     private static Transform CreditsParent => GameObject.Find("Canvas").transform.GetChild(1);
     private static GameObject ModName => CreditsParent.GetChild(0).gameObject;
@@ -202,6 +188,16 @@ public static class RollCredits
     private static void PreventNREsInCreditsScene_SetupHeroRefs(On.GameManager.orig_SetupHeroRefs orig, GameManager self)
     {
         if (MiscUtils.GetCurrentSceneName() != CreditsSceneName) orig(self);
+    }
+
+    public static IEnumerator LoadCreditsFromMenu()
+    {
+        InputHandler.Instance.StopUIInput();
+        yield return HKVocals.CoroutineHolder.StartCoroutine(UIManagerR.HideCurrentMenu());
+        GameCameras.instance.cameraController.FadeOut(CameraFadeType.START_FADE);
+        yield return new WaitForSeconds(2.5f);
+        isFromMenu = true;
+        GameManagerR.LoadScene(CreditsSceneName);
     }
 }
 

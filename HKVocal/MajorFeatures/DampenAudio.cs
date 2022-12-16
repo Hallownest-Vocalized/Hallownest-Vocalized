@@ -123,7 +123,7 @@ public static class DampenAudio
 
             //if dampen = true, we get the first value of lerp as the original volume and 2nd value as the reduced and vice versa
             
-            AudioOptionsMenu.MasterMixer.SetFloat("MasterVolume",
+            RefVanillaMenu.MasterMixer.SetFloat("MasterVolume",
                 Mathf.Lerp(MiscUtils.GetDecibelVolume(masterVolume * (dampen ? 1f: multiplier)),
                     MiscUtils.GetDecibelVolume(masterVolume * (dampen ? multiplier : 1f)), currentTime / DampenTime));
 

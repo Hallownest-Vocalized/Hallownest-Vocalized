@@ -14,7 +14,7 @@ public static class ModMenu
             //new TextPanel("To change volume, please use Audio Menu"),
             new MenuButton("Change Volume", "Change volume of voice actors", _ =>
             {
-                UIManager.instance.UILeaveDynamicMenu(AudioOptionsMenu.AudioMenuScreen, MainMenuState.AUDIO_MENU);
+                UIManager.instance.UILeaveDynamicMenu(RefVanillaMenu.AudioMenuScreen, MainMenuState.AUDIO_MENU);
             }, proceed:true),
 
             Blueprints.HorizontalBoolOption("Scroll Lock", 
@@ -78,14 +78,14 @@ public static class ModMenu
         return MenuRef.GetMenuScreen(modListMenu);
     }
 
-    public static void AddAudioSlider()
+    public static void AddAudioSliderandSettingsButton()
     {
         //make clone
         GameObject HKVocalsVolume = new GameObject("HKVocals Volume");
-        HKVocalsVolume.transform.SetParent(AudioOptionsMenu.MusicSlider.transform.parent.parent);
+        HKVocalsVolume.transform.SetParent(RefVanillaMenu.MusicVolumeSlider.transform.parent.parent);
         HKVocalsVolume.transform.localScale = Vector3.one;
-        HKVocalsVolume.transform.localPosition = AudioOptionsMenu.MusicVolume.transform.localPosition + Vector3.down * 120;
-        GameObject VolumeSlider = Object.Instantiate(AudioOptionsMenu.MusicSlider, HKVocalsVolume.transform);
+        HKVocalsVolume.transform.localPosition = RefVanillaMenu.MusicVolumeSliderHolder.transform.localPosition + Vector3.down * 120;
+        GameObject VolumeSlider = Object.Instantiate(RefVanillaMenu.MusicVolumeSlider, HKVocalsVolume.transform);
             
         MenuAudioSlider VolumeSlider_MenuAudioSlider = VolumeSlider.GetComponent<MenuAudioSlider>();
         Slider VolumeSlider_Slider = VolumeSlider.GetComponent<Slider>();
@@ -115,7 +115,7 @@ public static class ModMenu
         VolumeSlider_MenuAudioSlider.UpdateTextValue(HKVocals._globalSettings.Volume);
         VolumeSlider_Slider.value = HKVocals._globalSettings.Volume;
         
-        GameObject HKVocalsSettings = Object.Instantiate(AudioOptionsMenu.DefaultButton, AudioOptionsMenu.DefaultButton.transform.parent);
+        GameObject HKVocalsSettings = Object.Instantiate(RefVanillaMenu.DefaultAudioSettingsButton, RefVanillaMenu.DefaultAudioSettingsButton.transform.parent);
         HKVocalsSettings.name = "HK Vocals Settings";
         HKVocalsSettings.transform.localPosition = Vector3.up * 335f;
         HKVocalsSettings.RemoveComponent<EventTrigger>();
@@ -131,5 +131,23 @@ public static class ModMenu
                 ? MenuRef.menuScreen 
                 : MenuRef.GetMenuScreen(UIManager.instance.UICanvas.Find("ModListMenu").GetComponent<MenuScreen>()));
         };
+    }
+
+    public static void AddCreditsButton()
+    {
+        GameObject HKVocalsCreditsHolder = Object.Instantiate(RefVanillaMenu.CreditButtonHolder, RefVanillaMenu.CreditButtonHolder.transform.parent);
+        HKVocalsCreditsHolder.name = "HK Vocal Credits";
+        HKVocalsCreditsHolder.transform.SetSiblingIndex(2);
+
+        var HKVocalsCreditsButton = HKVocalsCreditsHolder.Find("CreditsButton").gameObject;
+        HKVocalsCreditsButton.RemoveComponent<EventTrigger>();
+        HKVocalsCreditsButton.RemoveComponent<ContentSizeFitter>();
+        HKVocalsCreditsButton.RemoveComponent<AutoLocalizeTextUI>();
+        HKVocalsCreditsButton.Find("Text").RemoveComponent<AutoLocalizeTextUI>();
+        HKVocalsCreditsButton.Find("Text").GetComponent<Text>().text = "Hallownest Vocalized Credits";
+        var mb = HKVocalsCreditsButton.GetComponent<UMenuButton>();
+        mb.proceed = true;
+        mb.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
+        mb.submitAction = _ => HKVocals.CoroutineHolder.StartCoroutine(MajorFeatures.RollCredits.LoadCreditsFromMenu());
     }
 }
