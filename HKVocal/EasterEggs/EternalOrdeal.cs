@@ -134,6 +134,7 @@ public static class EternalOrdeal
         }
         else
         {
+            GameManager.instance.AwardAchievement("LastLaughOrdeal");
             if (ZoteLeverGo == null || !ZoteLeverGo.activeInHierarchy || (!collision.CompareTag("Nail Attack"))) return;
 
             var ZoteLeverComponent = ZoteLeverGo.GetComponent<BossStatueLever>().Reflect();

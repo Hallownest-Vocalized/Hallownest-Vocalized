@@ -32,6 +32,13 @@
             <HintPath>$(HollowKnightFolder)\Mods\HKMirror\HKMirror.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <Reference Include="Osmi">
+          <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\Osmi\Osmi.dll</HintPath>
+        </Reference>
+        <Reference Include="SFCore">
+            <HintPath>$(HollowKnightFolder)\Mods\SFCore\SFCore.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="MMHOOK_PlayMaker, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
             <HintPath>$(HollowKnightFolder)\MMHOOK_PlayMaker.dll</HintPath>
             <Private>false</Private>

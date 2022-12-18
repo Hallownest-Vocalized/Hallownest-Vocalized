@@ -1,32 +1,40 @@
-﻿namespace HKVocals.EasterEggs;
+﻿using Osmi.Game;
+
+namespace HKVocals.EasterEggs;
 public static class SpecialGrub
 {
     public static string SpeicalGrubSceneName = "Abyss_19";
     public static void Hook()
     {
         ModHooks.LanguageGetHook += GetSpecialGrubDialogue;
-        On.PlayMakerFSM.OnEnable += EditSpecialGrub;
+        On.PlayMakerFSM.OnEnable+= EditSpecialGrub;
     }
-    
     public static void EditSpecialGrub(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
     {
         orig(self);
 
         if (self.gameObject.scene.name == SpeicalGrubSceneName && self.gameObject.name == "Dream Dialogue" && self.FsmName == "npc_dream_dialogue")
         {
-            if (HKVocals._saveSettings.GrubConvo < 9) 
-            {
-                HKVocals._saveSettings.GrubConvo += 1;
-                self.GetFsmStringVariable("Convo Name").Value = $"GRUB_BOTTLE_DREAM_S_{HKVocals._saveSettings.GrubConvo}";
-                self.GetFsmStringVariable("Sheet Name").Value = "Elderbug";
-                AudioPlayer.TryPlayAudioFor($"GRUB_BOTTLE_DREAM_S_{HKVocals._saveSettings.GrubConvo}");
-            }
-            else
-            {
-                self.GetFsmStringVariable("Convo Name").Value = $"GRUB_BOTTLE_DREAM_S_REPEAT_0";
-                self.GetFsmStringVariable("Sheet Name").Value = "Elderbug";
-                AudioPlayer.TryPlayAudioFor($"GRUB_BOTTLE_DREAM_S_REPEAT_0");
-            }
+            self.gameObject.AddComponent<CustomDreamnailReaction>().SetMethod((collider2D => GrubCheck(collider2D)));
+        }
+    }
+
+    private static void GrubCheck(Collider2D col)
+    {
+        PlayMakerFSM self = col.gameObject.LocateMyFSM("npc_dream_dialogue");
+        if (HKVocals._saveSettings.GrubConvo < 9) 
+        {
+            HKVocals._saveSettings.GrubConvo += 1;
+            self.GetFsmStringVariable("Convo Name").Value = $"GRUB_BOTTLE_DREAM_S_{HKVocals._saveSettings.GrubConvo}";
+            self.GetFsmStringVariable("Sheet Name").Value = "Elderbug";
+            AudioPlayer.TryPlayAudioFor($"GRUB_BOTTLE_DREAM_S_{HKVocals._saveSettings.GrubConvo}");
+        }
+        else
+        {
+            self.GetFsmStringVariable("Convo Name").Value = $"GRUB_BOTTLE_DREAM_S_REPEAT_0";
+            self.GetFsmStringVariable("Sheet Name").Value = "Elderbug";
+            AudioPlayer.TryPlayAudioFor($"GRUB_BOTTLE_DREAM_S_REPEAT_0");
+            GameManager.instance.AwardAchievement("DisdainGrub");
         }
     }
     public static string GetSpecialGrubDialogue(string key, string sheettitle, string orig)
