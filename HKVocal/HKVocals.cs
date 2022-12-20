@@ -15,6 +15,16 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     internal static HKVocals instance;
     public static NonBouncer CoroutineHolder;
     public static bool AudioLoaderExists => ModHooks.GetMod("Hallownest Vocalized AudioLoader") is Mod;
+    
+    public static readonly string BundleLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/audiobundle";
+    public static bool BundleExists => File.Exists(BundleLocation);
+
+    public HKVocals() : base("Hallownest Vocalized")
+    {
+        MajorFeatures.Achievements.Hook();
+    }
+
+    public static string Version = "0.0.0.1";
 
     public HKVocals() : base("Hallownest Vocalized")
     {

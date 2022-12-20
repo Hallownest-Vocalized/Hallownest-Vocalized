@@ -1,13 +1,14 @@
-﻿namespace HKVocals.EasterEggs;
+﻿using Osmi.Game;
+
+namespace HKVocals.EasterEggs;
 public static class SpecialGrub
 {
     public static string SpeicalGrubSceneName = "Abyss_19";
     public static void Hook()
     {
         ModHooks.LanguageGetHook += GetSpecialGrubDialogue;
-        On.PlayMakerFSM.OnEnable += EditSpecialGrub;
+        On.PlayMakerFSM.OnEnable+= EditSpecialGrub;
     }
-    
     public static void EditSpecialGrub(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
     {
         orig(self);
