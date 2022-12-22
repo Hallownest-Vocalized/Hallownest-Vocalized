@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using SFCore;
+using UnityEngine;
 
 namespace HKVocals.MajorFeatures;
 
@@ -40,7 +42,8 @@ public static class Achievements
 
     private static void CompendiumVocalization()
     {
-        
+        if(HKVocals._saveSettings.FinishedConvos.Count == HallownestVocalizedAudioLoader.HallownestVocalizedAudioLoaderMod.AudioNames.Count)
+            GameManager.instance.AwardAchievement("CompendiumVocalization");
     } 
     private static void Aluba(On.EnemyDreamnailReaction.orig_RecieveDreamImpact orig, EnemyDreamnailReaction self)
     {

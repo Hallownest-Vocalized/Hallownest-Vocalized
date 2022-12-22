@@ -15,20 +15,24 @@ public static class SpecialGrub
 
         if (self.gameObject.scene.name == SpeicalGrubSceneName && self.gameObject.name == "Dream Dialogue" && self.FsmName == "npc_dream_dialogue")
         {
-            MixerLoader.SetSnapshot(Snapshots.Dream);
-            if (HKVocals._saveSettings.GrubConvo < 9) 
+            self.gameObject.AddComponent<CustomDreamnailReaction>().SetMethod((col) => 
             {
-                HKVocals._saveSettings.GrubConvo += 1;
-                self.GetFsmStringVariable("Convo Name").Value = $"GRUB_BOTTLE_DREAM_S_{HKVocals._saveSettings.GrubConvo}";
-                self.GetFsmStringVariable("Sheet Name").Value = "Elderbug";
-                AudioPlayer.TryPlayAudioFor($"GRUB_BOTTLE_DREAM_S_{HKVocals._saveSettings.GrubConvo}");
-            }
-            else
-            {
-                self.GetFsmStringVariable("Convo Name").Value = $"GRUB_BOTTLE_DREAM_S_REPEAT_0";
-                self.GetFsmStringVariable("Sheet Name").Value = "Elderbug";
-                AudioPlayer.TryPlayAudioFor($"GRUB_BOTTLE_DREAM_S_REPEAT_0");
-            }
+                MixerLoader.SetSnapshot(Snapshots.Dream);
+                PlayMakerFSM self = col.gameObject.LocateMyFSM("npc_dream_dialogue");
+                if (HKVocals._saveSettings.GrubConvo < 9) 
+                {
+                    HKVocals._saveSettings.GrubConvo += 1;
+                    self.GetFsmStringVariable("Convo Name").Value = $"GRUB_BOTTLE_DREAM_S_{HKVocals._saveSettings.GrubConvo}";
+                    self.GetFsmStringVariable("Sheet Name").Value = "Elderbug";
+                    AudioPlayer.TryPlayAudioFor($"GRUB_BOTTLE_DREAM_S_{HKVocals._saveSettings.GrubConvo}");
+                }
+                else
+                {
+                    self.GetFsmStringVariable("Convo Name").Value = $"GRUB_BOTTLE_DREAM_S_REPEAT_0";
+                    self.GetFsmStringVariable("Sheet Name").Value = "Elderbug";
+                    AudioPlayer.TryPlayAudioFor($"GRUB_BOTTLE_DREAM_S_REPEAT_0");
+                }   
+            });
         }
     }
     public static string GetSpecialGrubDialogue(string key, string sheettitle, string orig)

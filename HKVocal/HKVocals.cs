@@ -21,16 +21,9 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
 
     public HKVocals() : base("Hallownest Vocalized")
     {
+        OnMenuStyleTitle.AfterOrig.SetTitle += AddCustomBanner;
         MajorFeatures.Achievements.Hook();
     }
-
-    public static string Version = "0.0.0.1";
-
-    public HKVocals() : base("Hallownest Vocalized")
-    {
-        OnMenuStyleTitle.AfterOrig.SetTitle += AddCustomBanner;
-    }
-    
     private static string Version = "1.0.0.0";
 
     public override string GetVersion() => $"{Version}" + (AudioLoaderExists ? "" : $"ERROR: Missing Hallownest Vocalized AudioLoader");
