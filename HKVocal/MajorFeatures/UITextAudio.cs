@@ -80,7 +80,7 @@ public class UITextAudio
     public static void InventoryOpenClose(PlayMakerFSM fsm)
     {
         fsm.AddFsmMethod("Open", () => { OpenInvMenu = true; InvMenuClosed = false; });
-        fsm.AddFsmMethod("Close", () => { AudioPlayer.StopPlaying(); InvMenuClosed = true; });
+        fsm.AddFsmMethod("Close", () => { AudioPlayer.StopPlaying(); InvMenuClosed = true; OpenInvMenu = false; });
     }
 
     public static void PlayShopText(PlayMakerFSM fsm)

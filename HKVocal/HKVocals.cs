@@ -19,6 +19,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     public HKVocals() : base("Hallownest Vocalized")
     {
         OnMenuStyleTitle.AfterOrig.SetTitle += AddCustomBanner;
+        On.UIManager.Start += AddIcon;
     }
     
     private static string Version = "1.0.0.0";
@@ -115,7 +116,23 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
         }
         
     }
+    private static Sprite icon;
+    private void AddIcon(On.UIManager.orig_Start orig, UIManager self)
+    {
+        orig(self);
 
+        var dlc = self.transform.Find("UICanvas/MainMenuScreen/TeamCherryLogo/Hidden_Dreams_Logo").gameObject;
+
+        var clone = Object.Instantiate(dlc, dlc.transform.parent);
+        clone.SetActive(true);
+
+        var pos = clone.transform.position;
+
+        clone.transform.position = pos + new Vector3(3.1f, -0.15f, 0);
+
+        icon = Satchel.AssemblyUtils.GetSpriteFromResources("Resources.icon.png");
+        clone.GetComponent<SpriteRenderer>().sprite = icon;
+    }
     public static void DoLogDebug(object s) => instance.LogDebug(s);
     public static void DoLog(object s) => instance.Log(s);
 
