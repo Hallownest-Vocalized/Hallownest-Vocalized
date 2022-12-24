@@ -127,8 +127,9 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
         clone.SetActive(true);
 
         var pos = clone.transform.position;
-
-        clone.transform.position = pos + new Vector3(3.1f, -0.15f, 0);
+        clone.transform.position = pos + new Vector3(3.2f, -0.111f, 0);
+        clone.transform.SetScaleX(233f);
+        clone.transform.SetScaleY(233f);
 
         icon = Satchel.AssemblyUtils.GetSpriteFromResources("Resources.icon.png");
         clone.GetComponent<SpriteRenderer>().sprite = icon;
