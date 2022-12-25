@@ -28,9 +28,12 @@
           <HintPath>$(HollowKnightFolder)\Mods\Core.FsmUtil\Core_FsmUtil.dll</HintPath>
             <Private>false</Private>
         </Reference>
-        <Reference Include="Hallownest-Vocalized-AudioLoader">
-          <HintPath>$(HollowKnightFolder)\Mods\Hallownest-Vocalized-AudioLoader\Hallownest-Vocalized-AudioLoader.dll</HintPath>
-        </Reference>
+		<Reference Include="FrogCore">
+			<HintPath>$(HollowKnightFolder)\Mods\FrogCore\FrogCore.dll</HintPath>
+		</Reference>
+		<Reference Include="Hallownest-Vocalized-AudioLoader">
+			<HintPath>$(HollowKnightFolder)\Mods\Hallownest-Vocalized-AudioLoader\Hallownest-Vocalized-AudioLoader.dll</HintPath>
+		</Reference>
         <Reference Include="HKMirror">
             <HintPath>$(HollowKnightFolder)\Mods\HKMirror\HKMirror.dll</HintPath>
             <Private>false</Private>

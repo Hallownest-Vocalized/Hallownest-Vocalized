@@ -1,4 +1,6 @@
-﻿namespace HKVocals.EasterEggs;
+﻿using Satchel;
+
+namespace HKVocals.EasterEggs;
 public static class EternalOrdeal
 {
     private static GameObject ZoteLeverGo;

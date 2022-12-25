@@ -1,4 +1,6 @@
-﻿namespace HKVocals.MajorFeatures;
+﻿using Satchel;
+
+namespace HKVocals.MajorFeatures;
 
 /// <summary>
 /// For types of audio that need special handling to work

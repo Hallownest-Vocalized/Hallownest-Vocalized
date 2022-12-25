@@ -2,6 +2,7 @@
 using UnityEngine.EventSystems;
 using UMenuButton = UnityEngine.UI.MenuButton;
 using MenuButton = Satchel.BetterMenus.MenuButton;
+using Satchel;
 
 namespace HKVocals;
 public static class ModMenu

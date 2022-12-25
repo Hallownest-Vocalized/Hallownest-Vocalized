@@ -1,4 +1,6 @@
-﻿namespace HKVocals.MajorFeatures;
+﻿using Satchel;
+
+namespace HKVocals.MajorFeatures;
 
 /// <summary>
 /// Plays dialogue when NPC speaks

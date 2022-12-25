@@ -1,4 +1,5 @@
 using MonoMod.RuntimeDetour;
+using Satchel;
 
 namespace HKVocals.MajorFeatures;
 

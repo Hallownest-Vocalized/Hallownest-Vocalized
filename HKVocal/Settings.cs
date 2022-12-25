@@ -13,6 +13,7 @@ public class GlobalSettings
 }
 public class SaveSettings
 {
+    public int LurkerState = 0;
     public int OrdealFails = 0;
     public int Precepts = 1;
     public List<string> FinshedOrdealLines = new List<string>();
