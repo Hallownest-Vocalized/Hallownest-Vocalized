@@ -6,8 +6,8 @@ public static class DampenAudio
     private static float DampenValue; //a percentage 
     private static bool AudioDampened;
     
-    private const float DampenValueNormal = 30f;  
-    private const float DampenValueDream = 30f;  
+    private const float DampenValueNormal = 45f;  
+    private const float DampenValueDream = 45f;  
     private const float DampenTime = 1f;
 
     private static AudioSource _dreamDialogueMusic;
