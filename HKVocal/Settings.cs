@@ -2,14 +2,15 @@ namespace HKVocals;
 
 public class GlobalSettings
 {
-    public int Volume = 10;
-    public bool OrdealZoteSpeak = true;
+    public int volume = 10;
+    public bool ordealZoteSpeak = true;
     public bool autoScroll = false;
-    public MajorFeatures.AutoScroll.ScrollSpeed ScrollSpeed = MajorFeatures.AutoScroll.ScrollSpeed.Normal;
+    public MajorFeatures.AutoScroll.ScrollSpeed scrollSpeed = MajorFeatures.AutoScroll.ScrollSpeed.Normal;
     public bool dnDialogue = false;
     public bool automaticBossDialogue = false;
     public bool scrollLock = false;
     public bool dampenAudio = true;
+    public bool settingsOpened = false;
 }
 public class SaveSettings
 {

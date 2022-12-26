@@ -21,7 +21,6 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     {
         OnMenuStyleTitle.AfterOrig.SetTitle += AddCustomBanner;
         On.UIManager.Start += AddIcon;
-        On.UIManager.Start += UI.CreateSettingsText;
     }
     
     public override List<(string, string)> GetPreloadNames()
@@ -57,14 +56,17 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             MajorFeatures.AutomaticBossDialogue.Hook();
             MajorFeatures.UITextAudio.Hook();
             MajorFeatures.RollCredits.Hook();
-            UI.Hook();
 
             EasterEggs.EternalOrdeal.Hook();
             EasterEggs.SpecialGrub.Hook();
             EasterEggs.PaleFlower.Hook();
 
-            UIManager.EditMenus += UI.AddAudioSliderandSettingsButton;
-            UIManager.EditMenus += UI.AddCreditsButton;
+            UIManager.EditMenus += UI.AudioMenu.AddAudioSliderAndSettingsButton;
+            UIManager.EditMenus += UI.ExtrasMenu.AddCreditsButton;
+            UIManager.EditMenus += UI.SettingsPrompt.CreatePrompt;
+
+            UI.SettingsPrompt.HookRemoveButton();
+            
             Hooks.PmFsmBeforeStartHook += AddFSMEdits;
 
             CoroutineHolder = new GameObject("HK Vocals Coroutine Holder").AddComponent<NonBouncer>();
@@ -144,6 +146,6 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     }
     public static void DoLogDebug(object s) => instance.LogDebug(s);
     public static void DoLog(object s) => instance.Log(s);
-    public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates) => UI.CreateModMenuScreen(modListMenu);
+    public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates) => UI.ModMenu.CreateModMenuScreen(modListMenu);
     public bool ToggleButtonInsideMenu => false;
 }

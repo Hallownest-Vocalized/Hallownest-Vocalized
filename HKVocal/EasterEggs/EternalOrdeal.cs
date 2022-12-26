@@ -86,12 +86,12 @@ public static class EternalOrdeal
     {
         yield return new WaitUntil(AudioPlayer.IsPlaying);
         HKVocals.instance.Log("firstfailcheck");
-        if (AudioPlayer.IsPlaying() && HKVocals._globalSettings.OrdealZoteSpeak == false)
+        if (AudioPlayer.IsPlaying() && HKVocals._globalSettings.ordealZoteSpeak == false)
         {
             AudioPlayer.StopPlaying();
             yield break;
         }
-        else if (AudioPlayer.IsPlaying() == false && HKVocals._globalSettings.OrdealZoteSpeak)
+        else if (AudioPlayer.IsPlaying() == false && HKVocals._globalSettings.ordealZoteSpeak)
         {
             HKVocals._saveSettings.FinshedOrdealLines.Add("ZOTE_EO_F_FIRST_0");
             yield break;
@@ -166,7 +166,7 @@ public static class EternalOrdeal
             
             ZoteLeverComponent.leverAnimator.Play("Hit");
 
-            HKVocals._globalSettings.OrdealZoteSpeak = !HKVocals._globalSettings.OrdealZoteSpeak;
+            HKVocals._globalSettings.ordealZoteSpeak = !HKVocals._globalSettings.ordealZoteSpeak;
 
             CoroutineHelper.WaitForSecondsBeforeInvoke(1f, () =>
             {
@@ -175,11 +175,11 @@ public static class EternalOrdeal
             });
         }
 
-        if (HKVocals._globalSettings.OrdealZoteSpeak == false)
+        if (HKVocals._globalSettings.ordealZoteSpeak == false)
         {
             ZoteRandomOw();
         } 
-        else if (HKVocals._globalSettings.OrdealZoteSpeak == true)
+        else if (HKVocals._globalSettings.ordealZoteSpeak == true)
         {
             AudioPlayer.TryPlayAudioFor(ZoteHit[Random.Range(0, 3)]);
             if (!HKVocals._saveSettings.FinshedOrdealLines.Contains("ZOTE_EO_PATIENCE_0"))
@@ -281,7 +281,7 @@ public static class EternalOrdeal
     {
         if (MiscUtils.GetCurrentSceneName() == "GG_Mighty_Zote")
         {
-            if (HKVocals._globalSettings.OrdealZoteSpeak && Random.value <= 0.4f)
+            if (HKVocals._globalSettings.ordealZoteSpeak && Random.value <= 0.4f)
             {
                 AudioPlayer.TryPlayAudioFor(ZoteDialogues[Random.Range(0, 3)]);
             }
@@ -295,7 +295,7 @@ public static class EternalOrdeal
     static IEnumerator ZoteListen()
     {
         yield return new WaitWhile(AudioPlayer.IsPlaying);
-        if (HKVocals._globalSettings.OrdealZoteSpeak == true && (HKVocals._saveSettings.FinshedOrdealLines.Contains("ZOTE_EO_F_FIRST_0") || HKVocals._saveSettings.FinshedOrdealLines.Contains("ZOTE_EO_F_GENERIC_0")))
+        if (HKVocals._globalSettings.ordealZoteSpeak == true && (HKVocals._saveSettings.FinshedOrdealLines.Contains("ZOTE_EO_F_FIRST_0") || HKVocals._saveSettings.FinshedOrdealLines.Contains("ZOTE_EO_F_GENERIC_0")))
         {
             AudioPlayer.TryPlayAudioFor("");
             yield return new WaitWhile(AudioPlayer.IsPlaying);
