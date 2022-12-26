@@ -1,13 +1,38 @@
 ﻿using GlobalEnums;
+using JetBrains.Annotations;
 using UnityEngine.EventSystems;
 using UMenuButton = UnityEngine.UI.MenuButton;
 using MenuButton = Satchel.BetterMenus.MenuButton;
 using Satchel;
+using MagicUI.Core;
+using MagicUI.Elements;
+using UnityEngine;
 
 namespace HKVocals;
-public static class ModMenu
-{ 
-    private static Menu MenuRef;
+public static class UI
+{
+    private static GameObject TextCanvas;
+    private static Text SettingTextGO;
+    [CanBeNull] private static LayoutRoot layout;
+    public static void Hook()
+    {
+        On.UIManager.GoToProfileMenu += ShowSettingText;
+        On.UIManager.GoToMainMenu += MainMenuHideSettingText;
+        On.UIManager.GoToPlayModeMenu += PlayModeHideSettingText;
+        On.GameManager.LoadGame += AwakeHideSettingText;
+        UIManager.EditMenus += OnUIManagerEdits;
+    }
+    public static Menu MenuRef;
+
+    public static void OnUIManagerEdits()
+    {
+        if (layout == null)
+        {
+            layout = new(true, "SettingButton");
+            
+            Setup(layout);
+        }
+    }
     public static MenuScreen CreateModMenuScreen(MenuScreen modListMenu)
     {
         MenuRef ??= new Menu("Hallownest Vocalized", new Element[]
@@ -150,5 +175,88 @@ public static class ModMenu
         mb.proceed = true;
         mb.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
         mb.submitAction = _ => HKVocals.CoroutineHolder.StartCoroutine(MajorFeatures.RollCredits.LoadCreditsFromMenu());
+    }
+    
+    public static void CreateSettingsText(On.UIManager.orig_Start orig, UIManager self)
+    {
+        orig(self);
+        
+        TextCanvas = CanvasUtil.CreateCanvas(RenderMode.ScreenSpaceOverlay, new Vector2(1920, 1080));
+        TextCanvas.name = "SettingText";
+
+        CanvasGroup cg = TextCanvas.GetComponent<CanvasGroup>();
+        cg.interactable = false;
+        cg.blocksRaycasts = false;
+
+        GameObject background = CanvasUtil.CreateImagePanel
+        (
+            TextCanvas,
+            CanvasUtil.NullSprite(new byte[] {0x80, 0x00, 0x00, 0x00}),
+            new CanvasUtil.RectData(Vector2.zero, Vector2.zero, Vector2.zero, Vector2.one)
+        );
+
+        var SettingText = CanvasUtil.CreateTextPanel
+        (
+            background,
+            "Notice: We recommend reviewing your audio settings before playing Hallownest Vocalized",
+            35,
+            TextAnchor.MiddleCenter,
+            new CanvasUtil.RectData(new Vector2(-5, -5), Vector2.zero, Vector2.zero, Vector2.one),
+            MenuResources.Perpetua
+        );
+        SettingText.transform.position = new Vector3(960, 30, 0f);
+        
+
+        SettingTextGO = SettingText.GetComponent<Text>();
+        TextCanvas.SetActive(false);
+    }
+
+    public static void Setup(LayoutRoot inputLayout)
+    {
+        layout = inputLayout; 
+        
+        MagicUI.Elements.Button SettingButton = new(layout)
+        {
+            Content = "Go to Hallownest Vocalized Settings",
+            FontSize = 30,
+            Borderless = true,
+            Font = MenuResources.Perpetua,
+
+        };
+        GameObject.Find("SettingButton").transform.GetChild(0).GetChild(0).localPosition = new Vector3(755.5f, -987, 0);
+        GameObject.Find("SettingButton").transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
+        SettingButton.Click += GoToMenu;
+    }
+
+    private static void GoToMenu(MagicUI.Elements.Button sender)
+    {
+        UIManager.instance.LeaveExitToMenuPrompt();
+        UIManager.instance.UICanvas.transform.GetChild(3).gameObject.SetActive(false);
+        UIManager.instance.UIGoToDynamicMenu(MenuRef.menuScreen != null ? MenuRef.menuScreen : MenuRef.GetMenuScreen(UIManager.instance.UICanvas.Find("ModListMenu").GetComponent<MenuScreen>()));
+    }
+    
+    private static IEnumerator ShowSettingText(On.UIManager.orig_GoToProfileMenu orig, UIManager self)
+    {
+        TextCanvas.SetActive(true);
+        GameObject.Find("SettingButton").transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
+        yield return orig(self);
+    }
+    private static IEnumerator MainMenuHideSettingText(On.UIManager.orig_GoToMainMenu orig, UIManager self)
+    {
+        TextCanvas.SetActive(false);
+        GameObject.Find("SettingButton").transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
+        yield return orig(self);
+    }
+    private static IEnumerator PlayModeHideSettingText(On.UIManager.orig_GoToPlayModeMenu orig, UIManager self)
+    {
+        TextCanvas.SetActive(false);
+        GameObject.Find("SettingButton").transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
+        yield return orig(self);
+    }
+    private static void AwakeHideSettingText(On.GameManager.orig_LoadGame orig, GameManager self, int saveSlot, Action<bool> callback)
+    {
+        orig(self, saveSlot, callback);
+        TextCanvas.SetActive(false);
+        GameObject.Find("SettingButton").transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
     }
 }

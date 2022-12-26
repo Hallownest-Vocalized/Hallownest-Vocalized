@@ -21,15 +21,15 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     {
         OnMenuStyleTitle.AfterOrig.SetTitle += AddCustomBanner;
         On.UIManager.Start += AddIcon;
+        On.UIManager.Start += UI.CreateSettingsText;
     }
-
+    
     public override List<(string, string)> GetPreloadNames()
     {
         return new() { ("Town", "_NPCs/Zote Final Scene/Zote Final") };
     }
-
+    
     private static string Version = "1.0.0.0";
-
     public override string GetVersion() => $"{Version}" + (AudioLoaderExists ? "" : $"ERROR: Missing Hallownest Vocalized AudioLoader");
 
     public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
@@ -57,19 +57,20 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             MajorFeatures.AutomaticBossDialogue.Hook();
             MajorFeatures.UITextAudio.Hook();
             MajorFeatures.RollCredits.Hook();
+            UI.Hook();
 
             EasterEggs.EternalOrdeal.Hook();
             EasterEggs.SpecialGrub.Hook();
             EasterEggs.PaleFlower.Hook();
 
-            UIManager.EditMenus += ModMenu.AddAudioSliderandSettingsButton;
-            UIManager.EditMenus += ModMenu.AddCreditsButton;
+            UIManager.EditMenus += UI.AddAudioSliderandSettingsButton;
+            UIManager.EditMenus += UI.AddCreditsButton;
             Hooks.PmFsmBeforeStartHook += AddFSMEdits;
 
             CoroutineHolder = new GameObject("HK Vocals Coroutine Holder").AddComponent<NonBouncer>();
             Object.DontDestroyOnLoad(CoroutineHolder);
             CreateAudioSource();
-            
+
             Log("HKVocals initialized");
         }
         else
@@ -77,7 +78,6 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             LogError("HKVocals Did not load because there was no audio bundle");
         }
     }
-
     public void CreateAudioSource()
     { 
         LogDebug("creating new asrc"); 
@@ -144,6 +144,6 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     }
     public static void DoLogDebug(object s) => instance.LogDebug(s);
     public static void DoLog(object s) => instance.Log(s);
-    public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates) => ModMenu.CreateModMenuScreen(modListMenu);
+    public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates) => UI.CreateModMenuScreen(modListMenu);
     public bool ToggleButtonInsideMenu => false;
 }

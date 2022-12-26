@@ -38,6 +38,9 @@
             <HintPath>$(HollowKnightFolder)\Mods\HKMirror\HKMirror.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <Reference Include="MagicUI">
+          <HintPath>$(HollowKnightFolder)\Mods\MagicUI\MagicUI.dll</HintPath>
+        </Reference>
         <Reference Include="MMHOOK_PlayMaker">
             <HintPath>$(HollowKnightFolder)\MMHOOK_PlayMaker.dll</HintPath>
             <Private>false</Private>
