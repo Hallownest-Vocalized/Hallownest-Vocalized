@@ -1,5 +1,4 @@
-﻿using GlobalEnums;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using UnityEngine.EventSystems;
 using UMenuButton = UnityEngine.UI.MenuButton;
 using Satchel;
