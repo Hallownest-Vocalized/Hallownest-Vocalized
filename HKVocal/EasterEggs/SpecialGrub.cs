@@ -40,11 +40,11 @@ public static class SpecialGrub
             "GRUB_BOTTLE_DREAM_S_3 " => "Repetitively now it’s fist draws back, as if readying to shatter this invisible prison. But it only swipes the air.",
             "GRUB_BOTTLE_DREAM_S_4 " => "It wishes not to destroy my confines, but my pride.",
             "GRUB_BOTTLE_DREAM_S_5 " => "Does it really intend to mock and shame a helpless grub as I? What evil bug it must be, to knowingly prolong this torture, torn from my kin.",
-            "GRUB_BOTTLE_DREAM_S_6" => "From my… Grubfather.",
+            "GRUB_BOTTLE_DREAM_S_6" => "From my... Grubfather.",
             "GRUB_BOTTLE_DREAM_S_7 " => "I stare back with hopeful joy, *scoff* it must think me ignorant. If only it knew of my hatred",
             "GRUB_BOTTLE_DREAM_S_8" => "When the time is right and this bug least expects it...",
             "GRUB_BOTTLE_DREAM_S_9 " => "I will gladly return the favor.",
-            "GRUB_BOTTLE_DREAM_S_REPEAT_0" => "…",
+            "GRUB_BOTTLE_DREAM_S_REPEAT_0" => "...",
             _ => orig
         };
     }

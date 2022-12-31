@@ -1,3 +1,5 @@
+using Satchel;
+
 namespace HKVocals;
 
 public static class CreditsLoader

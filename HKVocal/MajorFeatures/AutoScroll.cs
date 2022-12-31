@@ -102,7 +102,7 @@ public class AutoScrollOnFinishPlaying : FsmStateAction
     public override void OnEnter()
     {
         timer = 0f;
-        WaitTime = AutoScroll.ScrollSpeeds[HKVocals._globalSettings.ScrollSpeed];
+        WaitTime = AutoScroll.ScrollSpeeds[HKVocals._globalSettings.scrollSpeed];
         CheckForFinish();
     }
 

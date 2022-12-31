@@ -1,4 +1,5 @@
 using UnityEngine.Audio;
+using Satchel;
 
 namespace HKVocals;
 
@@ -82,7 +83,7 @@ public static class MixerLoader
     /// </summary>
     public static void SetMixerVolume()
     {
-        HKVMixer.SetFloat("VA Volume", MiscUtils.GetDecibelVolume(HKVocals._globalSettings.Volume));
+        HKVMixer.SetFloat("VA Volume", MiscUtils.GetDecibelVolume(HKVocals._globalSettings.volume));
     }
     /// <summary>
     /// Sets the output mixer group of the source to ours
