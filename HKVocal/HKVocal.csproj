@@ -29,7 +29,7 @@
             <Private>false</Private>
         </Reference>
         <Reference Include="Hallownest-Vocalized-AudioLoader">
-          <HintPath>$(HollowKnightFolder)\Mods\Hallownest-Vocalized-AudioLoader\Hallownest-Vocalized-AudioLoader.dll</HintPath>
+          <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\HKVocalAudioLoader\Hallownest-Vocalized-AudioLoader.dll</HintPath>
         </Reference>
         <Reference Include="HKMirror">
             <HintPath>$(HollowKnightFolder)\Mods\HKMirror\HKMirror.dll</HintPath>
@@ -58,6 +58,9 @@
         <Reference Include="PlayMaker">
             <HintPath>$(HollowKnightFolder)\PlayMaker.dll</HintPath>
             <Private>false</Private>
+        </Reference>
+        <Reference Include="SFCore">
+          <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\SFCore\SFCore.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine">
             <HintPath>$(HollowKnightFolder)\UnityEngine.dll</HintPath>

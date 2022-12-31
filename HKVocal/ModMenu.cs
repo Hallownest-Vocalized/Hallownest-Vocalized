@@ -5,7 +5,8 @@ using MenuButton = Satchel.BetterMenus.MenuButton;
 
 namespace HKVocals;
 public static class ModMenu
-{ 
+{
+    private static bool IsPlayingAudio = false;
     private static Menu MenuRef;
     public static MenuScreen CreateModMenuScreen(MenuScreen modListMenu)
     {
@@ -42,7 +43,6 @@ public static class ModMenu
                 {
                     isVisible = HKVocals._globalSettings.autoScroll
                 },
-            
             Blueprints.HorizontalBoolOption("Dream Nail Dialogue", 
                 "Should dream nail dialogue be voiced?",
                 (i) =>
@@ -74,6 +74,27 @@ public static class ModMenu
                     }
                 },
                 () => HKVocals._globalSettings.dampenAudio),
+            new MenuButton("Test Settings","plays audio so you can hear how the settings apply", _ =>
+            {
+                if (IsPlayingAudio)
+                {
+                    HKVocals.instance.Log("Stop testing Audio");
+                    AudioPlayer.StopPlaying();
+                    IsPlayingAudio = false;
+                }
+                else if (IsPlayingAudio && !AudioPlayer.IsPlaying())
+                {
+                    HKVocals.instance.Log("debbugging");
+                    IsPlayingAudio = false;
+                }
+                else
+                {
+                    HKVocals.instance.Log("Stop playing audio");
+                    IsPlayingAudio = true;
+                    AudioPlayer.TryPlayAudioFor("GRUB_BOTTLE_DREAM_S_1");
+                }
+                    
+            }) 
         });
         return MenuRef.GetMenuScreen(modListMenu);
     }
