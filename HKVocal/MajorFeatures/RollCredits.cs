@@ -1,20 +1,28 @@
 using GlobalEnums;
 using Satchel;
+using Image = UnityEngine.UI.Image;
 
 namespace HKVocals.MajorFeatures;
 
 public static class RollCredits
 {
-    public static float RollSpeed = 150f;
-    public static float MouseScrollSpeed = 60f;
-    public static float UpDownSpeed = 20f;
-    public static float ScrollMaxY = 50_000f;
-    private const string CreditsSceneName = "CreditsScene";
+    //for 1080p screens
+    private static float _rollSpeed = 120f;
+    private static float _scrollMaxY = 50_050;
+    
+    //scale to screen height
+    public static float RollSpeed => _rollSpeed * (Screen.height/1080f);
+    public static float ScrollMaxY => _scrollMaxY * (Screen.height/1080f);
+    
+    public static float MouseScrollSpeed = 75f;
+    public static float UpDownSpeed = 25f;
+    private const string CreditsSceneName = "HKV_Credits";
     private static bool isFromMenu;
-    private static bool doWantToLoadEndCredits;
+    private static bool doWantToLoadVanillaCredits;
 
     public static void Hook()
     {
+        //hook to get to know when to start our credits
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += (_, to) =>
         {
             if (to.name == CreditsSceneName)
@@ -25,11 +33,12 @@ public static class RollCredits
             }
         };
 
+        //load correct scene after game ends
         ModHooks.BeforeSceneLoadHook += scene =>
         {
-            if (scene == "End_Credits" && !doWantToLoadEndCredits)
+            if (scene == "End_Credits" && !doWantToLoadVanillaCredits)
             {
-                doWantToLoadEndCredits = false;
+                doWantToLoadVanillaCredits = false;
                 return CreditsSceneName;
             }
 
@@ -79,7 +88,7 @@ public static class RollCredits
         }
         else
         {
-            doWantToLoadEndCredits = true;
+            doWantToLoadVanillaCredits = true;
             GameManager.instance.LoadScene("End_Credits");
         }
 
@@ -145,23 +154,13 @@ public static class RollCredits
     {
         go.GetComponentsInChildren<Text>().ForEach(t =>
         {
-            HKVocals.DoLog(t.transform.parent.gameObject.name + "/" + t.gameObject.name + ": " + t.font.name);
-            if (t.font.name == "TrajanPro-Regular")
+            t.font = t.font.name switch
             {
-                t.font = MenuResources.TrajanRegular;
-            }
-            else if (t.font.name == "TrajanPro-Bold")
-            {
-                t.font = MenuResources.TrajanBold;
-            }
-            else if (t.font.name == "NotoSerifCJKsc-Regular")
-            {
-                t.font = MenuResources.NotoSerifCJKSCRegular;
-            }
-            else
-            {
-                t.font = MenuResources.Perpetua;
-            }
+                "TrajanPro-Regular" => MenuResources.TrajanRegular,
+                "TrajanPro-Bold" => MenuResources.TrajanBold,
+                "NotoSerifCJKsc-Regular" => MenuResources.NotoSerifCJKSCRegular,
+                _ => MenuResources.Perpetua
+            };
         });
     }
     
@@ -201,22 +200,22 @@ public class ScrollMainCredits : MonoBehaviour
 {
     private bool stopScrolling;
     private Coroutine stopScrollingCoroutine;
-
     private HeroActions InputActions;
+
     public void Start()
     {
         InputActions = InputHandler.Instance.inputActions;
     }
+
     public void FixedUpdate()
     {
-        
         if (Input.mouseScrollDelta.y == 0f 
             && !InputActions.up.IsPressed 
             && !InputActions.down.IsPressed)
         {
             if (!stopScrolling)
             {
-                transform.Translate(Vector3.up * Time.deltaTime * RollCredits.RollSpeed);
+                transform.Translate(Vector3.up * (Time.deltaTime * RollCredits.RollSpeed));
             }
         }
         else
