@@ -44,7 +44,7 @@ public static class FSMEditUtils
             
             if (!UITextAudio.ShopMenuClosed)
             {
-                MixerLoader.SetSnapshot(Snapshots.No_Effect); //we dont want effects on ui audio
+                MixerLoader.SetSnapshot(Snapshots.Cave); //we want cave effect on ui audio
                 AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
             }
         }

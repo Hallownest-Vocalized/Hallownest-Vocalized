@@ -7,15 +7,15 @@ namespace HKVocals.MajorFeatures;
 public static class RollCredits
 {
     //for 1080p screens
-    private static float _rollSpeed = 120f;
-    private static float _scrollMaxY = 50_050;
+    private static readonly float _rollSpeed = 120f;
+    private static readonly float _scrollMaxY = 50_050;
+    public static readonly float MouseScrollSpeed = 75f;
+    public static readonly float UpDownSpeed = 25f;
     
     //scale to screen height
     public static float RollSpeed => _rollSpeed * (Screen.height/1080f);
     public static float ScrollMaxY => _scrollMaxY * (Screen.height/1080f);
     
-    public static float MouseScrollSpeed = 75f;
-    public static float UpDownSpeed = 25f;
     private const string CreditsSceneName = "HKV_Credits";
     private static bool isFromMenu;
     private static bool doWantToLoadVanillaCredits;
