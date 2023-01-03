@@ -19,12 +19,12 @@ public class UITextAudio
     
     public static void PlayCharmText(PlayMakerFSM fsm)
     {
-        fsm.AddFsmMethod("Change Text", () => { fsm.PlayUIText("Convo Desc"); });
+        fsm.AddFsmMethod("Change Text", () => { fsm.PlayUIText("Convo Desc", UIAudioType.Other); });
     }
 
     public static void PlayInventoryText(PlayMakerFSM fsm)
     {
-        fsm.AddFsmMethod("Change Text", () => { fsm.PlayUIText("Convo Desc"); });
+        fsm.AddFsmMethod("Change Text", () => { fsm.PlayUIText("Convo Desc", UIAudioType.Other); });
     }
     
     public static void PlayJournalText(PlayMakerFSM fsm)
@@ -34,7 +34,7 @@ public class UITextAudio
             HKVocals.CoroutineHolder.StopCoroutine(JournalWait());
             HKVocals.CoroutineHolder.StopCoroutine(JournalText(fsm));
             HKVocals.CoroutineHolder.StartCoroutine(JournalWait());
-            fsm.PlayUIText("Item Desc Convo");
+            fsm.PlayUIText("Item Desc Convo", UIAudioType.Other);
         });
 
         fsm.AddFsmMethod("Display Kills", () => { HunterNotesUnlocked = false; } );
@@ -60,7 +60,7 @@ public class UITextAudio
                     HKVocals.instance.audioSource.Stop();
                 } else
                 {
-                    fsm.PlayUIText("Item Notes Convo");
+                    fsm.PlayUIText("Item Notes Convo", UIAudioType.Other);
                 }
             }
             HKVocals.CoroutineHolder.StopCoroutine(JournalText(fsm));
@@ -85,7 +85,13 @@ public class UITextAudio
 
     public static void PlayShopText(PlayMakerFSM fsm)
     {
-        fsm.AddFsmMethod("Get Details Init", () => { fsm.PlayUIText("Item Desc Convo"); });
-        fsm.AddFsmMethod("Get Details", () => { fsm.PlayUIText("Item Desc Convo"); });
+        fsm.AddFsmMethod("Get Details Init", () => { fsm.PlayUIText("Item Desc Convo", UIAudioType.Shop); });
+        fsm.AddFsmMethod("Get Details", () => { fsm.PlayUIText("Item Desc Convo", UIAudioType.Shop); });
     }
+}
+
+public enum UIAudioType
+{
+    Shop,
+    Other
 }
