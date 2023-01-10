@@ -58,6 +58,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             MajorFeatures.AutomaticBossDialogue.Hook();
             MajorFeatures.UITextAudio.Hook();
             MajorFeatures.RollCredits.Hook();
+            MajorFeatures.Patches.Hook();
 
             EasterEggs.EternalOrdeal.Hook();
             EasterEggs.SpecialGrub.Hook();
@@ -119,7 +120,9 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
         {
             if (AudioLoaderExists)
             {
-                args.self.Title.sprite = AssemblyUtils.GetSpriteFromResources(Random.Range(1,1000) == 1 ? "Resources.Title_alt.png" : "Resources.Title.png");
+                args.self.Title.sprite = AssemblyUtils.GetSpriteFromResources(Random.Range(1,1000) == 1 && _globalSettings.settingsOpened 
+                    ? "Resources.Title_alt.png" 
+                    : "Resources.Title.png");
             }
             else
             {

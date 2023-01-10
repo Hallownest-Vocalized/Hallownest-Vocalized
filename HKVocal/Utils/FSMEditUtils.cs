@@ -12,7 +12,7 @@ public static class FSMEditUtils
         fsm.SendEvent("DISPLAY DREAM MSG");
     }
 
-    public static void PlayUIText(this PlayMakerFSM fsm, string audiokey)
+    public static void PlayUIText(this PlayMakerFSM fsm, string audiokey, UIAudioType audioType)
     {
         //when the UI updates and new text has to be played, no other text can be selected so it makes sense to stop all audio
         AudioPlayer.StopPlaying();
@@ -44,7 +44,15 @@ public static class FSMEditUtils
             
             if (!UITextAudio.ShopMenuClosed)
             {
-                MixerLoader.SetSnapshot(Snapshots.No_Effect); //we dont want effects on ui audio
+
+                if (audioType == UIAudioType.Shop)
+                {
+                    MixerLoader.SetSnapshot(MiscUtils.GetCurrentSceneName()); 
+                }
+                else
+                {
+                    MixerLoader.SetSnapshot(Snapshots.Cave); //we want cave effect on ui audio that's not in the shop
+                }
                 AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
             }
         }

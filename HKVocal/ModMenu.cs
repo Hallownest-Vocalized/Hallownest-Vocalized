@@ -2,6 +2,7 @@
 using UnityEngine.EventSystems;
 using UMenuButton = UnityEngine.UI.MenuButton;
 using MenuButton = Satchel.BetterMenus.MenuButton;
+using Satchel;
 
 namespace HKVocals;
 public static class ModMenu
@@ -37,8 +38,8 @@ public static class ModMenu
             new HorizontalOption("Auto Scroll Speed", 
                 "How fast should it autoscroll after audio finishes playing?",
                 Enum.GetNames(typeof(MajorFeatures.AutoScroll.ScrollSpeed)).ToArray(),
-                (i) => HKVocals._globalSettings.ScrollSpeed = (MajorFeatures.AutoScroll.ScrollSpeed) i,
-                () => (int) HKVocals._globalSettings.ScrollSpeed,
+                (i) => HKVocals._globalSettings.scrollSpeed = (MajorFeatures.AutoScroll.ScrollSpeed) i,
+                () => (int) HKVocals._globalSettings.scrollSpeed,
                 Id: "Auto Scroll Speed")
                 {
                     isVisible = HKVocals._globalSettings.autoScroll
@@ -117,7 +118,7 @@ public static class ModMenu
         Action<float> StoreValue = f =>
         {
             VolumeSlider_MenuAudioSlider.UpdateTextValue(f);
-            HKVocals._globalSettings.Volume = (int)f;
+            HKVocals._globalSettings.volume = (int)f;
             MixerLoader.SetMixerVolume();
         };
 
@@ -133,8 +134,8 @@ public static class ModMenu
         VolumeSlider.SetActive(true);
             
         //to make sure when go is cloned, it gets the value of the previous session not the value of the music slider
-        VolumeSlider_MenuAudioSlider.UpdateTextValue(HKVocals._globalSettings.Volume);
-        VolumeSlider_Slider.value = HKVocals._globalSettings.Volume;
+        VolumeSlider_MenuAudioSlider.UpdateTextValue(HKVocals._globalSettings.volume);
+        VolumeSlider_Slider.value = HKVocals._globalSettings.volume;
         
         GameObject HKVocalsSettings = Object.Instantiate(RefVanillaMenu.DefaultAudioSettingsButton, RefVanillaMenu.DefaultAudioSettingsButton.transform.parent);
         HKVocalsSettings.name = "HK Vocals Settings";
