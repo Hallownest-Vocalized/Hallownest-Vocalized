@@ -11,6 +11,16 @@ public class GlobalSettings
     public bool scrollLock = false;
     public bool dampenAudio = true;
     public bool settingsOpened = false;
+    public List<string> FinishedNPCDialoge;
+    public bool GotNPCAchievement = false;
+    public List<string> FinishedDNailDialoge;
+    public bool GotDNailAchievement = false;
+    public List<string> FinishedLoreTabletDialoge;
+    public bool GotLoreTabletAchievement = false;
+    public List<string> FinishedUIDialoge; 
+    public bool GotUIAchievement = false;
+    public List<string> FinishedHJDialoge; 
+    public bool GotHJAchievement = false;
 }
 public class SaveSettings
 {

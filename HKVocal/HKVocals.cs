@@ -1,5 +1,6 @@
 using Language;
 using Satchel;
+using Newtonsoft.Json;
 
 namespace HKVocals;
 
@@ -35,6 +36,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     {
         instance = this;
         
+
         //all mods are added to ModInstanceNameMap before any Inits are called. At this point we only
         //care that the audio loader exists and not the actual audio because we don't really need
         ////the actual data in bundle until we wanna play audio which happens way after. Also the audiobundle
@@ -125,6 +127,30 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             }
         }
         
+    }
+    private void InitAchievements()
+    {
+        if(!_globalSettings.GotHJAchievement)
+        {
+            string json = @"[ 'smth']";
+            _globalSettings.FinishedHJDialoge = JsonConvert.DeserializeObject<List<string>>(json);
+        }
+        if(!_globalSettings.GotUIAchievement)
+        {
+            _globalSettings.FinishedUIDialoge = JsonConvert.DeserializeObject<List<string>>(json);
+        }
+        if(!_globalSettings.GotNPCAchievement)
+        {
+            _globalSettings.FinishedNPCDialoge = JsonConvert.DeserializeObject<List<string>>(json);
+        }
+        if(!_globalSettings.GotDNailAchievement)
+        {
+            _globalSettings.FinishedDNailDialoge = JsonConvert.DeserializeObject<List<string>>(json);
+        }
+        if(!_globalSettings.GotLoreTabletAchievement)
+        {
+            _globalSettings.FinishedLoreTabletDialoge = JsonConvert.DeserializeObject<List<string>>(json);
+        }
     }
     private static Sprite icon;
     private void AddIcon(On.UIManager.orig_Start orig, UIManager self)

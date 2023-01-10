@@ -50,8 +50,25 @@ public static class AudioPlayer
             HKVocals.instance.CreateAudioSource();
         }
         
-        asrc.Stop();
+        if(!HKVocals._globalSettings.GotHJAchievement)
+            HKVocals._globalSettings.FinishedHJDialoge.Remove(clip.name);
+        else 
+            GameManager.instance.AwardAchievement("Acquisition");
+        if(!HKVocals._globalSettings.GotNPCAchievement)
+            HKVocals._globalSettings.FinishedNPCDialoge.Remove(clip.name);
+        else 
+            GameManager.instance.AwardAchievement("Consideration");
+        if(!HKVocals._globalSettings.GotDNailAchievement)
+            HKVocals._globalSettings.FinishedDNailDialoge.Remove(clip.name);
+        else 
+            GameManager.instance.AwardAchievement("Ambition");
+        if(!HKVocals._globalSettings.GotLoreTabletAchievement)
+            HKVocals._globalSettings.FinishedLoreTabletDialoge.Remove(clip.name);
+        else 
+            GameManager.instance.AwardAchievement("Consideration");
+        if()
 
+        asrc.Stop();
         asrc.transform.localPosition = HeroController.instance != null 
             ? HeroController.instance.transform.localPosition :
             new Vector3(15f, 10f, 1f); //for monomon audio
