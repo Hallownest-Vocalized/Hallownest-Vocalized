@@ -74,6 +74,11 @@ public static class ModMenu
                     }
                 },
                 () => HKVocals._globalSettings.dampenAudio),
+            
+            new MenuButton("Join the HNVocals Discord!","",(_)=>
+            {
+                Application.OpenURL("https://discord.gg/p72F2St3RF");
+            }),
         });
         return MenuRef.GetMenuScreen(modListMenu);
     }
