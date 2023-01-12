@@ -1,7 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
-using SFCore;
-using UnityEngine;
+﻿using SFCore;
 
 namespace HKVocals.MajorFeatures;
 
@@ -20,12 +17,9 @@ public static class Achievements
         AchievementHelper.AddAchievement("Ambition",MiscUtils.LoadSprite("Resources/All_Dreams.png",Rect.zero, Vector2.zero,1,1),"Ambition","Uncover every dream, of bug and spirit alike.",false);
         AchievementHelper.AddAchievement("Chronology",MiscUtils.LoadSprite("Resources/All_Lore_Tablets.png",Rect.zero, Vector2.zero,1,1),"Chronology","Find every lore tablet buried under this dead Kingdom.",false);
         AchievementHelper.AddAchievement("Acquisition",MiscUtils.LoadSprite("Resources/All_Items_and_Jrounal.png",Rect.zero, Vector2.zero,1,1),"Acquisition","Review every item and journal entry there is to acquire.",false);
-
-
-
-
+        
         ModHooks.LanguageGetHook += AchLang;
-        On.EnemyDreamnailReaction.RecieveDreamImpact += Aluba;
+        OnEnemyDreamnailReaction.BeforeOrig.RecieveDreamImpact += Aluba;
     }
 
     private static string AchLang(string key, string sheettitle, string orig)
@@ -56,10 +50,11 @@ public static class Achievements
         };
     }
 
-    private static void Aluba(On.EnemyDreamnailReaction.orig_RecieveDreamImpact orig, EnemyDreamnailReaction self)
+    private static void Aluba(OnEnemyDreamnailReaction.Delegates.Params_RecieveDreamImpact args)
     {
-        if(self.gameObject.name == "Aluba")
+        if (args.self.gameObject.name == "Aluba")
+        {
             GameManager.instance.AwardAchievement("AlubafarDreamnail");
-        orig(self);
+        }
     }
 }
