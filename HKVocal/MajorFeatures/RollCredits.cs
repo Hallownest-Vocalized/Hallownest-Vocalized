@@ -1,22 +1,29 @@
 using GlobalEnums;
 using Satchel;
+using Image = UnityEngine.UI.Image;
 
 namespace HKVocals.MajorFeatures;
 
 public static class RollCredits
 {
-    private static float fadeTime = 1f;
-    public static float RollSpeed = 150f;
-    public static float MouseScrollSpeed = 60f;
-    public static float UpDownSpeed = 20f;
-    public static float ScrollMaxY = 46600f;
-    private const string CreditsSceneName = "CreditsScene";
+    //for 1080p screens
+    private static readonly float _rollSpeed = 120f;
+    private static readonly float _scrollMaxY = 50_050;
+    public static readonly float MouseScrollSpeed = 75f;
+    public static readonly float UpDownSpeed = 25f;
+    
+    //scale to screen height
+    public static float RollSpeed => _rollSpeed * (Screen.height/1080f);
+    public static float ScrollMaxY => _scrollMaxY * (Screen.height/1080f);
+    
+    private const string CreditsSceneName = "HKV_Credits";
     private static bool isFromMenu;
-    private static bool doWantToLoadEndCredits;
+    private static bool doWantToLoadVanillaCredits;
 
     public static void Hook()
     {
-        UnityEngine.SceneManagement.SceneManager.activeSceneChanged += (from, to) =>
+        //hook to get to know when to start our credits
+        UnityEngine.SceneManagement.SceneManager.activeSceneChanged += (_, to) =>
         {
             if (to.name == CreditsSceneName)
             {
@@ -26,11 +33,12 @@ public static class RollCredits
             }
         };
 
+        //load correct scene after game ends
         ModHooks.BeforeSceneLoadHook += scene =>
         {
-            if (scene == "End_Credits" && !doWantToLoadEndCredits)
+            if (scene == "End_Credits" && !doWantToLoadVanillaCredits)
             {
-                doWantToLoadEndCredits = false;
+                doWantToLoadVanillaCredits = false;
                 return CreditsSceneName;
             }
 
@@ -59,15 +67,10 @@ public static class RollCredits
 
     private static IEnumerator CreditsRoll()
     {
-        if (!isFromMenu) yield return new WaitForSeconds(2f);
-
-        //increase title size
-        ModName.GetComponentInChildren<Image>(true).rectTransform.sizeDelta = new Vector2(1315, 512);
-        
-        yield return ModName.FadeInAndOut();
-        yield return Director.FadeInAndOut();
-        yield return Programmer.FadeInAndOut();
-        yield return Audio.FadeInAndOut();
+        yield return ModName.FadeInAndOut(3f, 2.5f, 4.5f, 1f);
+        yield return Director.FadeInAndOut(1f, 2.5f, 4.5f, 1f);
+        yield return Programmer.FadeInAndOut(1f, 2.5f, 6.5f, 1f);
+        yield return Audio.FadeInAndOut(1f, 2.5f, 5.5f, 1f);
  
         ScrollParent.FixFonts();
         ScrollParent.SetActive(true);
@@ -85,22 +88,23 @@ public static class RollCredits
         }
         else
         {
-            doWantToLoadEndCredits = true;
+            doWantToLoadVanillaCredits = true;
             GameManager.instance.LoadScene("End_Credits");
         }
 
         isFromMenu = false;
     }
 
-    private static IEnumerator FadeInAndOut(this GameObject go)
+    private static IEnumerator FadeInAndOut(this GameObject go, float notSeenWait, float fadeInTime, float seenWait, float fadeOutTime)
     {
-        yield return go.FadeIn();
-        yield return new WaitForSeconds(5f);
-        yield return go.FadeOut();
+        yield return new WaitForSeconds(notSeenWait);
+        yield return go.FadeIn(fadeInTime);
+        yield return new WaitForSeconds(seenWait);
+        yield return go.FadeOut(fadeOutTime);
         go.SetActive(false);
     }
 
-    private static IEnumerator FadeIn(this GameObject go)
+    private static IEnumerator FadeIn(this GameObject go, float fadeTime)
     {
         go.FixFonts();
         go.SetAlphaZero();
@@ -108,7 +112,7 @@ public static class RollCredits
 
         yield return go.Fade(fadeTime, true);
     }
-    private static IEnumerator FadeOut(this GameObject go)
+    private static IEnumerator FadeOut(this GameObject go, float fadeTime)
     {
         yield return go.Fade(fadeTime, false);
         go.SetActive(false);
@@ -150,23 +154,13 @@ public static class RollCredits
     {
         go.GetComponentsInChildren<Text>().ForEach(t =>
         {
-            HKVocals.DoLog(t.transform.parent.gameObject.name + "/" + t.gameObject.name + ": " + t.font.name);
-            if (t.font.name == "TrajanPro-Regular")
+            t.font = t.font.name switch
             {
-                t.font = MenuResources.TrajanRegular;
-            }
-            else if (t.font.name == "TrajanPro-Bold")
-            {
-                t.font = MenuResources.TrajanBold;
-            }
-            else if (t.font.name == "NotoSerifCJKsc-Regular")
-            {
-                t.font = MenuResources.NotoSerifCJKSCRegular;
-            }
-            else
-            {
-                t.font = MenuResources.Perpetua;
-            }
+                "TrajanPro-Regular" => MenuResources.TrajanRegular,
+                "TrajanPro-Bold" => MenuResources.TrajanBold,
+                "NotoSerifCJKsc-Regular" => MenuResources.NotoSerifCJKSCRegular,
+                _ => MenuResources.Perpetua
+            };
         });
     }
     
@@ -206,22 +200,22 @@ public class ScrollMainCredits : MonoBehaviour
 {
     private bool stopScrolling;
     private Coroutine stopScrollingCoroutine;
-
     private HeroActions InputActions;
+
     public void Start()
     {
         InputActions = InputHandler.Instance.inputActions;
     }
+
     public void FixedUpdate()
     {
-        
         if (Input.mouseScrollDelta.y == 0f 
             && !InputActions.up.IsPressed 
             && !InputActions.down.IsPressed)
         {
             if (!stopScrolling)
             {
-                transform.Translate(Vector3.up * Time.deltaTime * RollCredits.RollSpeed);
+                transform.Translate(Vector3.up * (Time.deltaTime * RollCredits.RollSpeed));
             }
         }
         else

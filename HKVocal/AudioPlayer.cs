@@ -49,9 +49,10 @@ public static class AudioPlayer
         {
             HKVocals.instance.CreateAudioSource();
         }
-        
-        asrc.Stop();
 
+        //CheckForAchivements(clip.name);
+
+        asrc.Stop();
         asrc.transform.localPosition = HeroController.instance != null 
             ? HeroController.instance.transform.localPosition :
             new Vector3(15f, 10f, 1f); //for monomon audio
@@ -60,6 +61,46 @@ public static class AudioPlayer
 
         MixerLoader.SetMixerVolume();
         asrc.PlayOneShot(clip, 1f);
+    }
+
+    private static void CheckForAchivements(string clip)
+    {
+        if (!HKVocals._globalSettings.GotHJAchievement)
+        {
+            HKVocals._globalSettings.FinishedHJDialoge.Remove(clip);
+        }
+        else
+        {
+            GameManager.instance.AwardAchievement("Acquisition");
+        }
+
+        if (!HKVocals._globalSettings.GotNPCAchievement)
+        {
+            HKVocals._globalSettings.FinishedNPCDialoge.Remove(clip);
+        }
+        else
+        {
+            GameManager.instance.AwardAchievement("Consideration");
+        }
+
+
+        if (!HKVocals._globalSettings.GotDNailAchievement)
+        {
+            HKVocals._globalSettings.FinishedDNailDialoge.Remove(clip);
+        }
+        else
+        {
+            GameManager.instance.AwardAchievement("Ambition");
+        }
+
+        if (!HKVocals._globalSettings.GotLoreTabletAchievement)
+        {
+            HKVocals._globalSettings.FinishedLoreTabletDialoge.Remove(clip);
+        }
+        else
+        {
+            GameManager.instance.AwardAchievement("Consideration");
+        }
     }
 
     public static bool IsPlaying() => HKVocals.instance.audioSource.isPlaying;
