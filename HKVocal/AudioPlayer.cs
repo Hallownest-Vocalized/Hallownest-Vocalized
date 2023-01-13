@@ -49,23 +49,8 @@ public static class AudioPlayer
         {
             HKVocals.instance.CreateAudioSource();
         }
-        
-        if(!HKVocals._globalSettings.GotHJAchievement)
-            HKVocals._globalSettings.FinishedHJDialoge.Remove(clip.name);
-        else 
-            GameManager.instance.AwardAchievement("Acquisition");
-        if(!HKVocals._globalSettings.GotNPCAchievement)
-            HKVocals._globalSettings.FinishedNPCDialoge.Remove(clip.name);
-        else 
-            GameManager.instance.AwardAchievement("Consideration");
-        if(!HKVocals._globalSettings.GotDNailAchievement)
-            HKVocals._globalSettings.FinishedDNailDialoge.Remove(clip.name);
-        else 
-            GameManager.instance.AwardAchievement("Ambition");
-        if(!HKVocals._globalSettings.GotLoreTabletAchievement)
-            HKVocals._globalSettings.FinishedLoreTabletDialoge.Remove(clip.name);
-        else 
-            GameManager.instance.AwardAchievement("Consideration");
+
+        //CheckForAchivements(clip.name);
 
 
         asrc.Stop();
@@ -77,6 +62,46 @@ public static class AudioPlayer
 
         MixerLoader.SetMixerVolume();
         asrc.PlayOneShot(clip, 1f);
+    }
+
+    private static void CheckForAchivements(string clip)
+    {
+        if (!HKVocals._globalSettings.GotHJAchievement)
+        {
+            HKVocals._globalSettings.FinishedHJDialoge.Remove(clip);
+        }
+        else
+        {
+            GameManager.instance.AwardAchievement("Acquisition");
+        }
+
+        if (!HKVocals._globalSettings.GotNPCAchievement)
+        {
+            HKVocals._globalSettings.FinishedNPCDialoge.Remove(clip);
+        }
+        else
+        {
+            GameManager.instance.AwardAchievement("Consideration");
+        }
+
+
+        if (!HKVocals._globalSettings.GotDNailAchievement)
+        {
+            HKVocals._globalSettings.FinishedDNailDialoge.Remove(clip);
+        }
+        else
+        {
+            GameManager.instance.AwardAchievement("Ambition");
+        }
+
+        if (!HKVocals._globalSettings.GotLoreTabletAchievement)
+        {
+            HKVocals._globalSettings.FinishedLoreTabletDialoge.Remove(clip);
+        }
+        else
+        {
+            GameManager.instance.AwardAchievement("Consideration");
+        }
     }
 
     public static bool IsPlaying() => HKVocals.instance.audioSource.isPlaying;

@@ -59,6 +59,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             MajorFeatures.UITextAudio.Hook();
             MajorFeatures.RollCredits.Hook();
             MajorFeatures.Patches.Hook();
+            //MajorFeatures.Achievements.Hook();
 
             EasterEggs.EternalOrdeal.Hook();
             EasterEggs.SpecialGrub.Hook();
@@ -133,9 +134,9 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     }
     private void InitAchievements()
     {
+        string json = @"[ 'smth']";
         if(!_globalSettings.GotHJAchievement)
         {
-            string json = @"[ 'smth']";
             _globalSettings.FinishedHJDialoge = JsonConvert.DeserializeObject<List<string>>(json);
         }
         if(!_globalSettings.GotUIAchievement)
