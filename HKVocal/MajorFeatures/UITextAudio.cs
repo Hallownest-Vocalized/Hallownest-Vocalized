@@ -31,39 +31,38 @@ public class UITextAudio
     {
         fsm.AddFsmMethod("Get Details", () =>
         {
-            HKVocals.CoroutineHolder.StopCoroutine(JournalWait());
-            HKVocals.CoroutineHolder.StopCoroutine(JournalText(fsm));
-            HKVocals.CoroutineHolder.StartCoroutine(JournalWait());
-            fsm.PlayUIText("Item Desc Convo", UIAudioType.Other);
+            AudioPlayer.StopPlaying();
+            HKVocals.CoroutineHolder.StartCoroutine(JournalText(fsm));
+            HKVocals.instance.Log("generic audio for " + fsm.FsmVariables.GetFsmString("Item Desc Convo").Value + "_0");
+            /*fsm.PlayUIText("Item Desc Convo", UIAudioType.Other);*/
         });
 
         fsm.AddFsmMethod("Display Kills", () => { HunterNotesUnlocked = false; } );
-
-        IEnumerator JournalWait()
-        {
-            yield return new WaitForSeconds(1.5f);
-            HKVocals.CoroutineHolder.StartCoroutine(JournalText(fsm));
-            HKVocals.CoroutineHolder.StopCoroutine(JournalWait());
-        }
+        fsm.AddFsmMethod("Get Notes", () => { HunterNotesUnlocked = true; } );
 
         IEnumerator JournalText(PlayMakerFSM fsm)
         {
-            yield return new WaitWhile(AudioPlayer.IsPlaying);
+            fsm.PlayUIText("Item Desc Convo", UIAudioType.Other);
+            yield return new WaitForSeconds(2f);
+            yield return new WaitUntil(AudioPlayer.IsPlaying);
             if (HunterNotesUnlocked == false)
             {
-                HunterNotesUnlocked = true;
+                yield break;
             }
-            else if (HunterNotesUnlocked) 
+            else if (HunterNotesUnlocked == true) 
             {
-                if (InvMenuClosed)
+                if (InvMenuClosed == true)
                 {
-                    HKVocals.instance.audioSource.Stop();
-                } else
+                    AudioPlayer.StopPlaying();
+                } 
+                else
                 {
+                    yield return new WaitWhile(AudioPlayer.IsPlaying);
+                    yield return new WaitForSeconds(1f);
                     fsm.PlayUIText("Item Notes Convo", UIAudioType.Other);
+                    HKVocals.instance.Log("hunter note audio for " + fsm.FsmVariables.GetFsmString("Item Notes Convo").Value + "_0");
                 }
             }
-            HKVocals.CoroutineHolder.StopCoroutine(JournalText(fsm));
         }
 
     }

@@ -53,8 +53,8 @@ public static class FSMEditUtils
                 {
                     MixerLoader.SetSnapshot(Snapshots.Cave); //we want cave effect on ui audio that's not in the shop
                 }
-                AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
             }
+            AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
         }
     }
     
