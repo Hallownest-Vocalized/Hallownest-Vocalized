@@ -66,7 +66,7 @@ public static class AudioPlayer
             HKVocals._globalSettings.FinishedLoreTabletDialoge.Remove(clip.name);
         else 
             GameManager.instance.AwardAchievement("Consideration");
-        if()
+
 
         asrc.Stop();
         asrc.transform.localPosition = HeroController.instance != null 

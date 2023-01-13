@@ -150,5 +150,6 @@ public static class DreamNailDialogue
         { "Zombie Shield", "GH" }, 
         { "Zombie Guard", "GH" }, 
         { "Grave Zombie", "GH" },
+        { "Garden Zombie", "GH" }
     };
 }
