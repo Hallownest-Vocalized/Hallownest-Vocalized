@@ -15,10 +15,10 @@ public static class EternalOrdeal
 
     public static void Hook()
     {
-        OnBossStatueLever.WithOrig.OnTriggerEnter2D += UseZoteLever;
+        /*OnBossStatueLever.WithOrig.OnTriggerEnter2D += UseZoteLever;
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += DeleteZoteAudioPlayersOnSceneChange;
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += PlaceZoteLever;
-        UnityEngine.SceneManagement.SceneManager.activeSceneChanged += ZoteFail;
+        UnityEngine.SceneManagement.SceneManager.activeSceneChanged += ZoteFail;*/
         ModHooks.HeroUpdateHook += HeroUpdate;
 
         foreach (var zote in Zote_Normal)
@@ -143,29 +143,30 @@ public static class EternalOrdeal
     }
     private static void HeroUpdate()
     {
-        if (Input.GetKeyDown(KeyCode.F))
+        /*if (Input.GetKeyDown(KeyCode.F))
         {
 /*            HKVocals.instance.Log(ZoteOw[Random.Range(0, 8)]);
-            ZoteRandomOw();*/
+            ZoteRandomOw();#1#
             var join = string.Join("-", HKVocals._saveSettings.FinshedOrdealLines);
 
             HKVocals.instance.Log(join);
             HKVocals.instance.Log(HKVocals._saveSettings.OrdealFails);
             
 
-        }
-        if (Input.GetKeyDown(KeyCode.N))
+        }*/
+        if (Input.GetKey(KeyCode.Alpha5) && Input.GetKey(KeyCode.Alpha7))
         {
+            HKVocals._saveSettings.Precepts = 1;
             HKVocals.CoroutineHolder.StartCoroutine(ZotePrecepts());
         }
         
-        if (Input.GetKeyDown(KeyCode.G))
+        /*if (Input.GetKeyDown(KeyCode.G))
         {
             HKVocals._saveSettings.OrdealFails = 0;
             HKVocals._saveSettings.FinshedOrdealLines.Clear();
-        }
+        }*/
 
-        if ((HeroController.instance.transform.position.x >= 187 && HeroController.instance.transform.position.y >= 53) && (HeroController.instance.transform.position.x < 210 && HeroController.instance.transform.position.y < 76))
+        /*if ((HeroController.instance.transform.position.x >= 187 && HeroController.instance.transform.position.y >= 53) && (HeroController.instance.transform.position.x < 210 && HeroController.instance.transform.position.y < 76))
         {
             InStatueRoom = true;
         }
@@ -173,6 +174,7 @@ public static class EternalOrdeal
         {
             InStatueRoom = false;
         }
+        */
 
     }
 
