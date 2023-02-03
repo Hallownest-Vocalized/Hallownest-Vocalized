@@ -51,7 +51,7 @@ public static class FSMEditUtils
                 }
                 else
                 {
-                    MixerLoader.SetSnapshot(Snapshots.Cave); //we want cave effect on ui audio that's not in the shop
+                    MixerLoader.SetSnapshot(Snapshots.Room); //we want room effect on ui audio that's not in the shop
                 }
             }
             AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
