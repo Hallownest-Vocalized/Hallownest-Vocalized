@@ -41,9 +41,6 @@
             <HintPath>$(HollowKnightFolder)\Mods\HKMirror\HKMirror.dll</HintPath>
             <Private>false</Private>
         </Reference>
-        <Reference Include="MagicUI">
-          <HintPath>$(HollowKnightFolder)\Mods\MagicUI\MagicUI.dll</HintPath>
-        </Reference>
         <Reference Include="MMHOOK_PlayMaker">
             <HintPath>$(HollowKnightFolder)\MMHOOK_PlayMaker.dll</HintPath>
             <Private>false</Private>
@@ -67,6 +64,9 @@
         <Reference Include="PlayMaker">
             <HintPath>$(HollowKnightFolder)\PlayMaker.dll</HintPath>
             <Private>false</Private>
+        </Reference>
+        <Reference Include="SFCore">
+          <HintPath>$(HollowKnightFolder)\Mods\SFCore\SFCore.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine">
             <HintPath>$(HollowKnightFolder)\UnityEngine.dll</HintPath>

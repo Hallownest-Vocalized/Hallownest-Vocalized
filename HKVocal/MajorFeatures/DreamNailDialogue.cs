@@ -30,30 +30,33 @@ public static class DreamNailDialogue
         }
     }
 
-    private static string PlayDreamNailDialogue(string key, string sheetTitle, string orig)
-    {
+    public static void InvokeAutomaticBossDialogue(GameObject boss, string key) {
+        lastDreamnailedEnemy = boss;
+        FSMEditUtils.CreateDreamDialogue(AutomaticBossDialogue.ABDKeyPrefix + key, "Enemy Dreams");
+    }
+
+    private static string PlayDreamNailDialogue(string key, string sheetTitle, string orig) {
         //check for if the passed in key is passed in by AutomaticBossDialogue
         bool isAutomaticBossDialogue = false;
+
+        HKVocals.instance.Log($"Language get attempted with key {key}");
         
-        if (key.StartsWith(AutomaticBossDialogue.ABDKeyPrefix))
-        {
-            //get the original key by removing the prefix cuz rn orig is #!#key#!#
-            orig = Language.Language.GetInternal(key.Remove(0,AutomaticBossDialogue.ABDKeyPrefix.Length), sheetTitle);
+        if (key.StartsWith(AutomaticBossDialogue.ABDKeyPrefix)) {
+            // get the original key by removing the prefix
+            key = key.Remove(0, AutomaticBossDialogue.ABDKeyPrefix.Length);
+            orig = Language.Language.GetInternal(key, sheetTitle);
             isAutomaticBossDialogue = true;
         }
         
-        // Make sure this is dreamnail text
-        if (lastDreamnailedEnemy == null)
-        {
+        // Make sure this is dreamnail text or ABD text
+        if (lastDreamnailedEnemy == null && !isAutomaticBossDialogue) {
             return orig;
         }
 
         //dont play audio if the dn dialogue toggle is off
-        if (!HKVocals._globalSettings.dnDialogue)
-        {
+        if (!HKVocals._globalSettings.dnDialogue) {
             //but also do play it if its an AutomaticBossDialogue and that setting is turned on
-            if (!(HKVocals._globalSettings.automaticBossDialogue && isAutomaticBossDialogue))
-            {
+            if (!(HKVocals._globalSettings.automaticBossDialogue && isAutomaticBossDialogue)) {
                 return orig;
             }
         }
@@ -78,12 +81,9 @@ public static class DreamNailDialogue
         // Either use the already registered VA or make one and save it
         int voiceActor;
 
-        if (HKVocals._saveSettings.PersistentVoiceActors.ContainsKey(id))
-        {
+        if (HKVocals._saveSettings.PersistentVoiceActors.ContainsKey(id)) {
             voiceActor = HKVocals._saveSettings.PersistentVoiceActors[id];
-        }
-        else 
-        {
+        } else {
             voiceActor = Random.Range(1, availableClips.Count);
             HKVocals._saveSettings.PersistentVoiceActors[id] = voiceActor;
         }
@@ -92,8 +92,7 @@ public static class DreamNailDialogue
 
         bool didPlay = AudioPlayer.TryPlayAudioFor($"${name}$_{key}_0_{voiceActor}".ToUpper());
 
-        if (didPlay)
-        {
+        if (didPlay) {
             OnPlayDreamDialogue?.Invoke();
         }
         
@@ -151,5 +150,6 @@ public static class DreamNailDialogue
         { "Zombie Shield", "GH" }, 
         { "Zombie Guard", "GH" }, 
         { "Grave Zombie", "GH" },
+        { "Garden Zombie", "GH" }
     };
 }

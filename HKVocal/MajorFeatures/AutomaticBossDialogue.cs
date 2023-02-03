@@ -1,69 +1,191 @@
 ﻿namespace HKVocals.MajorFeatures;
+using Newtonsoft.Json;
 
-public static class AutomaticBossDialogue
-{
-    // a string to prefix dn dialogue keys so that is can be distinguished in langauge get hook
-    public const string ABDKeyPrefix = "HKVocals_ABD_"; 
-    
+public static class AutomaticBossDialogue {
+
+    // DN Dialogue prefix to allow for distinguishing of automatic and player-actived dialogue
+    public const string ABDKeyPrefix = "HKVocals_ABD_";
+    private const string ANY_GO = "*";
+
     private static List<Func<HealthManager, bool>> HpListeners = new List<Func<HealthManager, bool>>();
 
-    private static readonly Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>> BossToAddList_AnyFsm = new Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>>
-    {
-        { new("FalseyControl"), AddToFalseKnightAndFailedChampion },
-        { new("LurkerControl"), AddToPaleLurker },
+    struct FsmLocation {
+        public string scene;
+        public string go;
+        public string fsm;
+
+        public FsmLocation(string go, string fsm) {
+            this.go = go;
+            this.fsm = fsm;
+            this.scene = null;
+        }
+    }
+
+    struct ABDLine {
+        public string[] lines;
+        public float chance;
+        public float wait;
+
+        public ABDLine(string[] lines, float chance = 1f, float wait = 0) {
+            this.lines = lines;
+            this.chance = chance;
+            this.wait = wait;
+        }
+    }
+
+    struct ABDStates {
+        public Dictionary<string, ABDLine> dialogueStates;
+        public Dictionary<string, Func<GameObject, IEnumerator>> coroutineStates;
+        public Action<GameObject> init;
+
+        public ABDStates(Dictionary<string, ABDLine> dialogueStates, Dictionary<string, Func<GameObject,IEnumerator>> coroutineStates = null, Action<GameObject> init = null) {
+            this.dialogueStates = dialogueStates;
+            this.coroutineStates = coroutineStates;
+            
+            this.init = init;
+        }    
+    }
+
+    private static readonly Dictionary<FsmLocation, ABDStates> BossDialogueGoFsm = new Dictionary<FsmLocation, ABDStates> {
+        //{ ("Absolute Radiance", "Control"), AddToRadiances },
+        //{ ("Absolute Radiance", "Phase Control"), AddToRadiances_Phase2 },
+        //{ ("Radiance", "Control"), AddToRadiances },
+        //{ ("Radiance", "Phase Control"), AddToRadiances_Phase2 },
+        //{ ("Hornet Boss 1", "Control"), AddToHornets },
+        //{ ("Hornet Boss 2", "Control"), AddToHornets },
+        { new FsmLocation(ANY_GO, "FalseyControl"), new ABDStates(new Dictionary<string, ABDLine> {
+            { "Start Fall", new ABDLine(new string[] { "FALSE_KNIGHT_1" }, 1.0f, 10f )}
+        })},
+
+        { new FsmLocation("Oro", "nailmaster"), new ABDStates(new Dictionary<string, ABDLine>(), new Dictionary<string, Func<GameObject, IEnumerator>> {
+            { "Death Start", OroDialogue }
+        }) },
+
+        { new FsmLocation("Jar Collector", "Control"), new ABDStates(new Dictionary<string, ABDLine> {
+            { "Slam", new ABDLine(new string[] { "JAR_COLLECTOR_1", "JAR_COLLECTOR_2", "JAR_COLLECTOR_3" }, 0.4f ) }
+        }, new Dictionary<string, Func<GameObject, IEnumerator>>()) },
+
+        { new FsmLocation("Dream Mage Lord Phase2", "Dream Mage Lord Phase2"), new ABDStates(new Dictionary<string, ABDLine> {
+            { "Music", new ABDLine(new string[] { "MAGELORD_D_1" } ) }
+        }, new Dictionary<string, Func<GameObject, IEnumerator>>()) },
+
+        { new FsmLocation("Grey Prince", "Control"), new ABDStates(new Dictionary<string, ABDLine> {
+            { "Jump", new ABDLine(new string[] { "GREY_PRINCE_1", "GREY_PRINCE_2", "GREY_PRINCE_3", "GREY_PRINCE_4", "GREY_PRINCE_5" })},
+            { "Spit Dir", new ABDLine(new string[] { "GREY_PRINCE_1", "GREY_PRINCE_2", "GREY_PRINCE_3", "GREY_PRINCE_4", "GREY_PRINCE_5" })}
+        }, new Dictionary<string, Func<GameObject, IEnumerator>>()) }
+
+        //{ ("Grey Prince", "Control"), AddToGreyPrinceZote },
     };
 
-    private static readonly Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>> BossToAddList_GoFsm = new Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>>
-    {
-        { new("Absolute Radiance", "Control"), AddToRadiances },
-        { new("Absolute Radiance", "Phase Control"), AddToRadiances_Phase2 },
-        { new("Radiance", "Control"), AddToRadiances },
-        { new("Radiance", "Phase Control"), AddToRadiances_Phase2 },
-        { new("Hornet Boss 1", "Control"), AddToHornets },
-        { new("Hornet Boss 2", "Control"), AddToHornets },
-        { new("Oro", "nailmaster"), AddToOro },
-        { new("Mato", "nailmaster"), AddToMato },
-        { new("Jar Collector", "Control"), AddToCollector },
-        { new("Dream Mage Lord Phase2", "Mage Lord 2"), AddToSoulTyrant_Phase2 },
-        { new("Dream Mage Lord", "Mage Lord"), AddToSoulTyrant },
-        { new("Grey Prince", "Control"), AddToGreyPrinceZote },
+    private static readonly Dictionary<FsmLocation, Dictionary<float, ABDLine>> HealthTriggers = new Dictionary<FsmLocation, Dictionary<float, ABDLine>> {
+        { new FsmLocation("Dream Mage Lord", "Dream Mage Lord"), new Dictionary<float, ABDLine> {
+            { 2f / 3f, new ABDLine(new string[] { "MAGELORD_D_2" }) }, 
+            { 1f / 3f, new ABDLine(new string[] { "MAGELORD_D_3" }) }
+        }}
     };
 
-    private static Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>> BossToAddList_SceneFsm = new Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>>
+    private static Dictionary<FsmLocation, float> LastHealthValues = new Dictionary<FsmLocation, float>();
+    private static Dictionary<FsmLocation, float> MaxHealthValues = new Dictionary<FsmLocation, float>();
+
+    private static Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>> BossDialogueSceneFsm = new Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>>
     {
         { new("GG_Radiance", "Boss Control", "Control"), AddToRadiances_Spawn },
         { new("Dream_Final_Boss", "Boss Control", "Control"), AddToRadiances_Spawn },
     };
-    public static void Hook()
-    {
-        OnHealthManager.AfterOrig.TakeDamage += RemoveHpListeners;
-        
-        FSMEditData.AddRange(BossToAddList_GoFsm);
-        FSMEditData.AddRange(BossToAddList_AnyFsm);
-        FSMEditData.AddRange(BossToAddList_SceneFsm);
-    }
-    
-    private static void RemoveHpListeners(OnHealthManager.Delegates.Params_TakeDamage args)
-    {
-        for (int i = 0; i < HpListeners.Count; i++)
-        {
-            bool sucess = HpListeners[i](args.self);
-            if (sucess)
-            {
-                HpListeners.RemoveAt(i);
-                i--;
+
+    public static void Hook() { 
+        OnHealthManager.AfterOrig.Start += InitHpListeners;
+        OnHealthManager.AfterOrig.TakeDamage += CheckHpListeners;
+
+        foreach (var pair in BossDialogueGoFsm) {
+            /*foreach (var coroutine in pair.Value.coroutineStates) {
+                if (pair.Key.go == ANY_GO) Hooks.HookStateEnteredFromTransition(new FSMData(pair.Key.fsm, coroutine.Key), HKVocals.CoroutineHolder.StartCoroutine(coroutine));
+                else Hooks.HookStateEnteredFromTransition(new FSMData(pair.Key.go, pair.Key.fsm, coroutine.Key), (PlayMakerFSM FSM, string type) => HKVocals.CoroutineHolder.StartCoroutine(coroutine.Value(FSM.gameObject)));
+            }*/
+
+            foreach (var dialogue in pair.Value.dialogueStates) {
+
+                FSMData data = (pair.Key.go == ANY_GO) ?
+                    new FSMData(pair.Key.fsm, dialogue.Key) :
+                    new FSMData(pair.Key.go, pair.Key.fsm, dialogue.Key);
+
+                Hooks.HookStateEnteredFromTransition(
+                    data,
+                    (PlayMakerFSM fsm, string type) => {
+                        PlayABDLine(dialogue.Value, fsm.gameObject);
+                    }
+                );
+            }
+
+            if (pair.Value.init != null) {
+                // @TODO: This might not work for every location
+                pair.Value.init(GameObject.Find(pair.Key.go));
             }
         }
     }
+
+    private static void PlayABDLine(ABDLine line, GameObject go) {
+        string key = line.lines[Random.Range(0, line.lines.Length)];
+        bool play = Random.value <= line.chance;
+
+        if (play) HKVocals.CoroutineHolder.StartCoroutine(PlayLineAfter(go, key, line.wait));
+    }
+
+    private static IEnumerator PlayLineAfter(GameObject go, string key, float time) {
+        yield return new WaitForSeconds(time);
+        DreamNailDialogue.InvokeAutomaticBossDialogue(go, key);
+    }
+
+    public static void OnFsmInit() {}
+
+    private static FsmLocation? GetHealthTrigger(HealthManager hm) {
+        GameObject go = hm.gameObject;
+        PlayMakerFSM fsm = go.GetComponent<PlayMakerFSM>();
+
+        if (fsm == null) return null;
+
+        foreach (var entry in HealthTriggers) {
+            if (entry.Key.fsm == fsm.name && entry.Key.go == go.name) {
+                return entry.Key;
+            }
+        }
+
+        HKVocals.instance.Log($"Found an HM/FSM with no matching trigger. GameObject: {go.name} FSM: {fsm.name}");
+
+        return null;
+    }
+
+    private static void InitHpListeners(OnHealthManager.Delegates.Params_Start args) {
+
+        var location = GetHealthTrigger(args.self);
+        if (location == null) return;
+
+        var trigger = (FsmLocation) location;
+
+        LastHealthValues[trigger] = args.self.hp;
+        MaxHealthValues[trigger] = args.self.hp;
+    }
     
-    private static void AddHPDialogue(HealthManager hm, DreamDialogueAction action, int hpBenchmark)
-    {
-        action.Owner = hm.gameObject;
-        HpListeners.Add(hmInstance =>
-        {
-            if (hmInstance == hm && hmInstance.hp < hpBenchmark)
-            {
-                action.OnEnter();
+    private static void CheckHpListeners(OnHealthManager.Delegates.Params_TakeDamage args) {
+        var location = GetHealthTrigger(args.self);
+        if (location == null) return;
+
+        var trigger = (FsmLocation) location;
+
+        float lastHpPercent = (float) LastHealthValues[trigger] / (float) MaxHealthValues[trigger];
+        float currentHpPercent = (float) args.self.hp / (float) MaxHealthValues[trigger];
+
+        foreach (var entry in HealthTriggers[trigger]) {
+            if (lastHpPercent > entry.Key && currentHpPercent <= entry.Key) PlayABDLine(entry.Value, args.self.gameObject);
+        }
+
+        LastHealthValues[trigger] = args.self.hp;
+    }
+    
+    private static void AddHPDialogue(HealthManager hm, string key, int hpBenchmark) {
+        HpListeners.Add(hmInstance => {
+            if (hmInstance == hm && hmInstance.hp < hpBenchmark) {
+                DreamNailDialogue.InvokeAutomaticBossDialogue(hm.gameObject, key);
                 return true;
             }
 
@@ -71,13 +193,6 @@ public static class AutomaticBossDialogue
         });
     }
 
-    private static void AddToFalseKnightAndFailedChampion(PlayMakerFSM fsm)
-    {
-        HKVocals.instance.LogDebug("Adding ABD to False Knight or Failed Champion");
-        fsm.InsertFsmAction("Start Fall", new DreamDialogueAction(ABDKeyPrefix + "FALSE_KNIGHT_1", "Enemy Dreams") { waitTime = 10 }, 0);
-        fsm.InsertFsmAction("Recover", new DreamDialogueAction(new string[] {ABDKeyPrefix + "FALSE_KNIGHT_2", ABDKeyPrefix + "FALSE_KNIGHT_3" }, "Enemy Dreams") { waitTime = 6, convoOccurances = new int[] { 0, 0, -1 } }, 0);
-           
-    }
     private static void AddToPaleLurker(PlayMakerFSM fsm)
     {
         HKVocals.instance.LogDebug("Adiing ADB to Pale Lurker");
@@ -85,6 +200,7 @@ public static class AutomaticBossDialogue
         fsm.InsertFsmMethod("Aleart Anim", () => action.convoOccurances[0] = 0, 0);
         fsm.InsertFsmAction("Hop Antic", action, 0);
     }
+
     private static void AddToRadiances(PlayMakerFSM fsm)
     {
         if (BossSequenceController.IsInSequence)
@@ -127,63 +243,19 @@ public static class AutomaticBossDialogue
             HKVocals.instance.LogDebug("Adiing ADB to Hornets");
             string namePart = BossSequenceController.IsInSequence ? "GG" : "GREENPATH";
             HealthManager hm = fsm.GetComponent<HealthManager>();
-            AddHPDialogue(hm, new DreamDialogueAction(ABDKeyPrefix + "HORNET_" + namePart + "_1", "Enemy Dreams"), (3 * hm.hp) / 4);
-            AddHPDialogue(hm, new DreamDialogueAction(ABDKeyPrefix + "HORNET_" + namePart + "_2", "Enemy Dreams"), hm.hp / 2);
-            AddHPDialogue(hm, new DreamDialogueAction(ABDKeyPrefix + "HORNET_" + namePart + "_3", "Enemy Dreams"), hm.hp / 4);
-        }
-    }
-    private static void AddToOro(PlayMakerFSM fsm)
-    {
-        if (BossSequenceController.IsInSequence)
-        {
-            HKVocals.instance.LogDebug("Adiing ADB to Oro");
-            AddHPDialogue(fsm.GetComponent<HealthManager>(), new DreamDialogueAction(ABDKeyPrefix + "ORO_1", "Enemy Dreams"), 150);
-            fsm.AddFsmMethod("Death Start", () => 
-                {
-                    if ((HKVocals.instance.audioSource.clip?.name.Contains("ORO")).GetValueOrDefault())
-                    {
-                        HKVocals.instance.audioSource.Stop();
-                    } 
-                });
-            
-            fsm.AddFsmMethod("Reactivate", () => HKVocals.CoroutineHolder.StartCoroutine(DreamDialogue()));
-            
-            IEnumerator DreamDialogue()
-            {
-                yield return new WaitForSeconds(1f);
-                FSMEditUtils.CreateDreamDialogue(ABDKeyPrefix + "MATO_1", "Enemy Dreams");
-                yield return new WaitForSeconds(AudioPlayer.GetAudioFor("MATO_1_0").length + 0.5f);
-                FSMEditUtils.CreateDreamDialogue(ABDKeyPrefix + "ORO_2", "Enemy Dreams");
-                yield return new WaitForSeconds(AudioPlayer.GetAudioFor("ORO_2_0").length + 0.5f);
-                FSMEditUtils.CreateDreamDialogue(ABDKeyPrefix + "MATO_2", "Enemy Dreams");
-            }
+            //AddHPDialogue(hm, new DreamDialogueAction(ABDKeyPrefix + "HORNET_" + namePart + "_1", "Enemy Dreams"), (3 * hm.hp) / 4);
+            //AddHPDialogue(hm, new DreamDialogueAction(ABDKeyPrefix + "HORNET_" + namePart + "_2", "Enemy Dreams"), hm.hp / 2);
+            //AddHPDialogue(hm, new DreamDialogueAction(ABDKeyPrefix + "HORNET_" + namePart + "_3", "Enemy Dreams"), hm.hp / 4);
         }
     }
 
-    private static void AddToMato(PlayMakerFSM fsm)
-    {
-        HKVocals.instance.LogDebug("Adiing ADB to Mato");
-        fsm.AddFsmMethod("Death Start", () =>
-        {
-            if (HKVocals.instance.audioSource.clip.name.Contains("MATO"))
-            {
-                HKVocals.instance.audioSource.Stop();
-            }
-        });
-    }
-
-    private static void AddToCollector(PlayMakerFSM fsm)
-    {
-        HKVocals.instance.LogDebug("Adiing ADB to Collector");
-        fsm.InsertFsmAction("Slam", new DreamDialogueAction(new string[]{ABDKeyPrefix + "JAR_COLLECTOR_1",ABDKeyPrefix + "JAR_COLLECTOR_2",ABDKeyPrefix + "JAR_COLLECTOR_3" }, "Enemy Dreams") {convoMode = DreamDialogueAction.ConvoMode.Random, chance = 0.4f}, 0);
-    }
-
-    private static void AddToSoulTyrant(PlayMakerFSM fsm)
-    {
-        HKVocals.instance.LogDebug("Adiing ADB to soul tyrant");
-        HealthManager hm = fsm.GetComponent<HealthManager>();
-        AddHPDialogue(hm, new DreamDialogueAction(ABDKeyPrefix + "MAGELORD_D_2", "Enemy Dreams"), (int)(hm.hp * 2f/3f));
-        AddHPDialogue(hm, new DreamDialogueAction(ABDKeyPrefix + "MAGELORD_D_3", "Enemy Dreams"), (int)(hm.hp * 1f/3f));
+    private static IEnumerator OroDialogue(GameObject boss) {
+        yield return new WaitForSeconds(1f);
+        DreamNailDialogue.InvokeAutomaticBossDialogue(boss, "ORO_1");
+        yield return new WaitForSeconds(AudioPlayer.GetAudioFor("$Oro$_ORO_1_0_1").length + 0.5f); // probably should automatically format keys like this
+        DreamNailDialogue.InvokeAutomaticBossDialogue(boss, "ORO_2");
+        yield return new WaitForSeconds(AudioPlayer.GetAudioFor("$Oro$_ORO_2_0_1").length + 0.5f);
+        DreamNailDialogue.InvokeAutomaticBossDialogue(boss, "MATO_2");
     }
 
     private static void AddToSoulTyrant_Phase2(PlayMakerFSM fsm)
@@ -191,13 +263,5 @@ public static class AutomaticBossDialogue
         HKVocals.instance.LogDebug("Adiing ADB to Soul Tyrant Phase 2");
         //i chose music cuz its after the wait and its just when tyrant dives
         fsm.InsertFsmAction("Music", new DreamDialogueAction(ABDKeyPrefix + "MAGELORD_D_1","Enemy Dreams"), 0);
-    }
-
-    private static void AddToGreyPrinceZote(PlayMakerFSM fsm)
-    {
-        HKVocals.instance.LogDebug("Adiing ADB to Grey Prince Zote");
-        string[] GPZDialogues = {ABDKeyPrefix + "GREY_PRINCE_1", ABDKeyPrefix + "GREY_PRINCE_2", ABDKeyPrefix + "GREY_PRINCE_3", ABDKeyPrefix + "GREY_PRINCE_4", ABDKeyPrefix + "GREY_PRINCE_5",};
-        fsm.InsertFsmAction("Jump", new DreamDialogueAction(GPZDialogues, "Enemy Dreams"){convoMode = DreamDialogueAction.ConvoMode.Random},0);
-        fsm.InsertFsmAction("Spit Dir", new DreamDialogueAction(GPZDialogues, "Enemy Dreams"){convoMode = DreamDialogueAction.ConvoMode.Random},0);
     }
 }

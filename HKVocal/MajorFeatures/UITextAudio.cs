@@ -19,53 +19,30 @@ public class UITextAudio
     
     public static void PlayCharmText(PlayMakerFSM fsm)
     {
-        fsm.AddFsmMethod("Change Text", () => { fsm.PlayUIText("Convo Desc"); });
+        fsm.AddFsmMethod("Change Text", () => { fsm.PlayUIText("Convo Desc", UIAudioType.Other); });
     }
 
     public static void PlayInventoryText(PlayMakerFSM fsm)
     {
-        fsm.AddFsmMethod("Change Text", () => { fsm.PlayUIText("Convo Desc"); });
+        fsm.AddFsmMethod("Change Text", () => { fsm.PlayUIText("Convo Desc", UIAudioType.Other); });
     }
     
     public static void PlayJournalText(PlayMakerFSM fsm)
     {
+        fsm.AddFsmMethod("Display Kills", () => { HunterNotesUnlocked = false; } );
+        fsm.AddFsmMethod("Get Notes", () => { HunterNotesUnlocked = true; } );
+        
         fsm.AddFsmMethod("Get Details", () =>
         {
-            HKVocals.CoroutineHolder.StopCoroutine(JournalWait());
-            HKVocals.CoroutineHolder.StopCoroutine(JournalText(fsm));
-            HKVocals.CoroutineHolder.StartCoroutine(JournalWait());
-            fsm.PlayUIText("Item Desc Convo");
+            if (HunterNotesUnlocked == true)
+            {
+                fsm.PlayUIText("Item Notes Convo", UIAudioType.Other);
+            }
+            else if (HunterNotesUnlocked == false)
+            {
+                fsm.PlayUIText("Item Desc Convo", UIAudioType.Other);
+            }
         });
-
-        fsm.AddFsmMethod("Display Kills", () => { HunterNotesUnlocked = false; } );
-
-        IEnumerator JournalWait()
-        {
-            yield return new WaitForSeconds(1.5f);
-            HKVocals.CoroutineHolder.StartCoroutine(JournalText(fsm));
-            HKVocals.CoroutineHolder.StopCoroutine(JournalWait());
-        }
-
-        IEnumerator JournalText(PlayMakerFSM fsm)
-        {
-            yield return new WaitWhile(AudioPlayer.IsPlaying);
-            if (HunterNotesUnlocked == false)
-            {
-                HunterNotesUnlocked = true;
-            }
-            else if (HunterNotesUnlocked) 
-            {
-                if (InvMenuClosed)
-                {
-                    HKVocals.instance.audioSource.Stop();
-                } else
-                {
-                    fsm.PlayUIText("Item Notes Convo");
-                }
-            }
-            HKVocals.CoroutineHolder.StopCoroutine(JournalText(fsm));
-        }
-
     }
 
     
@@ -85,7 +62,13 @@ public class UITextAudio
 
     public static void PlayShopText(PlayMakerFSM fsm)
     {
-        fsm.AddFsmMethod("Get Details Init", () => { fsm.PlayUIText("Item Desc Convo"); });
-        fsm.AddFsmMethod("Get Details", () => { fsm.PlayUIText("Item Desc Convo"); });
+        fsm.AddFsmMethod("Get Details Init", () => { fsm.PlayUIText("Item Desc Convo", UIAudioType.Shop); });
+        fsm.AddFsmMethod("Get Details", () => { fsm.PlayUIText("Item Desc Convo", UIAudioType.Shop); });
     }
+}
+
+public enum UIAudioType
+{
+    Shop,
+    Other
 }

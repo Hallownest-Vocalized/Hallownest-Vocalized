@@ -42,12 +42,12 @@ public static class SettingsPrompt
     {
         if (HKVocals._globalSettings.settingsOpened) return;
         
-        On.UIManager.ShowMenu += RemoveButton;
+        OnUIManager.BeforeOrig.ShowMenu += RemoveButton;
     }
 
-    private static IEnumerator RemoveButton(On.UIManager.orig_ShowMenu orig, UIManager self, MenuScreen menu)
+    private static void RemoveButton(OnUIManager.Delegates.Params_ShowMenu args)
     {
-        if (ModMenu.MenuRef.menuScreen != null && ModMenu.MenuRef.menuScreen == menu)
+        if (ModMenu.MenuRef.menuScreen != null && ModMenu.MenuRef.menuScreen == args.menu)
         {
             HKVocals._globalSettings.settingsOpened = true;
 
@@ -56,9 +56,7 @@ public static class SettingsPrompt
                 Object.Destroy(PromptButton);
             }
             
-            On.UIManager.ShowMenu -= RemoveButton; //hook no longer needed
+            OnUIManager.BeforeOrig.ShowMenu -= RemoveButton; //hook no longer needed
         }
-        
-        yield return orig(self, menu);
     }
 }
