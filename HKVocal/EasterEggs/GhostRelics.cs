@@ -117,6 +117,7 @@ public static class GhostRelics
             {
                 if (PlayerDataAccess.trinket1 > 0 || PlayerDataAccess.trinket2 > 0 || PlayerDataAccess.trinket3 > 0 || PlayerDataAccess.trinket4 > 0)
                 {
+                    GameManager.instance.AwardAchievement("ImpatientLemm");
                     HKVocals._saveSettings.UsedRelicBox = true;
                     audioPlayer.Spawn(HeroController.instance.transform.position).GetComponent<AudioSource>().PlayOneShot(acceptClip);
                     HeroController.instance.AddGeo(

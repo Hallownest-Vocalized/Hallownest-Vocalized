@@ -286,6 +286,7 @@ public static class PaleFlower
             deathEffects.RecordJournalEntry();
             StopCoroutine(_turnCo);
             _anim.Play("IdleFlower");
+            GameManager.instance.AwardAchievement("KindnessPaleLurker");
         }
 
         private IEnumerator RunAwayAnim()

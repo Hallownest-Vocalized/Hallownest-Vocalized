@@ -32,6 +32,7 @@ public static class SpecialGrub
                 }
                 else
                 {
+                    GameManager.instance.AwardAchievement("DisdainGrub");
                     GameObject.Find("Grub Bottle").transform.GetChild(0).GetChild(0).GetComponent<PlayMakerFSM>().GetFsmStringVariable("Convo Name").Value = $"GRUB_BOTTLE_DREAM_S_REPEAT_0";
                     GameObject.Find("Grub Bottle").transform.GetChild(0).GetChild(0).GetComponent<PlayMakerFSM>().GetFsmStringVariable("Sheet Name").Value = "Elderbug";
                 }
