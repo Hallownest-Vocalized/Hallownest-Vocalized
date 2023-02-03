@@ -17,6 +17,8 @@ public static class SpecialAudio
         //elderbugs intro audio doesnt transition well so we add special audio for that
         FSMEditData.AddGameObjectFsmEdit("Elderbug", "Conversation Control", MakeElderbugPlaySpecialAudio);
         FSMEditData.AddGameObjectFsmEdit("Shiny Item RoyalCharm", "Shiny Control", ChangeNameOfClashingKey);
+        FSMEditData.AddGameObjectFsmEdit("Dreamer Plaque Inspect", "Conversation Control", PlayDreamerPlaqueDialogue);
+        FSMEditData.AddGameObjectFsmEdit("Fountain Inspect", "Conversation Control", PlayTHKPlaqueDialogue);
         ModHooks.LanguageGetHook += AddSpecialAudioKeys;
     }
 
@@ -84,7 +86,35 @@ public static class SpecialAudio
     public static void ChangeNameOfClashingKey(PlayMakerFSM fsm)
     {
         var msg = fsm.GetFsmState("King Msg");
-        msg.DisableFsmAction(2);
+        //msg.DisableFsmAction(2); who wrote this, and why?
         msg.GetFirstActionOfType<CallMethodProper>().parameters[0].stringValue = "KING_SOUL_PICKUP_KING_FINAL_WORDS";
+    }
+
+    public static void PlayDreamerPlaqueDialogue(PlayMakerFSM fsm)
+    {
+        IEnumerator DreamerAudio()
+        {
+            for (int i = 1; i < 6; i++)
+            {
+                AudioPlayer.TryPlayAudioFor("DREAMERS_INSPECT_RG" + i);
+                yield return new WaitWhile(() => AudioPlayer.IsPlaying());
+            }
+        }
+        Coroutine dreamerCo = null;
+        void Stop()
+        {
+            AudioPlayer.StopPlaying();
+            fsm.StopCoroutine(dreamerCo);
+        }
+        fsm.InsertCustomAction("Fade In", () => dreamerCo = fsm.StartCoroutine(DreamerAudio()), 0);
+        fsm.InsertCustomAction("Msg Down", Stop, 0);
+        fsm.AddCustomAction("Update Map?", () => AudioPlayer.TryPlayAudioFor("DREAMERS_INSPECT_RG6"));
+    }
+
+    public static void PlayTHKPlaqueDialogue(PlayMakerFSM fsm)
+    {
+        fsm.InsertCustomAction("Stop", () => AudioPlayer.TryPlayAudioFor("RUINS_FOUNTAIN"), 0);
+        fsm.InsertCustomAction("Fade Down", () => AudioPlayer.StopPlaying(), 0);
+        fsm.AddCustomAction("Update Map?", () => AudioPlayer.TryPlayAudioFor("PROMPT_MAP_BLACKEGG"));
     }
 }

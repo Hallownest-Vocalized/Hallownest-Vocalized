@@ -14,7 +14,10 @@ public class GlobalSettings
 }
 public class SaveSettings
 {
-    public int LurkerState = 0;
+    public bool UsedRelicBox = false;
+    public bool RelicBoxConvo = false;
+    public bool LurkerFlower = false;
+    public int LurkerConversation = -1;
     public int OrdealFails = 0;
     public int Precepts = 1;
     public List<string> FinshedOrdealLines = new List<string>();

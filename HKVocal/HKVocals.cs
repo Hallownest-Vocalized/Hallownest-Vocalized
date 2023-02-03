@@ -1,5 +1,6 @@
 using Language;
 using Satchel;
+using UnityEngine.Audio;
 
 namespace HKVocals;
 
@@ -15,14 +16,17 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     public AudioSource audioSource;
     internal static HKVocals instance;
     public static NonBouncer CoroutineHolder;
+    public static bool AudioLoaderAssemblyExists => AppDomain.CurrentDomain.GetAssemblies().Any(a => a.GetName().Name == "Hallownest-Vocalized-AudioLoader");
     public static bool AudioLoaderExists => ModHooks.GetMod("Hallownest Vocalized AudioLoader") is Mod;
 
     public HKVocals() : base("Hallownest Vocalized")
     {
         OnMenuStyleTitle.AfterOrig.SetTitle += AddCustomBanner;
         On.UIManager.Start += AddIcon;
+        if (AudioLoaderAssemblyExists)
+            SFCore.MenuStyleHelper.AddMenuStyle(MajorFeatures.MenuTheme.AddTheme);
     }
-    
+
     public override List<(string, string)> GetPreloadNames()
     {
         return new() { ("Town", "_NPCs/Zote Final Scene/Zote Final") };
@@ -45,6 +49,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
 
             MixerLoader.LoadAssetBundle();
             CreditsLoader.LoadAssetBundle();
+            StyleLoader.LoadAssetBundle();
 
             MajorFeatures.SpecialAudio.Hook();
             MajorFeatures.NPCDialogue.Hook();
@@ -60,6 +65,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             EasterEggs.EternalOrdeal.Hook();
             EasterEggs.SpecialGrub.Hook();
             EasterEggs.PaleFlower.Hook();
+            EasterEggs.GhostRelics.Hook();
 
             UIManager.EditMenus += UI.AudioMenu.AddAudioSliderAndSettingsButton;
             UIManager.EditMenus += UI.ExtrasMenu.AddCreditsButton;
