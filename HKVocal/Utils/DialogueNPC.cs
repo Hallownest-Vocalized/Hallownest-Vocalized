@@ -43,7 +43,6 @@ public class DialogueNPC : MonoBehaviour
     {
         NormalBox = gameObject.LocateMyFSM("Conversation Control").GetFsmState("Repeat").GetAction<CallMethodProper>(0).gameObject.GameObject.Value;
         DialogueManager = NormalBox.transform.parent.gameObject;
-        Satchel.GameObjectUtils.LogWithChildren(DialogueManager);
         YNBox = DialogueManager.transform.Find("Text YN").gameObject;
         NormalDialogueBox = NormalBox.GetComponent<DialogueBox>();
         YNDialogueBox = YNBox.GetComponent<DialogueBox>();
