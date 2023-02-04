@@ -52,7 +52,7 @@ public class MenuTheme : MonoBehaviour
         cameraCurves.blueChannel.AddKey(new(0, 0));
         cameraCurves.blueChannel.AddKey(new(1, 1));
 
-        return ("STYLE_HKVOCALS", go, -1, "", null, cameraCurves, Resources.FindObjectsOfTypeAll<AudioMixer>().First(x => x.name == "Music").FindSnapshot("Action Only")); // todo: replace snapshot with some none snapshot
+        return ("STYLE_HKVOCALS", go, -1, "", null, cameraCurves, Resources.FindObjectsOfTypeAll<AudioMixer>().First(x => x.name == "Music").FindSnapshot("Silent")); // todo: replace snapshot with some none snapshot
     }
 
     bool ready = false;

@@ -12,11 +12,40 @@ public static class PaleFlower
 
     public static void Hook()
     {
+        new MonoMod.RuntimeDetour.Hook(ReflectionHelper.GetMethodInfo(typeof(SFCore.MonoBehaviours.CustomItemList), "CheckBool"), ModifySFCoreFlower1);
+        new MonoMod.RuntimeDetour.Hook(ReflectionHelper.GetMethodInfo(typeof(SFCore.MonoBehaviours.CustomItemList), "GetDescConvo"), ModifySFCoreFlower2);
         On.HealthManager.Awake += PaleLurkerAwake;
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += SceneChanged;
         On.HealthManager.Die += PaleLurkerDie;
         ModHooks.LanguageGetHook += LurkerText;
         CreateCollections();
+    }
+
+    private static bool ModifySFCoreFlower1(Func<SFCore.MonoBehaviours.CustomItemList, SFCore.ItemHelper.Item, bool> orig, SFCore.MonoBehaviours.CustomItemList self, SFCore.ItemHelper.Item item)
+    {
+        if (item.type == SFCore.ItemType.Flower)
+            return PlayerData.instance.GetBool(item.playerdataBool1);
+        return orig(self, item);
+    }
+
+    private static string ModifySFCoreFlower2(Func<SFCore.MonoBehaviours.CustomItemList, int, string> orig, SFCore.MonoBehaviours.CustomItemList self, int itemNum)
+    {
+        SFCore.ItemHelper.Item item = self.List.First((SFCore.ItemHelper.Item x) => x.uniqueName.Equals(ReflectionHelper.GetField<SFCore.MonoBehaviours.CustomItemList, GameObject[]>(self, "_currentList")[itemNum].name));
+        if (item.type == SFCore.ItemType.Flower)
+        {
+            switch ((PlayerData.instance.GetBool(item.playerdataBool2), PlayerData.instance.GetBool(item.playerdataInt)))
+            {
+                case (false, false):
+                    return item.descConvo1;
+                case (true, false):
+                    return item.nameConvoBoth;
+                case (false, true):
+                    return item.descConvo2;
+                case (true, true):
+                    return item.descConvoBoth;
+            }
+        }
+        return orig(self, itemNum);
     }
 
     private static void PaleLurkerAwake(On.HealthManager.orig_Awake orig, HealthManager self)
@@ -201,6 +230,15 @@ public static class PaleFlower
         HealthManager _hm;
         Coroutine _turnCo;
         bool waitForLeave = true;
+        GameObject audioPlayer;
+
+        private void PlayAudioOneShot(AudioClip clip)
+        {
+            AudioSource source = audioPlayer.Spawn(HeroController.instance.transform.position).GetComponent<AudioSource>();
+            source.volume = 0.7f;
+            source.pitch = 1.1f;
+            source.PlayOneShot(clip);
+        }
 
         private void Awake()
         {
@@ -210,6 +248,7 @@ public static class PaleFlower
             _col = GetComponent<Collider2D>();
             _hm = GetComponent<HealthManager>();
             _hm.enabled = false;
+            audioPlayer = gameObject.LocateMyFSM("Lurker Control").GetAction<AudioPlayerOneShotSingle>("Slash 1", 1).audioPlayer.Value;
         }
 
         private void Invincible(bool invincible)
@@ -230,6 +269,7 @@ public static class PaleFlower
             npc.SetUp();
             PlayMakerFSM npc_control = npc.gameObject.LocateMyFSM("npc_control");
             npc_control.GetBoolVariable("Hero Always Right").Value = false;
+            npc_control.GetFloatVariable("Move To Offset").Value = 2f;
             npc_control.AddMethod("Convo End", () => { if (!HKVocals._saveSettings.LurkerFlower) StartCoroutine(RunAwayAnim()); });
             npc_control.AddState("Wait For Shiny Collect");
             npc_control.ChangeTransition("Pause", "FINISHED", "Wait For Shiny Collect");
@@ -279,13 +319,16 @@ public static class PaleFlower
 
         private IEnumerator TakeFlowerAnim()
         {
-            _anim.Play("SnatchFlower");
-            yield return new WaitForSeconds(2f); // replace with starting/waiting for animation
+            _anim.Play("Idle");
+            yield return new WaitForSeconds(1f);
+            PlayAudioOneShot(HeroController.instance.normalSlash.Reflect().audio.clip);
+            yield return _anim.PlayAnimWait("SnatchFlower");
+            _anim.Play("IdleFlower");
+            yield return new WaitForSeconds(1f);
             EnemyDeathEffects deathEffects = GetComponent<EnemyDeathEffects>();
             GameObject.Instantiate(deathEffects.Reflect().corpsePrefab.transform.GetChild(0).gameObject, transform);
             deathEffects.RecordJournalEntry();
             StopCoroutine(_turnCo);
-            _anim.Play("IdleFlower");
             GameManager.instance.AwardAchievement("KindnessPaleLurker");
         }
 
@@ -332,6 +375,7 @@ public static class PaleFlower
             _col.isTrigger = true;
             _anim.Play("Idle");
             _turnCo = StartCoroutine(AutoTurn());
+            GetComponent<EnemyDeathEffects>().Reflect().audioSnapshotOnDeath.TransitionTo(2f);
             SetUpNPC();
         }
 
@@ -392,11 +436,11 @@ public static class PaleFlower
     {
         Utils.DialogueNPC npc;
         tk2dSpriteAnimator _anim;
-        int repeat = 2;
+        int repeat = -1;
 
         private void Awake()
         {
-            transform.SetPosition2D(218f, 52.5f);
+            transform.SetPosition2D(224.6f, 52.5f);
             transform.parent = null;
             UnityEngine.Object.Destroy(gameObject.GetComponent<DamageHero>());
             foreach (PlayMakerFSM fsm in GetComponents<PlayMakerFSM>())
@@ -419,10 +463,12 @@ public static class PaleFlower
             npc.DialogueSelector = GetDialogue;
             npc.GetComponent<MeshRenderer>().enabled = false;
             npc.SetDreamKey("LURKER_IDLE_DREAM");
+            npc.SetTitle("LURKER_NPC");
             npc.SetUp();
             PlayMakerFSM npc_control = npc.gameObject.LocateMyFSM("npc_control");
             npc_control.GetBoolVariable("Hero Always Right").Value = false;
             npc_control.GetBoolVariable("Hero Always Left").Value = true;
+            npc_control.GetFloatVariable("Move To Offset").Value = 2f;
         }
 
         private DialogueOptions GetDialogue(DialogueCallbackOptions prev)

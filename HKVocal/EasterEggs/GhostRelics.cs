@@ -11,68 +11,83 @@ public static class GhostRelics
 {
     private static int[] relicAmts = { 8, 7, 5, 4 };
     private static string[] relicNames = { "JOURNAL", "SEAL", "IDOL", "EGG" };
-    private static int[] relicPrices = { 0, 0, 0, 0 };
-    private static int customRelicID = -1;
-    private static int customTypeID = -1;
-    private static string selectedConvo;
     private static AudioClip denyClip;
     private static AudioClip acceptClip;
     private static GameObject audioPlayer;
     public static void Hook()
     {
-        On.ShopMenuStock.BuildFromMasterList += ShopMenuStock_BuildItemList;
+        On.ShopMenuStock.Start += ShopMenuStock_Start;
         ModHooks.GetPlayerBoolHook += ModHooks_GetPlayerBoolHook;
+        ModHooks.GetPlayerIntHook += ModHooks_GetPlayerIntHook;
         ModHooks.LanguageGetHook += ModHooks_LanguageGetHook;
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += PlaceBox;
         FSMEditData.AddGameObjectFsmEdit("UI List", "Confirm Control", AddSpecialType);
-        FSMEditData.AddGameObjectFsmEdit("Relic Dealer", "Relic Discussions", AddRelicDiscussion);
         FSMEditData.AddGameObjectFsmEdit("Relic Dealer", "Conversation Control", EditConvo);
-        FSMEditData.AddGameObjectFsmEdit("Item List", "Item List Control", GetRelicData);
+        FSMEditData.AddGameObjectFsmEdit("Shop Menu", "shop_control", DontCloseShopGetAudio);
+        FSMEditData.AddGameObjectFsmEdit("Shop Region", "Shop Region", DontCloseShop);
     }
 
-    private static void ShopMenuStock_BuildItemList(On.ShopMenuStock.orig_BuildFromMasterList orig, ShopMenuStock self)
+    private static void ShopMenuStock_Start(On.ShopMenuStock.orig_Start orig, ShopMenuStock self)
     {
-        orig(self);
-        if (self.name == "Relic Dealer")
+        HKVocals.instance.Log("Start: " + self);
+        //if (self.name == "Relic Dealer")
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Ruins1_05b" && self.stock.Length == 4)
         {
-            List<GameObject> stock = new List<GameObject>(self.stockInv);
+            List<GameObject> stock = new List<GameObject>(self.stock);
             for (int i = 0; i < 4; i++)
             {
-                GameObject go = self.stockInv[i];
-                relicPrices[i] = go.GetComponent<ShopItemStats>().cost;
-                for (int j = 1; j < relicAmts[i] + 1; j++)
-                {
-                    GameObject clone = GameObject.Instantiate(go);
-                    ShopItemStats stats = clone.GetComponent<ShopItemStats>();
+                GameObject go = self.stock[i];
 
-                    stats.activeColour = new Color(0.8f, 0.8f, 0.8f, 0.8f);
-                    stats.relic = false;
-                    stats.relicNumber = customRelicID;
-                    stats.specialType = customTypeID;
-                    stats.cost = 0;
-                    stats.descConvo = $"RELICDEALER_{relicNames[i]}_{j}";
-                    stats.requiredPlayerDataBool = $"soldRelics{i}_{j}";
-                    stats.playerDataBoolName = "false";
+                GameObject clone = GameObject.Instantiate(go);
+                ShopItemStats stats = clone.GetComponent<ShopItemStats>();
 
-                    stock.Add(clone);
-                }
+                clone.transform.Find("Item Sprite").GetComponent<SpriteRenderer>().color = new Color(0.85f, 0.85f, 0.85f, 0.6f);
+
+                stats.activeColour = new Color(0.85f, 0.85f, 0.85f, 0.6f);
+                stats.relic = true;
+                stats.relicNumber *= -1;
+                stats.cost = 0;
+                stats.priceConvo = "";
+                stats.descConvo = "SHOP_DESC_PHANTOM";
+                stats.relicPDInt = $"ghostRelic_{i + 1}";
+                stats.requiredPlayerDataBool = $"hasGhostRelic_{i + 1}";
+                stats.removalPlayerDataBool = "";
+                stats.playerDataBoolName = "false";
+
+                stock.Add(clone);
             }
 
-            self.stockInv = stock.ToArray();
+            self.stock = stock.ToArray();
         }
+        orig(self);
     }
 
     private static bool ModHooks_GetPlayerBoolHook(string name, bool orig)
     {
+        if (name == "false")
+            return false;
         try
         {
-            if (name.StartsWith("soldRelics"))
+            if (name.StartsWith("hasGhostRelic"))
             {
-                string[] split = name.Split('_');
-                int relic = int.Parse(split[0].Substring(10, 1));
-                int amt = int.Parse(split[1]);
+                int relic = int.Parse(name.Split('_')[1]);
 
-                return PlayerData.instance.GetInt("soldTrinket" + relic) >= amt;
+                return HKVocals._saveSettings.GhostRelics[relic - 1] > 0;
+            }
+        }
+        catch { }
+        return orig;
+    }
+
+    private static int ModHooks_GetPlayerIntHook(string name, int orig)
+    {
+        try
+        {
+            if (name.StartsWith("ghostRelic"))
+            {
+                int relic = int.Parse(name.Split('_')[1]);
+
+                return HKVocals._saveSettings.GhostRelics[relic - 1];
             }
         }
         catch { }
@@ -83,18 +98,20 @@ public static class GhostRelics
     {
         switch (key)
         {
-            case "RELICDEALER_SHOP_INTRO_1":
-                return Language.Language.Get("RELICDEALER_SHOP_INTRO");
-            case "RELICDEALER_SHOP_INTRO_2":
-                return "";
-            case "RELICDEALER_SHOP_INTRO_3":
-                return "";
-            case "RELICDEALER_SHOP_INTRO_4":
-                return "";
-            case "SHOP_DESC_PHANTOM_0":
-                return "";
+            case "RELICDEALER_SHOP_INTRO":
+                return orig + "<page>" +
+                    "Though, you adventurous types are prone to rushing things, aren’t you? That chest over there, at the end of the room, it’s my deposit box for relics.<page>" +
+                    "If you really have no inclination to learn about the history of the relics that you bring me, and you wish to go swinging that blasted nail around everywhere, simply put everything you find in that box.<page>" +
+                    "Don’t worry, if you bring me anything worthwhile, I’ll pay you in full.<page>" +
+                    "I’m busy enough organizing my collection behind the counter, so whenever you return with some spare time, hand me the relics you deposited and I’ll put them on display where they belong.";
+            case "SHOP_DESC_PHANTOM":
+                return "I see you left some relics in my deposit box. If you’d be so kind and bring them here, I’ll organize them on my shelves for display.";
             case "SHOP_CHEST_DEPOSIT":
                 return "DEPOSIT";
+            case "SHOP_CHEST_NPC_SUPER":
+            case "SHOP_CHEST_NPC_MAIN":
+            case "SHOP_CHEST_NPC_SUB":
+                return "";
             default:
                 return orig;
         }
@@ -105,87 +122,84 @@ public static class GhostRelics
         if (arg1.name == "Ruins1_05b")
         {
             DialogueNPC box = DialogueNPC.CreateInstance();
+            PlayMakerFSM npc_control = box.gameObject.LocateMyFSM("npc_control");
+            npc_control.GetBoolVariable("Hero Always Right").Value = false;
+            npc_control.GetFloatVariable("Move To Offset").Value = 0f;
+            box.transform.position = new Vector3(58f, 23.4f, box.transform.position.z);
             box.DialogueSelector = BoxDialogue;
+            GameObject.Destroy(box.transform.Find("Dream Dialogue"));
+            box.SetTitle("SHOP_CHEST_NPC");
+            box.SetUp();
         }
+    }
+
+    private static void PlayAudioOneShot(AudioClip clip)
+    {
+        HKVocals.instance.Log("Audio player: " + audioPlayer);
+        AudioSource source = audioPlayer.Spawn(HeroController.instance.transform.position).GetComponent<AudioSource>();
+        source.volume = 0.7f;
+        source.pitch = 1.1f;
+        source.PlayOneShot(clip);
     }
 
     private static DialogueOptions BoxDialogue(DialogueCallbackOptions options)
     {
         if (!options.Continue)
-        {
-            if (options.Key == "SHOP_CHEST_DEPOSIT" && options.Response == DialogueResponse.Yes)
-            {
-                if (PlayerDataAccess.trinket1 > 0 || PlayerDataAccess.trinket2 > 0 || PlayerDataAccess.trinket3 > 0 || PlayerDataAccess.trinket4 > 0)
-                {
-                    GameManager.instance.AwardAchievement("ImpatientLemm");
-                    HKVocals._saveSettings.UsedRelicBox = true;
-                    audioPlayer.Spawn(HeroController.instance.transform.position).GetComponent<AudioSource>().PlayOneShot(acceptClip);
-                    HeroController.instance.AddGeo(
-                        (PlayerDataAccess.trinket1 * relicPrices[0]) + (PlayerDataAccess.trinket2 * relicPrices[1]) + 
-                        (PlayerDataAccess.trinket3 * relicPrices[2]) + (PlayerDataAccess.trinket4 * relicPrices[3]));
-                    PlayerDataAccess.soldTrinket1 += PlayerDataAccess.trinket1;
-                    PlayerDataAccess.soldTrinket2 += PlayerDataAccess.trinket2;
-                    PlayerDataAccess.soldTrinket3 += PlayerDataAccess.trinket3;
-                    PlayerDataAccess.soldTrinket4 += PlayerDataAccess.trinket4;
-                    PlayerDataAccess.trinket1 = 0;
-                    PlayerDataAccess.trinket2 = 0;
-                    PlayerDataAccess.trinket3 = 0;
-                    PlayerDataAccess.trinket4 = 0;
-                }
-                else
-                {
-                    audioPlayer.Spawn(HeroController.instance.transform.position).GetComponent<AudioSource>().PlayOneShot(denyClip);
-                }
-            }
             return new() { Key = "SHOP_CHEST_DEPOSIT", Sheet = "", Cost = 0, Type = DialogueType.YesNo, Continue = true };
+        if (options.Response == DialogueResponse.Yes)
+        {
+            if (PlayerDataAccess.trinket1 > 0 || PlayerDataAccess.trinket2 > 0 || PlayerDataAccess.trinket3 > 0 || PlayerDataAccess.trinket4 > 0)
+            {
+                GameManager.instance.AwardAchievement("ImpatientLemm");
+                PlayAudioOneShot(acceptClip);
+                HKVocals._saveSettings.UsedRelicBox = true;
+                HeroController.instance.AddGeo(
+                    (PlayerDataAccess.trinket1 * 200) + (PlayerDataAccess.trinket2 * 800) +
+                    (PlayerDataAccess.trinket3 * 450) + (PlayerDataAccess.trinket4 * 1200));
+                HKVocals._saveSettings.GhostRelics[0] += PlayerDataAccess.trinket1;
+                HKVocals._saveSettings.GhostRelics[1] += PlayerDataAccess.trinket2;
+                HKVocals._saveSettings.GhostRelics[2] += PlayerDataAccess.trinket3;
+                HKVocals._saveSettings.GhostRelics[3] += PlayerDataAccess.trinket4;
+                PlayerDataAccess.trinket1 = 0;
+                PlayerDataAccess.trinket2 = 0;
+                PlayerDataAccess.trinket3 = 0;
+                PlayerDataAccess.trinket4 = 0;
+            }
+            else
+                PlayAudioOneShot(denyClip);
         }
         return new() { Continue = false };
     }
 
     public static void AddSpecialType(PlayMakerFSM fsm)
     {
-        FsmState resell = fsm.CopyState("Trink 1", "Resell Trink");
-        FsmState special = fsm.GetState("Special Type?");
-        FsmEvent @event = new FsmEvent("TRINK-1");
-
-        resell.GetAction<SendEventByName>(0).sendEvent = "SOLD TRINKET -1";
-        special.AddTransition(@event.Name, resell.Name);
-        IntSwitch action = special.GetAction<IntSwitch>(1);
-        action.compareTo = action.compareTo.Append(customTypeID).ToArray();
-        action.sendEvent = action.sendEvent.Append(@event).ToArray();
-    }
-
-    public static void AddRelicDiscussion(PlayMakerFSM fsm)
-    {
-        FsmString convo = fsm.GetStringVariable("Convo Prefix");
-        FsmState prefix = fsm.CopyState("Set Prefix 1", "Set Prefix -1");
-        fsm.AddTransition("Idle", "SOLD TRINKET -1", prefix.Name);
-        prefix.RemoveAction(0);
-        prefix.GetAction<SetStringValue>(0).stringValue = "soldTrinket-1";
-        prefix.AddFsmMethod(() => convo.Value = selectedConvo);
+        FsmInt relicNum = fsm.GetIntVariable("Relic Number");
+        fsm.InsertMethod("Sell Item", () => { if (relicNum.Value < 0) { relicNum.Value *= -1; HKVocals._saveSettings.GhostRelics[relicNum.Value - 1]--; fsm.SendEvent("FINISHED"); } }, 0);
     }
 
     public static void EditConvo(PlayMakerFSM fsm)
     {
-        FsmState statePrev = fsm.GetState("Shop Intro");
-        FsmState state;
-        for (int i = 2; i < 5; i++)
-        {
-            state = fsm.CopyState("Shop Intro", "Shop Intro " + i);
-            statePrev.ChangeTransition("CONVO_FINISH", state.Name);
+        FsmState state = fsm.CopyState("Shop Intro", "Box Discussion");
+        state.RemoveAction(1);
+        state.AddMethod(() => HKVocals._saveSettings.RelicBoxConvo = true);
+        state.GetAction<CallMethodProper>(0).parameters[0].stringValue = "SHOP_DESC_PHANTOM";
 
-            state.GetAction<CallMethodProper>(0).parameters[0].stringValue = "RELICDEALER_SHOP_INTRO_" + i;
-        }
-        state = fsm.CopyState("Shop Intro", "Shop Intro ");
+        FsmState choice = fsm.GetState("Convo Choice");
+        choice.AddTransition("BOX", state.Name);
+        choice.InsertMethod(() => { if (HKVocals._saveSettings.UsedRelicBox && !HKVocals._saveSettings.RelicBoxConvo) fsm.SendEvent("BOX"); }, 4);
     }
 
-    public static void GetRelicData(PlayMakerFSM fsm)
+    public static void DontCloseShopGetAudio(PlayMakerFSM fsm)
     {
-        FsmString desc = fsm.GetStringVariable("Item Desc Convo");
-        fsm.AddMethod("Activate UI", () => selectedConvo = desc.Value);
-
+        fsm.InsertMethod("Check Relics", () => { HKVocals.instance.Log(HKVocals._saveSettings.GhostRelics.Sum()); if (HKVocals._saveSettings.GhostRelics.Sum() > 0) fsm.SendEvent("HAS RELIC"); }, 15);
+        fsm = fsm.transform.Find("Item List").gameObject.LocateMyFSM("Item List Control");
         denyClip = fsm.GetAction<AudioPlayerOneShotSingle>("Can't Buy", 0).audioClip.Value as AudioClip;
         acceptClip = fsm.GetAction<AudioPlayerOneShotSingle>("Menu Down", 4).audioClip.Value as AudioClip;
         audioPlayer = fsm.GetAction<AudioPlayerOneShotSingle>("Menu Down", 4).audioPlayer.Value;
+    }
+
+    public static void DontCloseShop(PlayMakerFSM fsm)
+    {
+        fsm.InsertMethod("Check Relics", () => { HKVocals.instance.Log(HKVocals._saveSettings.GhostRelics.Sum()); if (HKVocals._saveSettings.GhostRelics.Sum() > 0) fsm.SendEvent("HAS RELIC"); }, 10);
     }
 }

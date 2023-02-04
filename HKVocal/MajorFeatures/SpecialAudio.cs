@@ -106,7 +106,7 @@ public static class SpecialAudio
             AudioPlayer.StopPlaying();
             fsm.StopCoroutine(dreamerCo);
         }
-        fsm.InsertCustomAction("Fade In", () => dreamerCo = fsm.StartCoroutine(DreamerAudio()), 0);
+        fsm.InsertCustomAction("Fade Up", () => dreamerCo = fsm.StartCoroutine(DreamerAudio()), 0);
         fsm.InsertCustomAction("Msg Down", Stop, 0);
         fsm.AddCustomAction("Update Map?", () => AudioPlayer.TryPlayAudioFor("DREAMERS_INSPECT_RG6"));
     }

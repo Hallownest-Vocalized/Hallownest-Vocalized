@@ -6,10 +6,10 @@ public static class Achievements
 {
     public static void Hook() 
     {
-        AchievementHelper.AddAchievement("ImpatientLemm",MiscUtils.LoadSprite("Resources/Impatient.png",Rect.zero,Vector2.zero, 1,1),"Impatient","Leave a relic in Lemm’s deposit box.",false);
-        AchievementHelper.AddAchievement("DisdainGrub",MiscUtils.LoadSprite("Resources/Disdain.png",Rect.zero,Vector2.zero, 1,1),"Disdain","Read the dreams of a particularly ungrateful Grub.",false);
-        AchievementHelper.AddAchievement("KindnessPaleLurker",MiscUtils.LoadSprite("Resources/Kindness.png",Rect.zero,Vector2.zero,1,1),"Kindness","Show the Pale Lurker a new perspective on life.",false);
-        AchievementHelper.AddAchievement("LastLaughOrdeal",MiscUtils.LoadSprite("Resources/Last_Laugh.png",Rect.zero,Vector2.zero, 1,1),"Last Laugh","Hit the lever below The Eternal Ordeal’s Zote statue.",false);
+        AchievementHelper.AddAchievement("ImpatientLemm",MiscUtils.LoadSprite("Resources/Impatient.png",Rect.zero,Vector2.zero, 1,1),"Impatient","Leave a relic in Lemm’s deposit box.",true);
+        AchievementHelper.AddAchievement("DisdainGrub",MiscUtils.LoadSprite("Resources/Disdain.png",Rect.zero,Vector2.zero, 1,1),"Disdain","Read the dreams of a particularly ungrateful Grub.",true);
+        AchievementHelper.AddAchievement("KindnessPaleLurker",MiscUtils.LoadSprite("Resources/Kindness.png",Rect.zero,Vector2.zero,1,1),"Kindness","Show the Pale Lurker a new perspective on life.",true);
+        AchievementHelper.AddAchievement("LastLaughOrdeal",MiscUtils.LoadSprite("Resources/Last_Laugh.png",Rect.zero,Vector2.zero, 1,1),"Last Laugh","Hit the lever below The Eternal Ordeal’s Zote statue.",true);
         AchievementHelper.AddAchievement("AlubafarDreamnail",MiscUtils.LoadSprite("Resources/Alubafar.png",Rect.zero,Vector2.zero, 1,1),"Alubafar","Listen to what an Aluba has to say",true);
 
         AchievementHelper.AddAchievement("CompendiumVocalization",MiscUtils.LoadSprite("Resources/Full_Compendium.png",Rect.zero, Vector2.zero,1,1),"Compendium Vocalization","Listen to every line of vocalized dialogue in Hallownest.",false);

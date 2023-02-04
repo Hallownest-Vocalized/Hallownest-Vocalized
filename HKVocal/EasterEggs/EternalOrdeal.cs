@@ -199,6 +199,7 @@ public static class EternalOrdeal
     static IEnumerator HitLever()
     {
         if(FirstFail == false) yield break;
+        GameManager.instance.AwardAchievement("LastLaughOrdeal");
         AudioPlayer.TryPlayAudioFor(ZoteHit[Random.Range(0, 3)]);
         yield return new WaitWhile(AudioPlayer.IsPlaying);
         if (!HKVocals._saveSettings.FinshedOrdealLines.Contains("ZOTE_EO_PATIENCE_0"))   

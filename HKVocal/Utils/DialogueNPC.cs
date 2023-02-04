@@ -28,6 +28,22 @@ public class DialogueNPC : MonoBehaviour
     PlayMakerFSM ManagerNormalFsm;
     PlayMakerFSM ManagerYNFsm;
 
+    private void TryGetReferences()
+    {
+        try
+        {
+            NormalBox ??= gameObject.LocateMyFSM("Conversation Control").GetFsmState("Repeat").GetAction<CallMethodProper>(0).gameObject.GameObject.Value;
+            DialogueManager ??= NormalBox.transform.parent.gameObject;
+            YNBox = DialogueManager.transform.Find("Text YN").gameObject;
+            NormalDialogueBox ??= NormalBox.GetComponent<DialogueBox>();
+            YNDialogueBox ??= YNBox.GetComponent<DialogueBox>();
+            YNFsm ??= YNBox.LocateMyFSM("Dialogue Page Control");
+            ManagerNormalFsm ??= DialogueManager.LocateMyFSM("Box Open");
+            ManagerYNFsm ??= DialogueManager.LocateMyFSM("Box Open YN");
+        }
+        catch { }
+    }
+
     public void SetTitle(string key)
     {
         gameObject.LocateMyFSM("Conversation Control").GetFsmState("Convo Choice").GetAction<SetFsmString>(4).setValue = key;
@@ -41,14 +57,7 @@ public class DialogueNPC : MonoBehaviour
 
     public void SetUp()
     {
-        NormalBox = gameObject.LocateMyFSM("Conversation Control").GetFsmState("Repeat").GetAction<CallMethodProper>(0).gameObject.GameObject.Value;
-        DialogueManager = NormalBox.transform.parent.gameObject;
-        YNBox = DialogueManager.transform.Find("Text YN").gameObject;
-        NormalDialogueBox = NormalBox.GetComponent<DialogueBox>();
-        YNDialogueBox = YNBox.GetComponent<DialogueBox>();
-        YNFsm = YNBox.LocateMyFSM("Dialogue Page Control");
-        ManagerNormalFsm = DialogueManager.LocateMyFSM("Box Open");
-        ManagerYNFsm = DialogueManager.LocateMyFSM("Box Open YN");
+        TryGetReferences();
         gameObject.GetComponent<AudioSource>().Stop();
         gameObject.GetComponent<AudioSource>().loop = false;
         gameObject.LocateMyFSM("Conversation Control").GetFsmState("Convo Choice").RemoveAction(6);
@@ -87,8 +96,7 @@ public class DialogueNPC : MonoBehaviour
 
     private IEnumerator SelectDialogue()
     {
-        //if (!BoxObject)
-        //    BoxObject = gameObject.LocateMyFSM("Conversation Control").GetState("Repeat").GetAction<CallMethodProper>(0).gameObject.GameObject.Value;
+        TryGetReferences();
         DialogueOptions options = DialogueSelector.Invoke(lastResponse);
         if (options.Wait != null)
         {

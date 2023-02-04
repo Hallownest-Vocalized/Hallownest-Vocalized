@@ -25,7 +25,11 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
         OnMenuStyleTitle.AfterOrig.SetTitle += AddCustomBanner;
         On.UIManager.Start += AddIcon;
         if (AudioLoaderAssemblyExists)
+        {
+            SFCore.ItemHelper.unusedInit();
             SFCore.MenuStyleHelper.AddMenuStyle(MajorFeatures.MenuTheme.AddTheme);
+            MajorFeatures.Achievements.Hook();
+        }
     }
 
     public override List<(string, string)> GetPreloadNames()
@@ -64,7 +68,6 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             MajorFeatures.UITextAudio.Hook();
             MajorFeatures.RollCredits.Hook();
             MajorFeatures.Patches.Hook();
-            //MajorFeatures.Achievements.Hook();
 
             EasterEggs.EternalOrdeal.Hook();
             EasterEggs.SpecialGrub.Hook();

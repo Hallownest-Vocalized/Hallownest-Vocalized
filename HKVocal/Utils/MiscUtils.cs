@@ -117,7 +117,7 @@ public static class MiscUtils
             Tex2D = new Texture2D(width, height);
             if (Tex2D.LoadImage(FileData))
                 return sprite = Sprite.Create(Tex2D, rect, pivot);
-        }  
-        return null;      
+        }
+        return Sprite.Create(Satchel.AssemblyUtils.GetTextureFromResources("HKVocal." + path.Replace("/", ".")), rect, pivot);      
     }
 }
