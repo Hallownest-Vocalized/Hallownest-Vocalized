@@ -23,7 +23,7 @@ public static class SpecialGrub
             if(col.tag == "Dream Attack")
             {
                 MixerLoader.SetSnapshot(Snapshots.Dream);
-                if (HKVocals._saveSettings.GrubConvo < 9) 
+                if (HKVocals._saveSettings.GrubConvo < 8) 
                 {
                     HKVocals._saveSettings.GrubConvo += 1;
                     GameObject.Find("Grub Bottle").transform.GetChild(0).GetChild(0).GetComponent<PlayMakerFSM>().GetFsmStringVariable("Sheet Name").Value = "Elderbug";
