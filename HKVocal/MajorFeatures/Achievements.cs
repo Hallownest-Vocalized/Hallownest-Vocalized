@@ -1,4 +1,5 @@
 ﻿using SFCore;
+using Satchel;
 
 namespace HKVocals.MajorFeatures;
 
@@ -6,17 +7,17 @@ public static class Achievements
 {
     public static void Hook() 
     {
-        AchievementHelper.AddAchievement("ImpatientLemm",MiscUtils.LoadSprite("Resources/Impatient.png",Rect.zero,Vector2.zero, 1,1),"Impatient","Leave a relic in Lemm’s deposit box.",true);
-        AchievementHelper.AddAchievement("DisdainGrub",MiscUtils.LoadSprite("Resources/Disdain.png",Rect.zero,Vector2.zero, 1,1),"Disdain","Read the dreams of a particularly ungrateful Grub.",true);
-        AchievementHelper.AddAchievement("KindnessPaleLurker",MiscUtils.LoadSprite("Resources/Kindness.png",Rect.zero,Vector2.zero,1,1),"Kindness","Show the Pale Lurker a new perspective on life.",true);
-        AchievementHelper.AddAchievement("LastLaughOrdeal",MiscUtils.LoadSprite("Resources/Last_Laugh.png",Rect.zero,Vector2.zero, 1,1),"Last Laugh","Hit the lever below The Eternal Ordeal’s Zote statue.",true);
-        AchievementHelper.AddAchievement("AlubafarDreamnail",MiscUtils.LoadSprite("Resources/Alubafar.png",Rect.zero,Vector2.zero, 1,1),"Alubafar","Listen to what an Aluba has to say",true);
+        AchievementHelper.AddAchievement("ImpatientLemm",AssemblyUtils.GetSpriteFromResources("HKVocals.Resources.Impateint.png",66f),"Impatient","Leave a relic in Lemm’s deposit box.",true);
+        AchievementHelper.AddAchievement("DisdainGrub",AssemblyUtils.GetSpriteFromResources("HKVocals.Resources.Disdain.png",66f),"Disdain","Read the dreams of a particularly ungrateful Grub.",true);
+        AchievementHelper.AddAchievement("KindnessPaleLurker",AssemblyUtils.GetSpriteFromResources("HKVocals.Resources.Kindness.png",66f),"Kindness","Show the Pale Lurker a new perspective on life.",true);
+        AchievementHelper.AddAchievement("LastLaughOrdeal",AssemblyUtils.GetSpriteFromResources("HKVocals.Resources.Last_Laugh.png",66f),"Last Laugh","Hit the lever below The Eternal Ordeal’s Zote statue.",true);
+        AchievementHelper.AddAchievement("AlubafarDreamnail",AssemblyUtils.GetSpriteFromResources("HKVocals.Resources.Alubafar.png",66f),"Alubafar","Listen to what an Aluba has to say",true);
 
-        AchievementHelper.AddAchievement("CompendiumVocalization",MiscUtils.LoadSprite("Resources/Full_Compendium.png",Rect.zero, Vector2.zero,1,1),"Compendium Vocalization","Listen to every line of vocalized dialogue in Hallownest.",false);
-        AchievementHelper.AddAchievement("Consideration",MiscUtils.LoadSprite("Resources/All_Dialogue.png",Rect.zero, Vector2.zero,1,1),"Consideration","Listen to every word of Hallownest’s living inhabitants.",false);
-        AchievementHelper.AddAchievement("Ambition",MiscUtils.LoadSprite("Resources/All_Dreams.png",Rect.zero, Vector2.zero,1,1),"Ambition","Uncover every dream, of bug and spirit alike.",false);
-        AchievementHelper.AddAchievement("Chronology",MiscUtils.LoadSprite("Resources/All_Lore_Tablets.png",Rect.zero, Vector2.zero,1,1),"Chronology","Find every lore tablet buried under this dead Kingdom.",false);
-        AchievementHelper.AddAchievement("Acquisition",MiscUtils.LoadSprite("Resources/All_Items_and_Jrounal.png",Rect.zero, Vector2.zero,1,1),"Acquisition","Review every item and journal entry there is to acquire.",false);
+        AchievementHelper.AddAchievement("CompendiumVocalization",AssemblyUtils.GetSpriteFromResources("HKVocals.Resources.Full_compendium.png",66f),"Compendium Vocalization","Listen to every line of vocalized dialogue in Hallownest.",false);
+        AchievementHelper.AddAchievement("Consideration",AssemblyUtils.GetSpriteFromResources("HKVocals.Resources.All_Dialogue.png",66f),"Consideration","Listen to every word of Hallownest’s living inhabitants.",false);
+        AchievementHelper.AddAchievement("Ambition",AssemblyUtils.GetSpriteFromResources("HKVocals.Resources.All_Dreams.png",66f),"Ambition","Uncover every dream, of bug and spirit alike.",false);
+        AchievementHelper.AddAchievement("Chronology",AssemblyUtils.GetSpriteFromResources("HKVocals.Resources.All_Lore_Tablets.png",66f),"Chronology","Find every lore tablet buried under this dead Kingdom.",false);
+        AchievementHelper.AddAchievement("Acquisition",AssemblyUtils.GetSpriteFromResources("HKVocals.Resources.All_Items_and_Journal.png",66f),"Acquisition","Review every item and journal entry there is to acquire.",false);
         
         ModHooks.LanguageGetHook += AchLang;
         OnEnemyDreamnailReaction.BeforeOrig.RecieveDreamImpact += Aluba;

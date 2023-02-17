@@ -24,7 +24,7 @@ public class GlobalSettings
 }
 public class SaveSettings
 {
-    public int[] GhostRelics = { 0, 0, 0, 1 };
+    public int[] GhostRelics = { 0, 0, 0, 0 };
     public bool UsedRelicBox = false;
     public bool RelicBoxConvo = false;
     public bool LurkerFlower = false;

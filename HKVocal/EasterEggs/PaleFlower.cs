@@ -1,5 +1,4 @@
-﻿using HKVocals.Utils;
-using System.Linq;
+﻿using System.Linq;
 using FrogCore;
 using FrogCore.Ext;
 
@@ -223,7 +222,7 @@ public static class PaleFlower
 
     private class LurkerNPCFirst : MonoBehaviour
     {
-        Utils.DialogueNPC npc;
+        DialogueNPC npc;
         tk2dSpriteAnimator _anim;
         Rigidbody2D _rb2d;
         Collider2D _col;
@@ -260,7 +259,7 @@ public static class PaleFlower
         private void SetUpNPC()
         {
             Invincible(true);
-            npc = Utils.DialogueNPC.CreateInstance();
+            npc = DialogueNPC.CreateInstance();
             npc.transform.position = transform.position;
             npc.DialogueSelector = GetDialogue;
             npc.GetComponent<MeshRenderer>().enabled = false;
@@ -375,7 +374,11 @@ public static class PaleFlower
             _col.isTrigger = true;
             _anim.Play("Idle");
             _turnCo = StartCoroutine(AutoTurn());
-            GetComponent<EnemyDeathEffects>().Reflect().audioSnapshotOnDeath.TransitionTo(2f);
+            try
+            {
+                GetComponent<EnemyDeathEffects>().Reflect().audioSnapshotOnDeath.TransitionTo(2f);
+            }
+            catch { }
             SetUpNPC();
         }
 
@@ -434,7 +437,7 @@ public static class PaleFlower
     }
     private class LurkerNPCSecond : MonoBehaviour
     {
-        Utils.DialogueNPC npc;
+        DialogueNPC npc;
         tk2dSpriteAnimator _anim;
         int repeat = -1;
 
@@ -458,7 +461,7 @@ public static class PaleFlower
 
         private void SetUpNPC()
         {
-            npc = Utils.DialogueNPC.CreateInstance();
+            npc = DialogueNPC.CreateInstance();
             npc.transform.position = transform.position;
             npc.DialogueSelector = GetDialogue;
             npc.GetComponent<MeshRenderer>().enabled = false;

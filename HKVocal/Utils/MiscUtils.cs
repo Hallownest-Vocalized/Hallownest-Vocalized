@@ -106,18 +106,4 @@ public static class MiscUtils
         sha1.Clear();
         return $"{hash.Substring(0, 6)}";
     }
-    public static Sprite LoadSprite(string path,Rect rect,Vector2 pivot,int width,int height)
-    {
-        Texture2D Tex2D;
-        Sprite sprite;
-        byte[] FileData;
- 
-        if (File.Exists(path)){
-            FileData = File.ReadAllBytes(path);
-            Tex2D = new Texture2D(width, height);
-            if (Tex2D.LoadImage(FileData))
-                return sprite = Sprite.Create(Tex2D, rect, pivot);
-        }
-        return Sprite.Create(Satchel.AssemblyUtils.GetTextureFromResources("HKVocal." + path.Replace("/", ".")), rect, pivot);      
-    }
 }

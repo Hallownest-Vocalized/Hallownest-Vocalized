@@ -31,16 +31,11 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             MajorFeatures.Achievements.Hook();
         }
     }
-
-    public override List<(string, string)> GetPreloadNames()
-    {
-        return new() { ("Town", "_NPCs/Zote Final Scene/Zote Final") };
-    }
     
     private static string Version = "1.0.0.0";
     public override string GetVersion() => $"{Version}" + (AudioLoaderExists ? "" : $"ERROR: Missing Hallownest Vocalized AudioLoader");
 
-    public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
+    public override void Initialize()
     {
         instance = this;
         
@@ -51,8 +46,6 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
         //is embedded within the dll, so if the audioloader exists, it is safe to assume the audio should also exist
         if (AudioLoaderExists)
         {
-            Utils.DialogueNPC.zotePrefab = preloadedObjects["Town"]["_NPCs/Zote Final Scene/Zote Final"];
-
             MixerLoader.LoadAssetBundle();
             CreditsLoader.LoadAssetBundle();
             StyleLoader.LoadAssetBundle();

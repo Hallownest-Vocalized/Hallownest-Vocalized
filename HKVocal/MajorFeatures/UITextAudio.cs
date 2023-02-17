@@ -1,4 +1,6 @@
-﻿namespace HKVocals.MajorFeatures;
+﻿using SFCore.Utils;
+using MonoMod.RuntimeDetour;
+namespace HKVocals.MajorFeatures;
 public class UITextAudio
 {
     private static bool HunterNotesUnlocked = true;
@@ -15,6 +17,8 @@ public class UITextAudio
         FSMEditData.AddGameObjectFsmEdit ("Item List", "Item List Control", PlayShopText );
         FSMEditData.AddGameObjectFsmEdit ("Shop Menu", "shop_control", ShopMenuOpenClose );
         FSMEditData.AddGameObjectFsmEdit ("Inventory", "Inventory Control", InventoryOpenClose );
+        //FSMEditData.AddGameObjectFsmEdit("Enemy List", "Item List Control Custom", PlayEquipmentText);
+        new Hook(typeof(SFCore.ItemHelper).GetMethod("CreateEquipmentPane", BindingFlags.Static | BindingFlags.NonPublic), PlayEquipmentText);
     }
     
     public static void PlayCharmText(PlayMakerFSM fsm)
@@ -26,12 +30,12 @@ public class UITextAudio
     {
         fsm.AddFsmMethod("Change Text", () => { fsm.PlayUIText("Convo Desc", UIAudioType.Other); });
     }
-    
+
     public static void PlayJournalText(PlayMakerFSM fsm)
     {
-        fsm.AddFsmMethod("Display Kills", () => { HunterNotesUnlocked = false; } );
-        fsm.AddFsmMethod("Get Notes", () => { HunterNotesUnlocked = true; } );
-        
+        fsm.AddFsmMethod("Display Kills", () => { HunterNotesUnlocked = false; });
+        fsm.AddFsmMethod("Get Notes", () => { HunterNotesUnlocked = true; });
+
         fsm.AddFsmMethod("Get Details", () =>
         {
             if (HunterNotesUnlocked == true)
@@ -45,7 +49,15 @@ public class UITextAudio
         });
     }
 
-    
+    //public static void PlayEquipmentText(PlayMakerFSM fsm)
+    public static void PlayEquipmentText(Action<GameObject> orig, GameObject newPaneGo)
+    {
+        orig(newPaneGo);
+        PlayMakerFSM fsm = newPaneGo.FindGameObjectInChildren("Enemy List").LocateMyFSM("Item List Control Custom");
+        fsm.AddFsmMethod("Get Details", () => fsm.PlayUIText("Item Notes Convo", UIAudioType.Other));
+    }
+
+
     public static void ShopMenuOpenClose(PlayMakerFSM fsm)
     {
         //Checks when you open the shop keeper menu
