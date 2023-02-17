@@ -6,7 +6,7 @@ public class GlobalSettings
     public bool ordealZoteSpeak = true;
     public bool autoScroll = false;
     public MajorFeatures.AutoScroll.ScrollSpeed scrollSpeed = MajorFeatures.AutoScroll.ScrollSpeed.Normal;
-    public bool dnDialogue = false;
+    public bool dnDialogue = true;
     public bool automaticBossDialogue = false;
     public bool scrollLock = false;
     public bool dampenAudio = true;
