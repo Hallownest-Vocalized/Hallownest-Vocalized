@@ -314,6 +314,7 @@ public static class MuteOriginalAudio
         "Brumm_grunt_double",
         "nightmare_bg_eye_break_1",
         "nightmare_bg_eye_break_2",
+        "spell_information_screen",
     };
 
     private class MuteAudioSourceData
