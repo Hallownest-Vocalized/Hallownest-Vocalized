@@ -297,7 +297,8 @@ public static class MuteOriginalAudio
         "ghost_absorb",
         "ghost_absorb_final_impact",
         "hollow_knight_rumble_pre_chain_break",
-        "final_boss_atrium_white_4"
+        "final_boss_atrium_white_4",
+        "S83-14 Accordion",
     };
 
     private class MuteAudioSourceData
