@@ -299,6 +299,21 @@ public static class MuteOriginalAudio
         "hollow_knight_rumble_pre_chain_break",
         "final_boss_atrium_white_4",
         "S83-14 Accordion",
+        "shiny_item_loop",
+        "manhole_open",
+        "grimm_teleport_in",
+        "accordion_sting_03",
+        "Grimm_click",
+        "nightmare_lantern_powering_up",
+        "nightmare_lantern_flame_burst",
+        "grimm_teleport_out",
+        "Brumm_flame_give_short",
+        "flamebearer_fire_spiral_prepare",
+        "flamebearer_fire_spiral_cast",
+        "Brumm_grunt_01",
+        "Brumm_grunt_double",
+        "nightmare_bg_eye_break_1",
+        "nightmare_bg_eye_break_2",
     };
 
     private class MuteAudioSourceData
