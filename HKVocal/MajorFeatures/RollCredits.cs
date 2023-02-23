@@ -22,10 +22,9 @@ public static class RollCredits
     private const string CreditsSceneName = "HKV_Credits";
     private static bool isFromMenu;
     private static bool doWantToLoadVanillaCredits;
-    private static AssetBundle creditaudio = null;
-    
+
     [CanBeNull] private static GameObject MMButton;
-    [CanBeNull] private static GameObject ECButton;
+    [CanBeNull] private static GameObject OGButton;
 
     public static void Hook()
     {
@@ -34,12 +33,10 @@ public static class RollCredits
         {
             if (to.name == CreditsSceneName)
             {
-                creditaudio = AssetBundle.LoadFromMemory(AssemblyUtils.GetBytesFromResources("Resources.creditaudio"));
-                
                 GameManagerR.SetState(GameState.CUTSCENE);
                 UIManagerR.SetState(UIState.CUTSCENE);
                 var aSource = CreditsParent.gameObject.AddComponent<AudioSource>();
-                aSource.clip = creditaudio.LoadAsset<AudioClip>("Creditaudio");
+                aSource.clip = CreditsLoader.creditsAudio.LoadAsset<AudioClip>("Creditaudio");
                 aSource.mute = false;
                 aSource.bypassEffects = false;
                 aSource.bypassListenerEffects = false;
@@ -105,30 +102,35 @@ public static class RollCredits
         ScrollParent.SetActive(false);
 
         yield return Thanks.FadeIn(2.5f);
-        CreatePromptMM(); 
-        CreatePromptEC();
+        CreateButtons();
     }
 
-    public static void CreatePromptMM()
+    public static void CreateButtons()
     {
         var CreditsScreen = CreditsParent;
         var backButton = UIManager.instance.UICanvas.Find("SaveProfileScreen").Find("Controls").Find("BackButton");
 
         MMButton = Object.Instantiate(backButton, CreditsScreen.transform);
         MMButton.name = "Credits Main Menu Button";
+        OGButton = Object.Instantiate(backButton, CreditsScreen.transform);
+        OGButton.name = "Original Credits Button";
 
         MMButton.transform.localPosition = new Vector3(-270, -425, 0);
+        OGButton.transform.localPosition = new Vector3(265, -425, 0);
 
         MMButton.RemoveComponent<EventTrigger>();
+        OGButton.RemoveComponent<EventTrigger>();
 
         MMButton.Find("Text").RemoveComponent<AutoLocalizeTextUI>();
-
-        // MMButton.GetComponent<Text>().fontSize = 30;
+        OGButton.Find("Text").RemoveComponent<AutoLocalizeTextUI>();
 
         MMButton.Find("Text").GetComponent<Text>().text =
             "Main Menu";
-
+        OGButton.Find("Text").GetComponent<Text>().text =
+            "OG Credits";
+        
         var mbmm = MMButton.GetComponent<UMenuButton>();
+        var mbec = OGButton.GetComponent<UMenuButton>();
         mbmm.proceed = true;
         mbmm.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
         mbmm.submitAction = _ =>
@@ -136,26 +138,6 @@ public static class RollCredits
             isFromMenu = true;
             GoBackToGame();
         };
-    }
-    public static void CreatePromptEC()
-    {
-        var CreditsScreen = CreditsParent;
-        var backButton = UIManager.instance.UICanvas.Find("SaveProfileScreen").Find("Controls").Find("BackButton");
-        
-        ECButton = Object.Instantiate(backButton, CreditsScreen.transform);
-        ECButton.name = "Original Credits Button";
-        
-        ECButton.transform.localPosition = new Vector3(265, -425, 0);
-        
-        ECButton.RemoveComponent<EventTrigger>();
-        
-        ECButton.Find("Text").RemoveComponent<AutoLocalizeTextUI>();
-        
-        // ECButton.GetComponent<Text>().fontSize = 30;
-        
-        ECButton.Find("Text").GetComponent<Text>().text =
-            "OG Credits";
-        var mbec = ECButton.GetComponent<UMenuButton>();
         mbec.proceed = true;
         mbec.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
         mbec.submitAction = _ =>
