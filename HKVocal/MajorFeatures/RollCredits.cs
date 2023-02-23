@@ -45,7 +45,7 @@ public static class RollCredits
                 aSource.bypassListenerEffects = false;
                 aSource.bypassReverbZones = false;
                 aSource.playOnAwake = false;
-                aSource.loop = true;
+                aSource.loop = false;
                 aSource.priority = 128;
                 aSource.volume = 1;
                 aSource.pitch = 1;
@@ -117,7 +117,7 @@ public static class RollCredits
         MMButton = Object.Instantiate(backButton, CreditsScreen.transform);
         MMButton.name = "Credits Main Menu Button";
 
-        MMButton.transform.localPosition = new Vector3(-260, -490, 0);
+        MMButton.transform.localPosition = new Vector3(-270, -425, 0);
 
         MMButton.RemoveComponent<EventTrigger>();
 
@@ -143,9 +143,9 @@ public static class RollCredits
         var backButton = UIManager.instance.UICanvas.Find("SaveProfileScreen").Find("Controls").Find("BackButton");
         
         ECButton = Object.Instantiate(backButton, CreditsScreen.transform);
-        ECButton.name = "End Credits Button";
+        ECButton.name = "Original Credits Button";
         
-        ECButton.transform.localPosition = new Vector3(290, -490, 0);
+        ECButton.transform.localPosition = new Vector3(265, -425, 0);
         
         ECButton.RemoveComponent<EventTrigger>();
         
@@ -154,7 +154,7 @@ public static class RollCredits
         // ECButton.GetComponent<Text>().fontSize = 30;
         
         ECButton.Find("Text").GetComponent<Text>().text =
-            "End Credits";
+            "OG Credits";
         var mbec = ECButton.GetComponent<UMenuButton>();
         mbec.proceed = true;
         mbec.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
