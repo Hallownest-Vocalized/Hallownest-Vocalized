@@ -1,6 +1,9 @@
 using GlobalEnums;
 using Satchel;
 using Image = UnityEngine.UI.Image;
+using JetBrains.Annotations;
+using UnityEngine.EventSystems;
+using UMenuButton = UnityEngine.UI.MenuButton;
 
 namespace HKVocals.MajorFeatures;
 
@@ -19,6 +22,10 @@ public static class RollCredits
     private const string CreditsSceneName = "HKV_Credits";
     private static bool isFromMenu;
     private static bool doWantToLoadVanillaCredits;
+    private static AssetBundle creditaudio = null;
+    
+    [CanBeNull] private static GameObject MMButton;
+    [CanBeNull] private static GameObject ECButton;
 
     public static void Hook()
     {
@@ -27,9 +34,28 @@ public static class RollCredits
         {
             if (to.name == CreditsSceneName)
             {
+                creditaudio = AssetBundle.LoadFromMemory(AssemblyUtils.GetBytesFromResources("Resources.creditaudio"));
+                
                 GameManagerR.SetState(GameState.CUTSCENE);
                 UIManagerR.SetState(UIState.CUTSCENE);
+                var aSource = CreditsParent.gameObject.AddComponent<AudioSource>();
+                aSource.clip = creditaudio.LoadAsset<AudioClip>("Creditaudio");
+                aSource.mute = false;
+                aSource.bypassEffects = false;
+                aSource.bypassListenerEffects = false;
+                aSource.bypassReverbZones = false;
+                aSource.playOnAwake = false;
+                aSource.loop = true;
+                aSource.priority = 128;
+                aSource.volume = 1;
+                aSource.pitch = 1;
+                aSource.panStereo = 0;
+                aSource.spatialBlend = 0;
+                aSource.reverbZoneMix = 1;
+                aSource.dopplerLevel = 0;
+                aSource.spread = 0;
                 HKVocals.CoroutineHolder.StartCoroutine(CreditsRoll());
+                aSource.PlayDelayed(2.5f);
             }
         };
 
@@ -64,6 +90,7 @@ public static class RollCredits
     private static GameObject Programmer => CreditsParent.GetChild(2).gameObject;
     private static GameObject Audio => CreditsParent.GetChild(3).gameObject;
     private static GameObject ScrollParent => CreditsParent.GetChild(4).gameObject;
+    private static GameObject Thanks => CreditsParent.GetChild(5).gameObject;
 
     private static IEnumerator CreditsRoll()
     {
@@ -76,8 +103,66 @@ public static class RollCredits
         ScrollParent.SetActive(true);
         yield return ScrollParent.GetAddComponent<ScrollMainCredits>().WaitForScrollEnd();
         ScrollParent.SetActive(false);
+
+        yield return Thanks.FadeIn(2.5f);
+        CreatePromptMM(); 
+        CreatePromptEC();
+    }
+
+    public static void CreatePromptMM()
+    {
+        var CreditsScreen = CreditsParent;
+        var backButton = UIManager.instance.UICanvas.Find("SaveProfileScreen").Find("Controls").Find("BackButton");
+
+        MMButton = Object.Instantiate(backButton, CreditsScreen.transform);
+        MMButton.name = "Credits Main Menu Button";
+
+        MMButton.transform.localPosition = new Vector3(-260, -490, 0);
+
+        MMButton.RemoveComponent<EventTrigger>();
+
+        MMButton.Find("Text").RemoveComponent<AutoLocalizeTextUI>();
+
+        // MMButton.GetComponent<Text>().fontSize = 30;
+
+        MMButton.Find("Text").GetComponent<Text>().text =
+            "Main Menu";
+
+        var mbmm = MMButton.GetComponent<UMenuButton>();
+        mbmm.proceed = true;
+        mbmm.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
+        mbmm.submitAction = _ =>
+        {
+            isFromMenu = true;
+            GoBackToGame();
+        };
+    }
+    public static void CreatePromptEC()
+    {
+        var CreditsScreen = CreditsParent;
+        var backButton = UIManager.instance.UICanvas.Find("SaveProfileScreen").Find("Controls").Find("BackButton");
         
-        GoBackToGame();
+        ECButton = Object.Instantiate(backButton, CreditsScreen.transform);
+        ECButton.name = "End Credits Button";
+        
+        ECButton.transform.localPosition = new Vector3(290, -490, 0);
+        
+        ECButton.RemoveComponent<EventTrigger>();
+        
+        ECButton.Find("Text").RemoveComponent<AutoLocalizeTextUI>();
+        
+        // ECButton.GetComponent<Text>().fontSize = 30;
+        
+        ECButton.Find("Text").GetComponent<Text>().text =
+            "End Credits";
+        var mbec = ECButton.GetComponent<UMenuButton>();
+        mbec.proceed = true;
+        mbec.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
+        mbec.submitAction = _ =>
+        {
+            isFromMenu = false;
+            GoBackToGame();
+        };
     }
 
     private static void GoBackToGame()
