@@ -25,6 +25,7 @@ public static class RollCredits
 
     [CanBeNull] private static GameObject MMButton;
     [CanBeNull] private static GameObject OGButton;
+    [CanBeNull] private static GameObject SkipButton;
 
     public static void Hook()
     {
@@ -53,6 +54,7 @@ public static class RollCredits
                 aSource.spread = 0;
                 HKVocals.CoroutineHolder.StartCoroutine(CreditsRoll());
                 aSource.PlayDelayed(2.5f);
+                CreateSkipButton();
             }
         };
 
@@ -98,6 +100,7 @@ public static class RollCredits
  
         ScrollParent.FixFonts();
         ScrollParent.SetActive(true);
+        yield return SkipButton.FadeIn(2.5f);
         yield return ScrollParent.GetAddComponent<ScrollMainCredits>().WaitForScrollEnd();
         ScrollParent.SetActive(false);
 
@@ -128,9 +131,9 @@ public static class RollCredits
             "Main Menu";
         OGButton.Find("Text").GetComponent<Text>().text =
             "OG Credits";
-        
+
         var mbmm = MMButton.GetComponent<UMenuButton>();
-        var mbec = OGButton.GetComponent<UMenuButton>();
+        var mbog = OGButton.GetComponent<UMenuButton>();
         mbmm.proceed = true;
         mbmm.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
         mbmm.submitAction = _ =>
@@ -138,12 +141,40 @@ public static class RollCredits
             isFromMenu = true;
             GoBackToGame();
         };
-        mbec.proceed = true;
-        mbec.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
-        mbec.submitAction = _ =>
+        mbog.proceed = true;
+        mbog.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
+        mbog.submitAction = _ =>
         {
             isFromMenu = false;
             GoBackToGame();
+        };
+    }
+
+    public static void CreateSkipButton()
+    {
+        var CreditsScreen = CreditsParent;
+        var backButton = UIManager.instance.UICanvas.Find("SaveProfileScreen").Find("Controls").Find("BackButton");
+        
+        SkipButton = Object.Instantiate(backButton, CreditsScreen.transform);
+        SkipButton.name = "Skip Button";
+        SkipButton.SetActive(false);
+        
+        SkipButton.transform.localPosition = new Vector3(830, 480, 0);
+        
+        SkipButton.RemoveComponent<EventTrigger>();
+        
+        SkipButton.Find("Text").RemoveComponent<AutoLocalizeTextUI>();
+        
+        SkipButton.Find("Text").GetComponent<Text>().text =
+            "Skip";
+        
+        var mbskip = SkipButton.GetComponent<UMenuButton>();
+        mbskip.proceed = true;
+        mbskip.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
+        mbskip.submitAction = _ =>
+        {
+            doWantToLoadVanillaCredits = true;
+            GameManager.instance.LoadScene("End_Credits");
         };
     }
 
