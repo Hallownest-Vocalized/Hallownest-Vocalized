@@ -37,7 +37,7 @@ public static class RollCredits
                 GameManagerR.SetState(GameState.CUTSCENE);
                 UIManagerR.SetState(UIState.CUTSCENE);
                 var aSource = CreditsParent.gameObject.AddComponent<AudioSource>();
-                aSource.clip = CreditsLoader.creditsAudio.LoadAsset<AudioClip>("Creditaudio");
+                aSource.clip = HallownestVocalizedAudioLoaderMod.AudioBundle.LoadAsset<AudioClip>("Creditaudio");
                 aSource.mute = false;
                 aSource.bypassEffects = false;
                 aSource.bypassListenerEffects = false;
