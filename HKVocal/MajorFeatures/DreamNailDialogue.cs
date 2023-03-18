@@ -10,6 +10,11 @@ public static class DreamNailDialogue
     public delegate void OnPlayDreamDialogueHandler();
     
     public static event OnPlayDreamDialogueHandler OnPlayDreamDialogue;
+
+    private static string[] AutomaticKeys = new string[] {
+        "KING_ABYSS_",
+        "GRIMM_REMINDER"
+    };
     
     public static void Hook()
     {
@@ -36,6 +41,14 @@ public static class DreamNailDialogue
     }
 
     private static string PlayDreamNailDialogue(string key, string sheetTitle, string orig) {
+        // Automatic keys (abyss climb, grimm)
+        foreach (string auto in AutomaticKeys) {
+            if (key.StartsWith(auto)) {
+                AudioPlayer.TryPlayAudioFor(key);
+                return orig;
+            }
+        }
+
         //check for if the passed in key is passed in by AutomaticBossDialogue
         bool isAutomaticBossDialogue = false;
 
@@ -84,7 +97,7 @@ public static class DreamNailDialogue
         if (HKVocals._saveSettings.PersistentVoiceActors.ContainsKey(id)) {
             voiceActor = HKVocals._saveSettings.PersistentVoiceActors[id];
         } else {
-            voiceActor = Random.Range(1, availableClips.Count);
+            voiceActor = Random.Range(1, availableClips.Count + 1);
             HKVocals._saveSettings.PersistentVoiceActors[id] = voiceActor;
         }
         
@@ -138,18 +151,33 @@ public static class DreamNailDialogue
         { "Blobble", "GB1" }, 
         { "Colosseum Grass Hopper", "GB1" }, 
         { "Colosseum_Armoured_Mosquito", "GB1" }, 
+        { "Spawn Roller v", "GB1" }, 
+        { "Spitter R", "GB1" }, 
+        { "Buzzer R", "GB1" }, 
+        { "Roller R", "GB1" }, 
+        { "Super Spitter Col", "GB1" }, 
+        { "Buzzer Col", "GB1" }, 
+        { "Ceiling Dropper Col", "GB1" }, 
+        { "Baby Centipede Spawner", "GB1" },
+        { "Super Spitter R", "GB1" },
+        { "Colosseum_Armoured_Roller R", "GB1" },
+        { "Colosseum_Armoured_Mosquito R", "GB1" },
+
         { "Worm", "GB2" }, 
         { "Big Centipede", "GB2" }, 
         { "Crystal Crawler", "GB2" }, 
         { "Blow Fly", "GB2" }, 
         { "Giant Hopper", "GB2" }, 
+        { "Big Centipede Col", "GB2" }, 
+
         { "Zombie Runner", "GH" }, 
         { "Zombie Hornhead", "GH" }, 
         { "Zombie Leaper", "GH" }, 
         { "Zombie Barger", "GH" }, 
         { "Zombie Shield", "GH" }, 
         { "Zombie Guard", "GH" }, 
-        { "Grave Zombie", "GH" },
-        { "Garden Zombie", "GH" }
+        { "Garden Zombie", "GH" },
+        { "Zombie Fungus A", "GH" },
+        { "Zombie Fungus B", "GH" }
     };
 }
