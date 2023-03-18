@@ -18,7 +18,6 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     internal static HKVocals instance;
     public static NonBouncer CoroutineHolder;
     public static bool AudioLoaderAssemblyExists => AppDomain.CurrentDomain.GetAssemblies().Any(a => a.GetName().Name == "Hallownest-Vocalized-AudioLoader");
-    public static bool AudioLoaderExists => ModHooks.GetMod("Hallownest Vocalized AudioLoader") is Mod;
 
     public HKVocals() : base("Hallownest Vocalized")
     {
@@ -33,18 +32,13 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     }
     
     private static string Version = "1.0.0.0";
-    public override string GetVersion() => $"{Version}" + (AudioLoaderExists ? "" : $"ERROR: Missing Hallownest Vocalized AudioLoader");
+    public override string GetVersion() => $"{Version}" + (AudioLoaderAssemblyExists ? "" : $"ERROR: Missing Hallownest Vocalized AudioLoader");
 
     public override void Initialize()
     {
         instance = this;
         
-
-        //all mods are added to ModInstanceNameMap before any Inits are called. At this point we only
-        //care that the audio loader exists and not the actual audio because we don't really need
-        ////the actual data in bundle until we wanna play audio which happens way after. Also the audiobundle
-        //is embedded within the dll, so if the audioloader exists, it is safe to assume the audio should also exist
-        if (AudioLoaderExists)
+        if (AudioLoaderAssemblyExists)
         {
             MixerLoader.LoadAssetBundle();
             CreditsLoader.LoadAssetBundle();
@@ -121,7 +115,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
         //only change for english language. i doubt people on other languages want it
         if (Language.Language.CurrentLanguage() == LanguageCode.EN)
         {
-            if (AudioLoaderExists)
+            if (AudioLoaderAssemblyExists)
             {
                 args.self.Title.sprite = AssemblyUtils.GetSpriteFromResources(Random.Range(1,1000) == 1 && _globalSettings.settingsOpened 
                     ? "Resources.Title_alt.png" 
