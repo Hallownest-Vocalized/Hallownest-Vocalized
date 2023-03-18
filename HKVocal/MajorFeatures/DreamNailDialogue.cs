@@ -10,6 +10,11 @@ public static class DreamNailDialogue
     public delegate void OnPlayDreamDialogueHandler();
     
     public static event OnPlayDreamDialogueHandler OnPlayDreamDialogue;
+
+    private static string[] AutomaticKeys = new string[] {
+        "KING_ABYSS_",
+        "GRIMM_REMINDER"
+    };
     
     public static void Hook()
     {
@@ -36,10 +41,12 @@ public static class DreamNailDialogue
     }
 
     private static string PlayDreamNailDialogue(string key, string sheetTitle, string orig) {
-        // Abyss climb
-        if (key.StartsWith("KING_ABYSS_")) {
-            AudioPlayer.TryPlayAudioFor(key);
-            return orig;
+        // Automatic keys (abyss climb, grimm)
+        foreach (string auto in AutomaticKeys) {
+            if (key.StartsWith(auto)) {
+                AudioPlayer.TryPlayAudioFor(key);
+                return orig;
+            }
         }
 
         //check for if the passed in key is passed in by AutomaticBossDialogue
