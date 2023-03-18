@@ -151,18 +151,33 @@ public static class DreamNailDialogue
         { "Blobble", "GB1" }, 
         { "Colosseum Grass Hopper", "GB1" }, 
         { "Colosseum_Armoured_Mosquito", "GB1" }, 
+        { "Spawn Roller v", "GB1" }, 
+        { "Spitter R", "GB1" }, 
+        { "Buzzer R", "GB1" }, 
+        { "Roller R", "GB1" }, 
+        { "Super Spitter Col", "GB1" }, 
+        { "Buzzer Col", "GB1" }, 
+        { "Ceiling Dropper Col", "GB1" }, 
+        { "Baby Centipede Spawner", "GB1" },
+        { "Super Spitter R", "GB1" },
+        { "Colosseum_Armoured_Roller R", "GB1" },
+        { "Colosseum_Armoured_Mosquito R", "GB1" },
+
         { "Worm", "GB2" }, 
         { "Big Centipede", "GB2" }, 
         { "Crystal Crawler", "GB2" }, 
         { "Blow Fly", "GB2" }, 
         { "Giant Hopper", "GB2" }, 
+        { "Big Centipede Col", "GB2" }, 
+
         { "Zombie Runner", "GH" }, 
         { "Zombie Hornhead", "GH" }, 
         { "Zombie Leaper", "GH" }, 
         { "Zombie Barger", "GH" }, 
         { "Zombie Shield", "GH" }, 
         { "Zombie Guard", "GH" }, 
-        { "Grave Zombie", "GH" },
-        { "Garden Zombie", "GH" }
+        { "Garden Zombie", "GH" },
+        { "Zombie Fungus A", "GH" },
+        { "Zombie Fungus B", "GH" }
     };
 }
