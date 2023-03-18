@@ -97,7 +97,7 @@ public static class DreamNailDialogue
         if (HKVocals._saveSettings.PersistentVoiceActors.ContainsKey(id)) {
             voiceActor = HKVocals._saveSettings.PersistentVoiceActors[id];
         } else {
-            voiceActor = Random.Range(1, availableClips.Count);
+            voiceActor = Random.Range(1, availableClips.Count + 1);
             HKVocals._saveSettings.PersistentVoiceActors[id] = voiceActor;
         }
         
