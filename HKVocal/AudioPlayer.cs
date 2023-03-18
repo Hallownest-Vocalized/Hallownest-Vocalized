@@ -61,7 +61,7 @@ public static class AudioPlayer
         asrc.SetMixerGroup();
 
         MixerLoader.SetMixerVolume();
-        asrc.PlayOneShot(clip, 1f);
+        asrc.PlayOneShot(clip, 10f);
     }
 
     private static void CheckForAchivements(string clip)

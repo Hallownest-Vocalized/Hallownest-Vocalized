@@ -36,6 +36,12 @@ public static class DreamNailDialogue
     }
 
     private static string PlayDreamNailDialogue(string key, string sheetTitle, string orig) {
+        // Abyss climb
+        if (key.StartsWith("KING_ABYSS_")) {
+            AudioPlayer.TryPlayAudioFor(key);
+            return orig;
+        }
+
         //check for if the passed in key is passed in by AutomaticBossDialogue
         bool isAutomaticBossDialogue = false;
 
