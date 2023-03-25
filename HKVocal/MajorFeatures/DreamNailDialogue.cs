@@ -44,6 +44,7 @@ public static class DreamNailDialogue
         // Automatic keys (abyss climb, grimm)
         foreach (string auto in AutomaticKeys) {
             if (key.StartsWith(auto)) {
+                MixerLoader.SetSnapshot(key.Contains("ABYSS") ? Snapshots.Arena : Snapshots.Dream);
                 AudioPlayer.TryPlayAudioFor($"{key}_0");
                 return orig;
             }
