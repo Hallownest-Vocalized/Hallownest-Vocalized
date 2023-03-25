@@ -44,7 +44,7 @@ public static class DreamNailDialogue
         // Automatic keys (abyss climb, grimm)
         foreach (string auto in AutomaticKeys) {
             if (key.StartsWith(auto)) {
-                AudioPlayer.TryPlayAudioFor(key);
+                AudioPlayer.TryPlayAudioFor($"{key}_0");
                 return orig;
             }
         }
@@ -178,6 +178,8 @@ public static class DreamNailDialogue
         { "Zombie Guard", "GH" }, 
         { "Garden Zombie", "GH" },
         { "Zombie Fungus A", "GH" },
-        { "Zombie Fungus B", "GH" }
+        { "Zombie Fungus B", "GH" },
+        { "Zombie Runner Sp", "GH" },
+        { "Zombie Hornhead Sp", "GH" }
     };
 }
