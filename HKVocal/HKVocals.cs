@@ -82,6 +82,10 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             Object.DontDestroyOnLoad(CoroutineHolder);
             CreateAudioSource();
 
+            // Set the menu style to the custom one
+            var tmpStyle = MenuStyles.Instance.styles.First(x => x.styleObject.name.Contains("HKVStyle"));
+            MenuStyles.Instance.SetStyle(MenuStyles.Instance.styles.ToList().IndexOf(tmpStyle), false);
+
             Log("HKVocals initialized");
         }
         else
