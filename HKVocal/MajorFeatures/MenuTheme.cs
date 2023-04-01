@@ -82,7 +82,7 @@ public class MenuTheme : MonoBehaviour
         aSourceVid.playOnAwake = false;
         aSourceVid.loop = true;
         aSourceVid.priority = 128;
-        aSourceVid.volume = 1;
+        aSourceVid.volume = 0.9f;
         aSourceVid.pitch = 1;
         aSourceVid.panStereo = 0;
         aSourceVid.spatialBlend = 0;
@@ -117,7 +117,7 @@ public class MenuTheme : MonoBehaviour
         _audio.playOnAwake = false;
         _audio.loop = false;
         _audio.priority = 128;
-        _audio.volume = 1;
+        _audio.volume = 0.9f;
         _audio.pitch = 1;
         _audio.panStereo = 0;
         _audio.spatialBlend = 0;
