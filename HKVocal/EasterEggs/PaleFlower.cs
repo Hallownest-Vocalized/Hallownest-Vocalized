@@ -196,6 +196,8 @@ public static class PaleFlower
             case "LURKER_IDLE_DREAM":
                 return "Hehehehehee. Small thing, tiny thing!<page>" +
                     "But warm...";
+            case "LURKER_B4_0":
+                return "Key! Treasure! Begone, begone!";
             case "LURKER_NPC_SUPER":
                 return "";
             case "LURKER_NPC_MAIN":
@@ -263,7 +265,7 @@ public static class PaleFlower
             npc.transform.position = transform.position;
             npc.DialogueSelector = GetDialogue;
             npc.GetComponent<MeshRenderer>().enabled = false;
-            npc.SetDreamKey("LURKER_0");
+            npc.SetDreamKey("LURKER_B4_0");
             npc.SetTitle("LURKER_NPC");
             npc.SetUp();
             PlayMakerFSM npc_control = npc.gameObject.LocateMyFSM("npc_control");
