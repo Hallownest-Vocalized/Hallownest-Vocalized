@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Video;
 using Satchel;
+using SFCore.Utils;
 
 namespace HKVocals.MajorFeatures;
 
@@ -82,7 +83,7 @@ public class MenuTheme : MonoBehaviour
         aSourceVid.playOnAwake = false;
         aSourceVid.loop = true;
         aSourceVid.priority = 128;
-        aSourceVid.volume = 0.9f;
+        aSourceVid.volume = 0.9f * 0.8f;
         aSourceVid.pitch = 1;
         aSourceVid.panStereo = 0;
         aSourceVid.spatialBlend = 0;
@@ -102,6 +103,7 @@ public class MenuTheme : MonoBehaviour
         _video.renderMode = VideoRenderMode.CameraFarPlane;
         _video.isLooping = true;
         _video.targetCamera = GameCameras.instance.mainCamera;
+        _video.targetCameraAlpha = 0.7f;
         _video.source = VideoSource.VideoClip;
         _video.clip = StyleLoader.styleBundle.LoadAsset<VideoClip>("Sequence_03");
         _video.SetTargetAudioSource(0, aSourceVid);
@@ -117,7 +119,7 @@ public class MenuTheme : MonoBehaviour
         _audio.playOnAwake = false;
         _audio.loop = false;
         _audio.priority = 128;
-        _audio.volume = 0.9f;
+        _audio.volume = 0.9f * 0.8f;
         _audio.pitch = 1;
         _audio.panStereo = 0;
         _audio.spatialBlend = 0;
@@ -143,5 +145,10 @@ public class MenuTheme : MonoBehaviour
             _video.Play();
             _audio.Play();
         }
+        gameObject.scene.Find("BlurPlane (1)").SetActive(false);
+    }
+    private void OnDisable()
+    {
+        gameObject.scene.Find("BlurPlane (1)").SetActive(true);
     }
 }
