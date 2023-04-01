@@ -65,7 +65,7 @@ public class MenuTheme : MonoBehaviour
 
         var aSourceVid = gameObject.AddComponent<AudioSource>();
         aSourceVid.clip = null;
-        aSourceVid.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixerGroup>().First(x => x.name == "Atmos").outputAudioMixerGroup;
+        aSourceVid.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixerGroup>().First(x => x.name == "Atmos");
         aSourceVid.mute = false;
         aSourceVid.bypassEffects = false;
         aSourceVid.bypassListenerEffects = false;
