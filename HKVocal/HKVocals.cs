@@ -19,6 +19,15 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     public static NonBouncer CoroutineHolder;
     public static bool AudioLoaderAssemblyExists => AppDomain.CurrentDomain.GetAssemblies().Any(a => a.GetName().Name == "Hallownest-Vocalized-AudioLoader");
 
+    // At least one entry is required to have the main menu be reloaded for the custom menu theme, here it's just a dummy entry
+    public override List<ValueTuple<string, string>> GetPreloadNames()
+    {
+        return new List<(string, string)>()
+        {
+            ("Room_shop", "_SceneManager")
+        };
+    }
+
     public HKVocals() : base("Hallownest Vocalized")
     {
         OnMenuStyleTitle.AfterOrig.SetTitle += AddCustomBanner;
@@ -26,7 +35,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
         if (AudioLoaderAssemblyExists)
         {
             SFCore.ItemHelper.unusedInit();
-            SFCore.MenuStyleHelper.AddMenuStyle(MajorFeatures.MenuTheme.AddTheme);
+            SFCore.MenuStyleHelper.AddMenuStyleHook += MajorFeatures.MenuTheme.AddTheme;
             MajorFeatures.Achievements.Hook();
         }
     }

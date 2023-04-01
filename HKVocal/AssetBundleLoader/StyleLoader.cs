@@ -10,9 +10,9 @@ public static class StyleLoader
 
     public static void LoadAssetBundle()
     {
-        /*styleBundle = AssetBundle.LoadFromMemory(AssemblyUtils.GetBytesFromResources("Resources.stylebundle"));
+        styleBundle = AssetBundle.LoadFromMemory(AssemblyUtils.GetBytesFromResources("Resources.stylebundle"));
 
         styleGo = styleBundle.LoadAsset<GameObject>("HKVMenuVideo");
-        loaded = true;*/
+        loaded = true;
     }
 }
