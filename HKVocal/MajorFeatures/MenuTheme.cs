@@ -65,7 +65,7 @@ public class MenuTheme : MonoBehaviour
 
         var aSourceVid = gameObject.AddComponent<AudioSource>();
         aSourceVid.clip = null;
-        aSourceVid.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixer>("Music").outputAudioMixerGroup;
+        aSourceVid.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixerGroup>().First(x => x.name == "Atmos").outputAudioMixerGroup;
         aSourceVid.mute = false;
         aSourceVid.bypassEffects = false;
         aSourceVid.bypassListenerEffects = false;
@@ -98,8 +98,8 @@ public class MenuTheme : MonoBehaviour
         vp.SetTargetAudioSource(0, aSourceVid);
 
         var aSourceMusic = gameObject.AddComponent<AudioSource>();
-        aSourceMusic.clip = null;
-        aSourceMusic.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixerGroup>("Atmos");
+        aSourceMusic.clip = StyleLoader.styleBundle.LoadAsset<AudioClip>("HV_Title_Card_music_compressed");
+        aSourceMusic.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixer>().First(x => x.name == "Music").outputAudioMixerGroup;
         aSourceMusic.mute = false;
         aSourceMusic.bypassEffects = false;
         aSourceMusic.bypassListenerEffects = false;
