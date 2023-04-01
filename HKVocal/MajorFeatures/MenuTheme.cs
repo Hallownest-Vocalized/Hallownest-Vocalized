@@ -62,14 +62,66 @@ public class MenuTheme : MonoBehaviour
     {
         yield return new WaitUntil(() => StyleLoader.loaded);
         ready = true;
-        GameObject go = Instantiate(StyleLoader.styleGo, transform);
-        _video = go.GetComponent<VideoPlayer>();
-        _video.targetCameraAlpha = 0.5f;
-        _video.targetCamera = Camera.main;
-        _video.Play();
-        _audio = go.GetComponent<AudioSource>();
-        _audio.outputAudioMixerGroup = MixerLoader.HKVAudioGroup;
-        _audio.Play();
+
+        var aSourceVid = gameObject.AddComponent<AudioSource>();
+        aSourceVid.clip = null;
+        aSourceVid.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixer>("Music").outputAudioMixerGroup;
+        aSourceVid.mute = false;
+        aSourceVid.bypassEffects = false;
+        aSourceVid.bypassListenerEffects = false;
+        aSourceVid.bypassReverbZones = false;
+        aSourceVid.playOnAwake = false;
+        aSourceVid.loop = true;
+        aSourceVid.priority = 128;
+        aSourceVid.volume = 1;
+        aSourceVid.pitch = 1;
+        aSourceVid.panStereo = 0;
+        aSourceVid.spatialBlend = 0;
+        aSourceVid.reverbZoneMix = 1;
+        aSourceVid.dopplerLevel = 0;
+        aSourceVid.spread = 0;
+        aSourceVid.rolloffMode = AudioRolloffMode.Custom;
+        aSourceVid.maxDistance = 58.79711f;
+        aSourceVid.SetCustomCurve(AudioSourceCurveType.CustomRolloff, new AnimationCurve(new []
+        {
+            new Keyframe(45.86174f, 1),
+            new Keyframe(55.33846f, 0)
+        }));
+        var vp = gameObject.AddComponent<VideoPlayer>();
+        vp.playOnAwake = false;
+        vp.audioOutputMode = VideoAudioOutputMode.AudioSource;
+        vp.renderMode = VideoRenderMode.CameraFarPlane;
+        vp.isLooping = true;
+        vp.targetCamera = GameCameras.instance.mainCamera;
+        vp.source = VideoSource.VideoClip;
+        vp.clip = StyleLoader.styleBundle.LoadAsset<VideoClip>("Sequence_03");
+        vp.SetTargetAudioSource(0, aSourceVid);
+
+        var aSourceMusic = gameObject.AddComponent<AudioSource>();
+        aSourceMusic.clip = null;
+        aSourceMusic.outputAudioMixerGroup = Resources.FindObjectsOfTypeAll<AudioMixerGroup>("Atmos");
+        aSourceMusic.mute = false;
+        aSourceMusic.bypassEffects = false;
+        aSourceMusic.bypassListenerEffects = false;
+        aSourceMusic.bypassReverbZones = false;
+        aSourceMusic.playOnAwake = false;
+        aSourceMusic.loop = false;
+        aSourceMusic.priority = 128;
+        aSourceMusic.volume = 1;
+        aSourceMusic.pitch = 1;
+        aSourceMusic.panStereo = 0;
+        aSourceMusic.spatialBlend = 0;
+        aSourceMusic.reverbZoneMix = 1;
+        aSourceMusic.dopplerLevel = 0;
+        aSourceMusic.spread = 0;
+        aSourceMusic.rolloffMode = AudioRolloffMode.Custom;
+        aSourceMusic.maxDistance = 58.79711f;
+        aSourceMusic.SetCustomCurve(AudioSourceCurveType.CustomRolloff, new AnimationCurve(new []
+        {
+            new Keyframe(45.86174f, 1),
+            new Keyframe(55.33846f, 0)
+        }));
+
         StopAllCoroutines();
         StartCoroutine(WaitForAudio());
     }
