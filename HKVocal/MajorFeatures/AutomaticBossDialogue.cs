@@ -94,6 +94,8 @@ public static class AutomaticBossDialogue {
     };
 
     public static void Hook() { 
+        return;
+        
         OnHealthManager.AfterOrig.Start += InitHpListeners;
         OnHealthManager.AfterOrig.TakeDamage += CheckHpListeners;
 
