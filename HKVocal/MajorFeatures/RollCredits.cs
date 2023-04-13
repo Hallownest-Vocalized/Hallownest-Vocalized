@@ -32,12 +32,6 @@ public static class RollCredits
         //hook to get to know when to start our credits
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += (_, to) =>
         {
-            if (to.name == "End_Credits" && !doWantToLoadVanillaCredits)
-            {
-                doWantToLoadVanillaCredits = false;
-                
-            }
-            
             if (to.name == CreditsSceneName)
             {
                 GameManagerR.SetState(GameState.CUTSCENE);
@@ -65,6 +59,18 @@ public static class RollCredits
                 }
                 CreateSkipButton();
             }
+        };
+        
+        //load correct scene after game ends
+        ModHooks.BeforeSceneLoadHook += scene =>
+        {
+            if (scene == "End_Credits" && !doWantToLoadVanillaCredits)
+            {
+                doWantToLoadVanillaCredits = false;
+                return CreditsSceneName;
+            }
+
+            return scene;
         };
 
         //to make GameManager.IsNonGamePlayScene return correct value
