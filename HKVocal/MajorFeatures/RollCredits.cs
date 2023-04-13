@@ -32,6 +32,12 @@ public static class RollCredits
         //hook to get to know when to start our credits
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += (_, to) =>
         {
+            if (to.name == "End_Credits" && !doWantToLoadVanillaCredits)
+            {
+                doWantToLoadVanillaCredits = false;
+                
+            }
+            
             if (to.name == CreditsSceneName)
             {
                 GameManagerR.SetState(GameState.CUTSCENE);
@@ -53,21 +59,12 @@ public static class RollCredits
                 aSource.dopplerLevel = 0;
                 aSource.spread = 0;
                 HKVocals.CoroutineHolder.StartCoroutine(CreditsRoll());
-                aSource.PlayDelayed(2.5f);
+                if (isFromMenu == false)
+                {
+                    aSource.PlayDelayed(2.5f);
+                }
                 CreateSkipButton();
             }
-        };
-
-        //load correct scene after game ends
-        ModHooks.BeforeSceneLoadHook += scene =>
-        {
-            if (scene == "End_Credits" && !doWantToLoadVanillaCredits)
-            {
-                doWantToLoadVanillaCredits = false;
-                return CreditsSceneName;
-            }
-
-            return scene;
         };
 
         //to make GameManager.IsNonGamePlayScene return correct value
@@ -93,19 +90,26 @@ public static class RollCredits
 
     private static IEnumerator CreditsRoll()
     {
-        yield return ModName.FadeInAndOut(3f, 2.5f, 4.5f, 1f);
-        yield return Director.FadeInAndOut(1f, 2.5f, 4.5f, 1f);
-        yield return Programmer.FadeInAndOut(1f, 2.5f, 6.5f, 1f);
-        yield return Audio.FadeInAndOut(1f, 2.5f, 5.5f, 1f);
+        yield return ModName.FadeInAndOut(3f, 0.1f, 5.5f, 0.5f);
+        yield return Director.FadeInAndOut(0f, 0.3f, 5.5f, 0.3f);
+        yield return Programmer.FadeInAndOut(0f, 0.3f, 6.5f, 0.3f);
+        yield return Audio.FadeInAndOut(0f, 0.3f, 6f, 0.1f);
  
         ScrollParent.FixFonts();
         ScrollParent.SetActive(true);
-        yield return SkipButton.FadeIn(2.5f);
+        yield return SkipButton.FadeIn(1.5f);
         yield return ScrollParent.GetAddComponent<ScrollMainCredits>().WaitForScrollEnd();
         ScrollParent.SetActive(false);
 
-        yield return Thanks.FadeIn(2.5f);
-        CreateButtons();
+        if (isFromMenu == false)
+        {
+            yield return Thanks.FadeIn(2.5f);
+            CreateButtons();
+        }
+        else
+        {
+            GoBackToGame();
+        }
     }
 
     public static void CreateButtons()
@@ -168,13 +172,26 @@ public static class RollCredits
         SkipButton.Find("Text").GetComponent<Text>().text =
             "Skip";
         
+        SkipButton.Find("Text").Find("CursorLeft").SetActive(false);
+        SkipButton.Find("Text").Find("CursorRight").SetActive(false);
+        
         var mbskip = SkipButton.GetComponent<UMenuButton>();
         mbskip.proceed = true;
         mbskip.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
         mbskip.submitAction = _ =>
         {
-            doWantToLoadVanillaCredits = true;
-            GameManager.instance.LoadScene("End_Credits");
+            if (isFromMenu == true)
+            {
+                SkipButton.SetActive(false);
+                HKVocals.CoroutineHolder.StartCoroutine(GameManager.instance.ReturnToMainMenu(GameManager.ReturnToMainMenuSaveModes.DontSave));
+            }
+            else if (isFromMenu == false)
+            {
+                SkipButton.SetActive(false);
+                // stop scroll somehow and fade out
+                Thanks.FadeIn(2.5f);
+                CreateButtons();
+            }
         };
     }
 
@@ -292,6 +309,16 @@ public static class RollCredits
         isFromMenu = true;
         GameManagerR.LoadScene(CreditsSceneName);
     }
+    
+    public static IEnumerator LoadCreditsFromEnding()
+    {
+        InputHandler.Instance.StopUIInput();
+        yield return HKVocals.CoroutineHolder.StartCoroutine(UIManagerR.HideCurrentMenu());
+        GameCameras.instance.cameraController.FadeOut(CameraFadeType.START_FADE);
+        yield return new WaitForSeconds(2.5f);
+        isFromMenu = false;
+        GameManagerR.LoadScene(CreditsSceneName);
+    }
 }
 
 public class ScrollMainCredits : MonoBehaviour
@@ -348,7 +375,7 @@ public class ScrollMainCredits : MonoBehaviour
 
     public IEnumerator WaitForScrollEnd()
     {
-        while (transform.position.y < RollCredits.ScrollMaxY)
+        while (transform.position.y < RollCredits.ScrollMaxY + 1250f)
         {
             yield return null;
         }
