@@ -52,11 +52,12 @@ public static class SpecialAudio
     
     private static string AddSpecialAudioKeys(string key, string sheettitle, string orig)
     {
+        // makes sure text displays correctly
         if (key == "ELDERBUG_INTRO_MAIN_ALT" && sheettitle == "Elderbug")
         {
             orig = Language.Language.Get("ELDERBUG_INTRO_MAIN", sheettitle);
         }
-        if (key == "KING_SOUL_PICKUP_KING_FINAL_WORDS" && sheettitle == "Minor NPC")
+        else if (key == "KING_SOUL_PICKUP_KING_FINAL_WORDS" && sheettitle == "Minor NPC")
         {
             orig = Language.Language.Get("KING_FINAL_WORDS", sheettitle);
         }
@@ -86,7 +87,6 @@ public static class SpecialAudio
     public static void ChangeNameOfClashingKey(PlayMakerFSM fsm)
     {
         var msg = fsm.GetFsmState("King Msg");
-        //msg.DisableFsmAction(2); who wrote this, and why?
         msg.GetFirstActionOfType<CallMethodProper>().parameters[0].stringValue = "KING_SOUL_PICKUP_KING_FINAL_WORDS";
     }
 

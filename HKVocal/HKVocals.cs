@@ -68,7 +68,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             EasterEggs.EternalOrdeal.Hook();
             EasterEggs.SpecialGrub.Hook();
             EasterEggs.PaleFlower.Hook();
-            EasterEggs.GhostRelics.Hook();
+            /*EasterEggs.GhostRelics.Hook();*/
 
             UIManager.EditMenus += UI.AudioMenu.AddAudioSliderAndSettingsButton;
             UIManager.EditMenus += UI.ExtrasMenu.AddCreditsButton;
