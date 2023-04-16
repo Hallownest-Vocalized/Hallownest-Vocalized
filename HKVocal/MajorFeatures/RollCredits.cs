@@ -60,7 +60,7 @@ public static class RollCredits
                     aSource.PlayDelayed(2.5f);
                     CreateButtons();
                 }
-                //CreateSkipButton();
+                CreateSkipButton();
             }
 
             if (to.name == "Cinematic_Ending_C" || to.name == "Cinematic_Ending_D" || to.name == "Cinematic_Ending_E")
@@ -122,8 +122,10 @@ public static class RollCredits
  
         ScrollParent.FixFonts();
         ScrollParent.SetActive(true);
-        // yield return SkipButton.FadeIn(1.5f);
-        yield return ScrollParent.GetAddComponent<ScrollMainCredits>().WaitForScrollEnd();
+        yield return SkipButton.FadeIn(1.5f);
+        MakeCursorShow();
+        var scrollComp = ScrollParent.GetAddComponent<ScrollMainCredits>(); 
+        yield return scrollComp.WaitForScrollEnd();
         ScrollParent.SetActive(false);
 
         if (isFromMenu == false)
@@ -184,12 +186,12 @@ public static class RollCredits
         };
     }
 
-    /*public static void CreateSkipButton()
+    public static void CreateSkipButton()
     {
         var CreditsScreen = CreditsParent;
-        var backButton = UIManager.instance.UICanvas.Find("SaveProfileScreen").Find("Controls").Find("BackButton");
+        var cloneButton = RefVanillaMenu.DefaultAudioSettingsButton;
         
-        SkipButton = Object.Instantiate(backButton, CreditsScreen.transform);
+        SkipButton = Object.Instantiate(cloneButton, CreditsScreen.transform);
         SkipButton.name = "Skip Button";
         SkipButton.SetActive(false);
         
@@ -218,12 +220,17 @@ public static class RollCredits
             else if (isFromMenu == false)
             {
                 SkipButton.SetActive(false);
-                // stop scroll somehow and fade out
+                var scrollComp = ScrollParent.GetAddComponent<ScrollMainCredits>(); 
+                var aSource = CreditsParent.gameObject.GetComponent<AudioSource>();
+                scrollComp.transform.position = scrollComp.transform.position with {y = ScrollMaxY + 2000};
+                aSource.Stop();
                 Thanks.FadeIn(2.5f);
-                CreateButtons();
+                MMButton.FadeIn(1f);
+                OGButton.FadeIn(1f);
+                MakeCursorShow();
             }
         };
-    }*/
+    }
 
     private static void GoBackToGame()
     {
