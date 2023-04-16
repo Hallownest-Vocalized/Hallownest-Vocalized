@@ -217,7 +217,6 @@ public static class MixerLoader
         { "Deepnest_Spider_Town", Snapshots.Cave }, 
         { "Room_spider_small", Snapshots.Cave }, 
         { "Deepnest_01b", Snapshots.Cave },
-        { "Deepnest_33", Snapshots.Cave },
         { "Deepnest_East_01", Snapshots.Cave },
         { "Deepnest_East_03", Snapshots.Arena },
         { "Deepnest_East_04", Snapshots.Cave }, 
