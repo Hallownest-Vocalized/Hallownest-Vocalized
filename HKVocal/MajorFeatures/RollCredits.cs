@@ -103,7 +103,7 @@ public static class RollCredits
  
         ScrollParent.FixFonts();
         ScrollParent.SetActive(true);
-        yield return SkipButton.FadeIn(1.5f);
+        // yield return SkipButton.FadeIn(1.5f);
         yield return ScrollParent.GetAddComponent<ScrollMainCredits>().WaitForScrollEnd();
         ScrollParent.SetActive(false);
 
@@ -313,16 +313,6 @@ public static class RollCredits
         GameCameras.instance.cameraController.FadeOut(CameraFadeType.START_FADE);
         yield return new WaitForSeconds(2.5f);
         isFromMenu = true;
-        GameManagerR.LoadScene(CreditsSceneName);
-    }
-    
-    public static IEnumerator LoadCreditsFromEnding()
-    {
-        InputHandler.Instance.StopUIInput();
-        yield return HKVocals.CoroutineHolder.StartCoroutine(UIManagerR.HideCurrentMenu());
-        GameCameras.instance.cameraController.FadeOut(CameraFadeType.START_FADE);
-        yield return new WaitForSeconds(2.5f);
-        isFromMenu = false;
         GameManagerR.LoadScene(CreditsSceneName);
     }
 }
