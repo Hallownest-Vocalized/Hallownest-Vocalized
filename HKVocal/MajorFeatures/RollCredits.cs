@@ -89,6 +89,17 @@ public static class RollCredits
         OnGameManager.WithOrig.LevelActivated += PreventNREsInCreditsScene_LevelActivated;
         OnInputHandler.WithOrig.AttachHeroController += PreventNREsInCreditsScene_AttachHeroController;
     }
+    
+    internal static void MakeCursorShow()
+    {
+        ModHooks.CursorHook -= CursorDisplayActive;
+        ModHooks.CursorHook += CursorDisplayActive;
+    }
+    
+    private static void CursorDisplayActive()
+    {
+        Cursor.visible = true;
+    }
 
     private static bool MakeCreditsSceneNonGamePlay(Func<bool> orig)
     {
@@ -118,8 +129,9 @@ public static class RollCredits
         if (isFromMenu == false)
         {
             yield return Thanks.FadeIn(2.5f);
-            yield return MMButton.FadeIn(2.5f);
-            yield return OGButton.FadeIn(2.5f);
+            yield return MMButton.FadeIn(1f);
+            yield return OGButton.FadeIn(1f);
+            MakeCursorShow();
         }
         else
         {
