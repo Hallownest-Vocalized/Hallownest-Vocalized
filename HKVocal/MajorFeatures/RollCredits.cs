@@ -57,7 +57,7 @@ public static class RollCredits
                 {
                     aSource.PlayDelayed(2.5f);
                 }
-                CreateSkipButton();
+                //CreateSkipButton();
             }
         };
         
@@ -160,7 +160,7 @@ public static class RollCredits
         };
     }
 
-    public static void CreateSkipButton()
+    /*public static void CreateSkipButton()
     {
         var CreditsScreen = CreditsParent;
         var backButton = UIManager.instance.UICanvas.Find("SaveProfileScreen").Find("Controls").Find("BackButton");
@@ -199,7 +199,7 @@ public static class RollCredits
                 CreateButtons();
             }
         };
-    }
+    }*/
 
     private static void GoBackToGame()
     {
