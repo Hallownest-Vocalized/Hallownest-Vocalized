@@ -4,6 +4,7 @@ using Image = UnityEngine.UI.Image;
 using JetBrains.Annotations;
 using UnityEngine.EventSystems;
 using UMenuButton = UnityEngine.UI.MenuButton;
+using HKMirror;
 
 namespace HKVocals.MajorFeatures;
 
@@ -21,6 +22,7 @@ public static class RollCredits
     
     private const string CreditsSceneName = "HKV_Credits";
     private static bool isFromMenu;
+    private static bool goToHKVEnding = false;
     private static bool doWantToLoadVanillaCredits;
 
     [CanBeNull] private static GameObject MMButton;
@@ -56,15 +58,21 @@ public static class RollCredits
                 if (isFromMenu == false)
                 {
                     aSource.PlayDelayed(2.5f);
+                    CreateButtons();
                 }
                 //CreateSkipButton();
+            }
+
+            if (to.name == "Cinematic_Ending_C" || to.name == "Cinematic_Ending_D" || to.name == "Cinematic_Ending_E")
+            {
+                goToHKVEnding = true;
             }
         };
         
         //load correct scene after game ends
         ModHooks.BeforeSceneLoadHook += scene =>
         {
-            if (scene == "End_Credits" && !doWantToLoadVanillaCredits)
+            if (scene == "End_Credits" && !doWantToLoadVanillaCredits && goToHKVEnding == true)
             {
                 doWantToLoadVanillaCredits = false;
                 return CreditsSceneName;
@@ -110,7 +118,8 @@ public static class RollCredits
         if (isFromMenu == false)
         {
             yield return Thanks.FadeIn(2.5f);
-            CreateButtons();
+            yield return MMButton.FadeIn(2.5f);
+            yield return OGButton.FadeIn(2.5f);
         }
         else
         {
@@ -121,12 +130,15 @@ public static class RollCredits
     public static void CreateButtons()
     {
         var CreditsScreen = CreditsParent;
-        var backButton = UIManager.instance.UICanvas.Find("SaveProfileScreen").Find("Controls").Find("BackButton");
+        var cloneButton = RefVanillaMenu.DefaultAudioSettingsButton;
 
-        MMButton = Object.Instantiate(backButton, CreditsScreen.transform);
+        MMButton = Object.Instantiate(cloneButton, CreditsScreen.transform);
         MMButton.name = "Credits Main Menu Button";
-        OGButton = Object.Instantiate(backButton, CreditsScreen.transform);
+        OGButton = Object.Instantiate(cloneButton, CreditsScreen.transform);
         OGButton.name = "Original Credits Button";
+        
+        MMButton.SetActive(false);
+        OGButton.SetActive(false);
 
         MMButton.transform.localPosition = new Vector3(-270, -425, 0);
         OGButton.transform.localPosition = new Vector3(265, -425, 0);
