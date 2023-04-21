@@ -12,7 +12,7 @@ public static class RollCredits
 {
     //for 1080p screens
     private static readonly float _rollSpeed = 120f;
-    private static readonly float _scrollMaxY = 50_050;
+    private static readonly float _scrollMaxY = 59_700;
     public static readonly float MouseScrollSpeed = 75f;
     public static readonly float UpDownSpeed = 25f;
     
@@ -402,7 +402,7 @@ public class ScrollMainCredits : MonoBehaviour
 
     public IEnumerator WaitForScrollEnd()
     {
-        while (transform.position.y < RollCredits.ScrollMaxY + 1250f)
+        while (transform.position.y < RollCredits.ScrollMaxY)
         {
             yield return null;
         }
