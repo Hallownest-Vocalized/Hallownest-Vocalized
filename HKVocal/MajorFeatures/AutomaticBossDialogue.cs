@@ -63,18 +63,45 @@ public static class AutomaticBossDialogue {
 
         { new FsmLocation("Jar Collector", "Control"), new ABDStates(new Dictionary<string, ABDLine> {
             { "Slam", new ABDLine(new string[] { "JAR_COLLECTOR_1", "JAR_COLLECTOR_2", "JAR_COLLECTOR_3" }, 0.4f ) }
-        }, new Dictionary<string, Func<GameObject, IEnumerator>>()) },
+        })},
 
         { new FsmLocation("Dream Mage Lord Phase2", "Dream Mage Lord Phase2"), new ABDStates(new Dictionary<string, ABDLine> {
             { "Music", new ABDLine(new string[] { "MAGELORD_D_1" } ) }
-        }, new Dictionary<string, Func<GameObject, IEnumerator>>()) },
+        })},
 
         { new FsmLocation("Grey Prince", "Control"), new ABDStates(new Dictionary<string, ABDLine> {
-            { "Jump", new ABDLine(new string[] { "GREY_PRINCE_1", "GREY_PRINCE_2", "GREY_PRINCE_3", "GREY_PRINCE_4", "GREY_PRINCE_5" })},
-            { "Spit Dir", new ABDLine(new string[] { "GREY_PRINCE_1", "GREY_PRINCE_2", "GREY_PRINCE_3", "GREY_PRINCE_4", "GREY_PRINCE_5" })}
-        }, new Dictionary<string, Func<GameObject, IEnumerator>>()) }
+            { "Jump", new ABDLine(new string[] { "GREY_PRINCE_1", "GREY_PRINCE_2", "GREY_PRINCE_3", "GREY_PRINCE_4", "GREY_PRINCE_5" }, 0.2f )},
+            { "Spit Dir", new ABDLine(new string[] { "GREY_PRINCE_1", "GREY_PRINCE_2", "GREY_PRINCE_3", "GREY_PRINCE_4", "GREY_PRINCE_5" }, 0.2f )}
+        })},
 
-        //{ ("Grey Prince", "Control"), AddToGreyPrinceZote },
+        // Absolute Radiance
+
+        { new FsmLocation("Absolute Radiance", "Control"), new ABDStates(new Dictionary<string, ABDLine> {
+            { "Set Arena 1", new ABDLine(new string[] { "RADIANCE_1" }, 1f, 5f )},
+            { "Rage1 Tele", new ABDLine(new string[] { "RADIANCE_3" } )},
+            { "Tendrils1", new ABDLine(new string[] { "RADIANCE_4" } )},
+            { "Arena 2 Start", new ABDLine(new string[] { "RADIANCE_5" }, 1f, 2f )},
+            { "Scream", new ABDLine(new string[] { "RADIANCE_6" }, 1f, 5f )}
+        })},
+
+        { new FsmLocation("Absolute Radiance", "Phase Control"), new ABDStates(new Dictionary<string, ABDLine> {
+            { "Set Phase 2", new ABDLine(new string[] { "RADIANCE_2" } )}
+        })},
+
+        // Radiance
+
+        { new FsmLocation("Radiance", "Control"), new ABDStates(new Dictionary<string, ABDLine> {
+            { "Set Arena 1", new ABDLine(new string[] { "RADIANCE_1" }, 1f, 5f )},
+            { "Rage1 Tele", new ABDLine(new string[] { "RADIANCE_3" } )},
+            { "Tendrils1", new ABDLine(new string[] { "RADIANCE_4" } )},
+            { "Arena 2 Start", new ABDLine(new string[] { "RADIANCE_5" }, 1f, 2f )},
+            { "Ascend Tele", new ABDLine(new string[] { "RADIANCE_6" }, 1f, 5f )}
+        })},
+
+        { new FsmLocation("Radiance", "Phase Control"), new ABDStates(new Dictionary<string, ABDLine> {
+            { "Set Phase 2", new ABDLine(new string[] { "RADIANCE_2" } )}
+        })}
+
     };
 
     private static readonly Dictionary<FsmLocation, Dictionary<float, ABDLine>> HealthTriggers = new Dictionary<FsmLocation, Dictionary<float, ABDLine>> {
@@ -94,16 +121,16 @@ public static class AutomaticBossDialogue {
     };
 
     public static void Hook() { 
-        return;
-        
         OnHealthManager.AfterOrig.Start += InitHpListeners;
         OnHealthManager.AfterOrig.TakeDamage += CheckHpListeners;
 
         foreach (var pair in BossDialogueGoFsm) {
-            /*foreach (var coroutine in pair.Value.coroutineStates) {
-                if (pair.Key.go == ANY_GO) Hooks.HookStateEnteredFromTransition(new FSMData(pair.Key.fsm, coroutine.Key), HKVocals.CoroutineHolder.StartCoroutine(coroutine));
-                else Hooks.HookStateEnteredFromTransition(new FSMData(pair.Key.go, pair.Key.fsm, coroutine.Key), (PlayMakerFSM FSM, string type) => HKVocals.CoroutineHolder.StartCoroutine(coroutine.Value(FSM.gameObject)));
-            }*/
+            if (pair.Value.coroutineStates != null) {
+                foreach (var coroutine in pair.Value.coroutineStates) {
+                    // This doesn't work in the case of ANY_GO
+                    Hooks.HookStateEnteredFromTransition(new FSMData(pair.Key.go, pair.Key.fsm, coroutine.Key), (PlayMakerFSM FSM, string type) => HKVocals.CoroutineHolder.StartCoroutine(coroutine.Value(FSM.gameObject)));
+                }
+            }
 
             foreach (var dialogue in pair.Value.dialogueStates) {
 
