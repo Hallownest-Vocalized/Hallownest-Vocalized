@@ -61,7 +61,7 @@ public static class RollCredits
 
             if (to.name == "Cinematic_Ending_C" || to.name == "Cinematic_Ending_D" || to.name == "Cinematic_Ending_E")
             {
-                goToHKVEnding = true;
+                goToHKVEnding = true; 
             }
         };
         
