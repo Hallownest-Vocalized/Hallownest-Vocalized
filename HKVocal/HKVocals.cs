@@ -86,6 +86,8 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             var tmpStyle = MenuStyles.Instance.styles.First(x => x.styleObject.name.Contains("HKVStyle"));
             MenuStyles.Instance.SetStyle(MenuStyles.Instance.styles.ToList().IndexOf(tmpStyle), false);
 
+            InitAchievements();=
+
             Log("HKVocals initialized");
         }
         else
@@ -150,19 +152,19 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
         }
         if(!_globalSettings.GotUIAchievement)
         {
-           // _globalSettings.FinishedUIDialoge = JsonConvert.DeserializeObject<List<string>>(json);
+            _globalSettings.FinishedUIDialoge = JsonConvert.DeserializeObject<List<string>>(json);
         }
         if(!_globalSettings.GotNPCAchievement)
         {
-           // _globalSettings.FinishedNPCDialoge = JsonConvert.DeserializeObject<List<string>>(json);
+           _globalSettings.FinishedNPCDialoge = JsonConvert.DeserializeObject<List<string>>(json);
         }
         if(!_globalSettings.GotDNailAchievement)
         {
-           // _globalSettings.FinishedDNailDialoge = JsonConvert.DeserializeObject<List<string>>(json);
+           _globalSettings.FinishedDNailDialoge = JsonConvert.DeserializeObject<List<string>>(json);
         }
         if(!_globalSettings.GotLoreTabletAchievement)
         {
-           // _globalSettings.FinishedLoreTabletDialoge = JsonConvert.DeserializeObject<List<string>>(json);
+           _globalSettings.FinishedLoreTabletDialoge = JsonConvert.DeserializeObject<List<string>>(json);
         }
     }
     private static Sprite icon;

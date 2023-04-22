@@ -48,12 +48,12 @@ public static class ModMenu
                 (i) =>
                 {
                     HKVocals._globalSettings.dnDialogue = i;
-                    //MenuRef.Find("Automatic Boss Dialogue").isVisible = !i;
+                    MenuRef.Find("Automatic Boss Dialogue").isVisible = !i;
                     MenuRef.Update();
                 },
                 () => HKVocals._globalSettings.dnDialogue),
             
-            /*new HorizontalOption("Automatic Boss Shouts",
+            new HorizontalOption("Automatic Boss Shouts",
                 "Should some bosses automatically do shouts?",
                 new []{"On", "Off"},
                 i => HKVocals._globalSettings.automaticBossDialogue = i == 0,
@@ -61,7 +61,7 @@ public static class ModMenu
                 Id: "Automatic Boss Dialogue")
             {
                 isVisible = !HKVocals._globalSettings.dnDialogue
-            },*/
+            },
             
             Blueprints.HorizontalBoolOption("Dampen Audio",
                 "Should audio be dampened when audio is played?",
