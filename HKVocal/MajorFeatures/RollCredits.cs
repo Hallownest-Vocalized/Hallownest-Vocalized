@@ -84,26 +84,7 @@ public static class RollCredits
         OnGameManager.WithOrig.SetupHeroRefs += PreventNREsInCreditsScene_SetupHeroRefs;
         OnGameManager.WithOrig.LevelActivated += PreventNREsInCreditsScene_LevelActivated;
         OnInputHandler.WithOrig.AttachHeroController += PreventNREsInCreditsScene_AttachHeroController;
-        
-        ModHooks.HeroUpdateHook += ThanksChecks;
     }
-
-    private static void ThanksChecks()
-    {
-        if (Thanks.activeSelf == true)
-        {
-            if (Input.GetKeyDown(KeyCode.M))
-            {
-                HKVocals.CoroutineHolder.StartCoroutine(GameManager.instance.ReturnToMainMenu(GameManager.ReturnToMainMenuSaveModes.DontSave));
-            }
-            else if (Input.GetKeyDown(KeyCode.O))
-            {
-                doWantToLoadVanillaCredits = true;
-                GameManager.instance.LoadScene("End_Credits");
-            }
-        }
-    }
-
 
     private static bool MakeCreditsSceneNonGamePlay(Func<bool> orig)
     {
@@ -133,6 +114,18 @@ public static class RollCredits
         if (isFromMenu == false)
         {
             yield return Thanks.FadeIn(2.5f);
+            while (Thanks.activeSelf == true) {
+                if (Input.GetKeyDown(KeyCode.M))
+                {
+                    HKVocals.CoroutineHolder.StartCoroutine(GameManager.instance.ReturnToMainMenu(GameManager.ReturnToMainMenuSaveModes.DontSave));
+                }
+                else if (Input.GetKeyDown(KeyCode.O))
+                {
+                    doWantToLoadVanillaCredits = true;
+                    GameManager.instance.LoadScene("End_Credits");
+                }
+                yield return null;
+            }
         }
         else
         {
