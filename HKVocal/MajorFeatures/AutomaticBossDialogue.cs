@@ -65,7 +65,7 @@ public static class AutomaticBossDialogue {
             { "Slam", new ABDLine(new string[] { "JAR_COLLECTOR_1", "JAR_COLLECTOR_2", "JAR_COLLECTOR_3" }, 0.4f ) }
         })},
 
-        { new FsmLocation("Dream Mage Lord Phase2", "Dream Mage Lord Phase2"), new ABDStates(new Dictionary<string, ABDLine> {
+        { new FsmLocation("Dream Mage Lord Phase2", "Mage Lord 2"), new ABDStates(new Dictionary<string, ABDLine> {
             { "Music", new ABDLine(new string[] { "MAGELORD_D_1" } ) }
         })},
 
