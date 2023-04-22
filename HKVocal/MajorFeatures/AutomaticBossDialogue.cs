@@ -54,7 +54,8 @@ public static class AutomaticBossDialogue {
         //{ ("Hornet Boss 1", "Control"), AddToHornets },
         //{ ("Hornet Boss 2", "Control"), AddToHornets },
         { new FsmLocation(ANY_GO, "FalseyControl"), new ABDStates(new Dictionary<string, ABDLine> {
-            { "Start Fall", new ABDLine(new string[] { "FALSE_KNIGHT_1" }, 1.0f, 10f )}
+            { "Start Fall", new ABDLine(new string[] { "FALSE_KNIGHT_1" }, 1f, 5f )},
+            { "Recover", new ABDLine(new string[] { "FALSE_KNIGHT_2", "FALSE_KNIGHT_3" }, 1f, 1f )},
         })},
 
         { new FsmLocation("Oro", "nailmaster"), new ABDStates(new Dictionary<string, ABDLine>(), new Dictionary<string, Func<GameObject, IEnumerator>> {
@@ -119,6 +120,9 @@ public static class AutomaticBossDialogue {
             { 2f / 4f, new ABDLine(new string[] { "HORNET_GG_2" }) },
             { 1f / 4f, new ABDLine(new string[] { "HORNET_GG_3" }) }
         }},
+        { new FsmLocation("Oro", "Oro"), new Dictionary<float, ABDLine> {
+            { 0.3f, new ABDLine(new string[] { "ORO_1" }) }
+        }}
     };
 
     private static Dictionary<FsmLocation, float> LastHealthValues = new Dictionary<FsmLocation, float>();
@@ -288,13 +292,14 @@ public static class AutomaticBossDialogue {
         }
     }
 
-    private static IEnumerator OroDialogue(GameObject boss) {
+    private static IEnumerator OroDialogue(GameObject oro) {
+        GameObject mato = GameObject.Find("Mato");
         yield return new WaitForSeconds(1f);
-        DreamNailDialogue.InvokeAutomaticBossDialogue(boss, "ORO_1");
-        yield return new WaitForSeconds(AudioPlayer.GetAudioFor("$Oro$_ORO_1_0_1").length + 0.5f); // probably should automatically format keys like this
-        DreamNailDialogue.InvokeAutomaticBossDialogue(boss, "ORO_2");
-        yield return new WaitForSeconds(AudioPlayer.GetAudioFor("$Oro$_ORO_2_0_1").length + 0.5f);
-        DreamNailDialogue.InvokeAutomaticBossDialogue(boss, "MATO_2");
+        DreamNailDialogue.InvokeAutomaticBossDialogue(mato, "MATO_1");
+        yield return new WaitForSeconds(AudioPlayer.GetAudioFor("$Mato$_MATO_1_0_1").length + 0.5f); // probably should automatically format keys like this
+        DreamNailDialogue.InvokeAutomaticBossDialogue(oro, "ORO_ALT_2");
+        yield return new WaitForSeconds(AudioPlayer.GetAudioFor("$Oro$_ORO_ALT_2_0_1").length + 0.5f);
+        DreamNailDialogue.InvokeAutomaticBossDialogue(mato, "MATO_2");
     }
 
     private static void AddToSoulTyrant_Phase2(PlayMakerFSM fsm)
