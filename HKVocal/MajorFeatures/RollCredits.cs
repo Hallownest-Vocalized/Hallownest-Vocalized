@@ -23,10 +23,6 @@ public static class RollCredits
     private static bool goToHKVEnding = false;
     private static bool doWantToLoadVanillaCredits;
 
-    [CanBeNull] private static GameObject MMButton;
-    [CanBeNull] private static GameObject OGButton;
-    [CanBeNull] private static Button SkipButton;
-
     public static void Hook()
     {
         //hook to get to know when to start our credits
