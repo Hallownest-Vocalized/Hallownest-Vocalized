@@ -4,22 +4,20 @@ using Image = UnityEngine.UI.Image;
 using JetBrains.Annotations;
 using UnityEngine.EventSystems;
 using UMenuButton = UnityEngine.UI.MenuButton;
-using HKMirror;
 
 namespace HKVocals.MajorFeatures;
 
 public static class RollCredits
 {
     //for 1080p screens
-    private static readonly float _rollSpeed = 120f;
-    private static readonly float _scrollMaxY = 59_700;
-    public static readonly float MouseScrollSpeed = 75f;
+    private static float _rollSpeed = 116f;
+    private static readonly float _scrollMaxY = 52_395;
+    public static readonly float MouseScrollSpeed = 200f;
     public static readonly float UpDownSpeed = 25f;
     
     //scale to screen height
     public static float RollSpeed => _rollSpeed * (Screen.height/1080f);
     public static float ScrollMaxY => _scrollMaxY * (Screen.height/1080f);
-    
     private const string CreditsSceneName = "HKV_Credits";
     private static bool isFromMenu;
     private static bool goToHKVEnding = false;
@@ -27,7 +25,7 @@ public static class RollCredits
 
     [CanBeNull] private static GameObject MMButton;
     [CanBeNull] private static GameObject OGButton;
-    [CanBeNull] private static GameObject SkipButton;
+    [CanBeNull] private static Button SkipButton;
 
     public static void Hook()
     {
@@ -58,9 +56,7 @@ public static class RollCredits
                 if (isFromMenu == false)
                 {
                     aSource.PlayDelayed(2.5f);
-                    CreateButtons();
                 }
-                CreateSkipButton();
             }
 
             if (to.name == "Cinematic_Ending_C" || to.name == "Cinematic_Ending_D" || to.name == "Cinematic_Ending_E")
@@ -88,18 +84,26 @@ public static class RollCredits
         OnGameManager.WithOrig.SetupHeroRefs += PreventNREsInCreditsScene_SetupHeroRefs;
         OnGameManager.WithOrig.LevelActivated += PreventNREsInCreditsScene_LevelActivated;
         OnInputHandler.WithOrig.AttachHeroController += PreventNREsInCreditsScene_AttachHeroController;
+        
+        ModHooks.HeroUpdateHook += ThanksChecks;
     }
-    
-    internal static void MakeCursorShow()
+
+    private static void ThanksChecks()
     {
-        ModHooks.CursorHook -= CursorDisplayActive;
-        ModHooks.CursorHook += CursorDisplayActive;
+        if (Thanks.activeSelf == true)
+        {
+            if (Input.GetKeyDown(KeyCode.M))
+            {
+                HKVocals.CoroutineHolder.StartCoroutine(GameManager.instance.ReturnToMainMenu(GameManager.ReturnToMainMenuSaveModes.DontSave));
+            }
+            else if (Input.GetKeyDown(KeyCode.O))
+            {
+                doWantToLoadVanillaCredits = true;
+                GameManager.instance.LoadScene("End_Credits");
+            }
+        }
     }
-    
-    private static void CursorDisplayActive()
-    {
-        Cursor.visible = true;
-    }
+
 
     private static bool MakeCreditsSceneNonGamePlay(Func<bool> orig)
     {
@@ -122,8 +126,6 @@ public static class RollCredits
  
         ScrollParent.FixFonts();
         ScrollParent.SetActive(true);
-        yield return SkipButton.FadeIn(1.5f);
-        MakeCursorShow();
         var scrollComp = ScrollParent.GetAddComponent<ScrollMainCredits>(); 
         yield return scrollComp.WaitForScrollEnd();
         ScrollParent.SetActive(false);
@@ -131,106 +133,13 @@ public static class RollCredits
         if (isFromMenu == false)
         {
             yield return Thanks.FadeIn(2.5f);
-            yield return MMButton.FadeIn(1f);
-            yield return OGButton.FadeIn(1f);
-            MakeCursorShow();
         }
         else
         {
             GoBackToGame();
         }
     }
-
-    public static void CreateButtons()
-    {
-        var CreditsScreen = CreditsParent;
-        var cloneButton = RefVanillaMenu.DefaultAudioSettingsButton;
-
-        MMButton = Object.Instantiate(cloneButton, CreditsScreen.transform);
-        MMButton.name = "Credits Main Menu Button";
-        OGButton = Object.Instantiate(cloneButton, CreditsScreen.transform);
-        OGButton.name = "Original Credits Button";
-        
-        MMButton.SetActive(false);
-        OGButton.SetActive(false);
-
-        MMButton.transform.localPosition = new Vector3(-270, -425, 0);
-        OGButton.transform.localPosition = new Vector3(265, -425, 0);
-
-        MMButton.RemoveComponent<EventTrigger>();
-        OGButton.RemoveComponent<EventTrigger>();
-
-        MMButton.Find("Text").RemoveComponent<AutoLocalizeTextUI>();
-        OGButton.Find("Text").RemoveComponent<AutoLocalizeTextUI>();
-
-        MMButton.Find("Text").GetComponent<Text>().text =
-            "Main Menu";
-        OGButton.Find("Text").GetComponent<Text>().text =
-            "OG Credits";
-
-        var mbmm = MMButton.GetComponent<UMenuButton>();
-        var mbog = OGButton.GetComponent<UMenuButton>();
-        mbmm.proceed = true;
-        mbmm.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
-        mbmm.submitAction = _ =>
-        {
-            isFromMenu = true;
-            GoBackToGame();
-        };
-        mbog.proceed = true;
-        mbog.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
-        mbog.submitAction = _ =>
-        {
-            isFromMenu = false;
-            GoBackToGame();
-        };
-    }
-
-    public static void CreateSkipButton()
-    {
-        var CreditsScreen = CreditsParent;
-        var cloneButton = RefVanillaMenu.DefaultAudioSettingsButton;
-        
-        SkipButton = Object.Instantiate(cloneButton, CreditsScreen.transform);
-        SkipButton.name = "Skip Button";
-        SkipButton.SetActive(false);
-        
-        SkipButton.transform.localPosition = new Vector3(830, 480, 0);
-        
-        SkipButton.RemoveComponent<EventTrigger>();
-        
-        SkipButton.Find("Text").RemoveComponent<AutoLocalizeTextUI>();
-        
-        SkipButton.Find("Text").GetComponent<Text>().text =
-            "Skip";
-        
-        SkipButton.Find("Text").Find("CursorLeft").SetActive(false);
-        SkipButton.Find("Text").Find("CursorRight").SetActive(false);
-        
-        var mbskip = SkipButton.GetComponent<UMenuButton>();
-        mbskip.proceed = true;
-        mbskip.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
-        mbskip.submitAction = _ =>
-        {
-            if (isFromMenu == true)
-            {
-                SkipButton.SetActive(false);
-                HKVocals.CoroutineHolder.StartCoroutine(GameManager.instance.ReturnToMainMenu(GameManager.ReturnToMainMenuSaveModes.DontSave));
-            }
-            else if (isFromMenu == false)
-            {
-                SkipButton.SetActive(false);
-                var scrollComp = ScrollParent.GetAddComponent<ScrollMainCredits>(); 
-                var aSource = CreditsParent.gameObject.GetComponent<AudioSource>();
-                scrollComp.transform.position = scrollComp.transform.position with {y = ScrollMaxY + 2000};
-                aSource.Stop();
-                Thanks.FadeIn(2.5f);
-                MMButton.FadeIn(1f);
-                OGButton.FadeIn(1f);
-                MakeCursorShow();
-            }
-        };
-    }
+    
 
     private static void GoBackToGame()
     {
