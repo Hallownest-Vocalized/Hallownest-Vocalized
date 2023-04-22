@@ -110,6 +110,8 @@ public static class DreamNailDialogue
             OnPlayDreamDialogue?.Invoke();
         }
         
+        // Check for Oro's alt delivery
+        if (key == "ORO_ALT_2") return Language.Language.Get("ORO_2", sheetTitle);
         return orig;
     }
 

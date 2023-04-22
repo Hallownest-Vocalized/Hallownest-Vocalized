@@ -14,10 +14,10 @@ public static class AutomaticBossDialogue {
         public string go;
         public string fsm;
 
-        public FsmLocation(string go, string fsm) {
+        public FsmLocation(string go, string fsm, string scene = null) {
             this.go = go;
             this.fsm = fsm;
-            this.scene = null;
+            this.scene = scene;
         }
     }
 
@@ -47,14 +47,9 @@ public static class AutomaticBossDialogue {
     }
 
     private static readonly Dictionary<FsmLocation, ABDStates> BossDialogueGoFsm = new Dictionary<FsmLocation, ABDStates> {
-        //{ ("Absolute Radiance", "Control"), AddToRadiances },
-        //{ ("Absolute Radiance", "Phase Control"), AddToRadiances_Phase2 },
-        //{ ("Radiance", "Control"), AddToRadiances },
-        //{ ("Radiance", "Phase Control"), AddToRadiances_Phase2 },
-        //{ ("Hornet Boss 1", "Control"), AddToHornets },
-        //{ ("Hornet Boss 2", "Control"), AddToHornets },
         { new FsmLocation(ANY_GO, "FalseyControl"), new ABDStates(new Dictionary<string, ABDLine> {
-            { "Start Fall", new ABDLine(new string[] { "FALSE_KNIGHT_1" }, 1.0f, 10f )}
+            { "Start Fall", new ABDLine(new string[] { "FALSE_KNIGHT_1" }, 1f, 5f )},
+            { "Recover", new ABDLine(new string[] { "FALSE_KNIGHT_2", "FALSE_KNIGHT_3" }, 1f, 1f )},
         })},
 
         { new FsmLocation("Oro", "nailmaster"), new ABDStates(new Dictionary<string, ABDLine>(), new Dictionary<string, Func<GameObject, IEnumerator>> {
@@ -65,7 +60,7 @@ public static class AutomaticBossDialogue {
             { "Slam", new ABDLine(new string[] { "JAR_COLLECTOR_1", "JAR_COLLECTOR_2", "JAR_COLLECTOR_3" }, 0.4f ) }
         })},
 
-        { new FsmLocation("Dream Mage Lord Phase2", "Dream Mage Lord Phase2"), new ABDStates(new Dictionary<string, ABDLine> {
+        { new FsmLocation("Dream Mage Lord Phase2", "Mage Lord 2"), new ABDStates(new Dictionary<string, ABDLine> {
             { "Music", new ABDLine(new string[] { "MAGELORD_D_1" } ) }
         })},
 
@@ -108,17 +103,24 @@ public static class AutomaticBossDialogue {
         { new FsmLocation("Dream Mage Lord", "Dream Mage Lord"), new Dictionary<float, ABDLine> {
             { 2f / 3f, new ABDLine(new string[] { "MAGELORD_D_2" }) }, 
             { 1f / 3f, new ABDLine(new string[] { "MAGELORD_D_3" }) }
+        }},
+        { new FsmLocation("Hornet Boss 1", "Hornet Boss 1", "Fungus1_04_boss"), new Dictionary<float, ABDLine> {
+            { 3f / 4f, new ABDLine(new string[] { "HORNET_GREENPATH_1" }) }, 
+            { 2f / 4f, new ABDLine(new string[] { "HORNET_GREENPATH_2" }) },
+            { 1f / 4f, new ABDLine(new string[] { "HORNET_GREENPATH_3" }) }
+        }},
+        { new FsmLocation("Hornet Boss 2", "Hornet Boss 2", "GG_Hornet_2"), new Dictionary<float, ABDLine> {
+            { 3f / 4f, new ABDLine(new string[] { "HORNET_GG_1" }) }, 
+            { 2f / 4f, new ABDLine(new string[] { "HORNET_GG_2" }) },
+            { 1f / 4f, new ABDLine(new string[] { "HORNET_GG_3" }) }
+        }},
+        { new FsmLocation("Oro", "Oro"), new Dictionary<float, ABDLine> {
+            { 0.3f, new ABDLine(new string[] { "ORO_1" }) }
         }}
     };
 
     private static Dictionary<FsmLocation, float> LastHealthValues = new Dictionary<FsmLocation, float>();
     private static Dictionary<FsmLocation, float> MaxHealthValues = new Dictionary<FsmLocation, float>();
-
-    private static Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>> BossDialogueSceneFsm = new Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>>
-    {
-        { new("GG_Radiance", "Boss Control", "Control"), AddToRadiances_Spawn },
-        { new("Dream_Final_Boss", "Boss Control", "Control"), AddToRadiances_Spawn },
-    };
 
     public static void Hook() { 
         OnHealthManager.AfterOrig.Start += InitHpListeners;
@@ -174,12 +176,12 @@ public static class AutomaticBossDialogue {
         if (fsm == null) return null;
 
         foreach (var entry in HealthTriggers) {
-            if (entry.Key.fsm == fsm.name && entry.Key.go == go.name) {
+            if (entry.Key.fsm == fsm.name && entry.Key.go == go.name && (entry.Key.scene == null || entry.Key.scene == go.scene.name)) {
                 return entry.Key;
             }
         }
 
-        HKVocals.instance.Log($"Found an HM/FSM with no matching trigger. GameObject: {go.name} FSM: {fsm.name}");
+        HKVocals.instance.LogDebug($"Found an HM/FSM with no matching trigger. GameObject: {go.name} FSM: {fsm.name} Scene: ${go.scene.name}");
 
         return null;
     }
@@ -222,69 +224,14 @@ public static class AutomaticBossDialogue {
         });
     }
 
-    private static void AddToPaleLurker(PlayMakerFSM fsm)
-    {
-        HKVocals.instance.LogDebug("Adiing ADB to Pale Lurker");
-        DreamDialogueAction action = new DreamDialogueAction(new string[] { ABDKeyPrefix + "LURKER_1", ABDKeyPrefix + "LURKER_2", ABDKeyPrefix +"LURKER_3" }, "Enemy Dreams") { waitTime = 3f, convoMode = DreamDialogueAction.ConvoMode.Random, convoOccurances = new int[] { -1, 0 } };
-        fsm.InsertFsmMethod("Aleart Anim", () => action.convoOccurances[0] = 0, 0);
-        fsm.InsertFsmAction("Hop Antic", action, 0);
-    }
-
-    private static void AddToRadiances(PlayMakerFSM fsm)
-    {
-        if (BossSequenceController.IsInSequence)
-        {
-            HKVocals.instance.LogDebug("Adiing ADB to Radiances");
-            fsm.InsertFsmAction("Rage1 Start", new DreamDialogueAction(ABDKeyPrefix +"RADIANCE_3", "Enemy Dreams"), 0);
-            fsm.InsertFsmAction("Tendrils1", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_4", "Enemy Dreams") { waitTime = 1f }, 0);
-            fsm.InsertFsmAction("Arena 2 Start", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_5", "Enemy Dreams") { waitTime = 2f }, 0);
-            fsm.InsertFsmAction("Ascend Tele", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_6", "Enemy Dreams") { waitTime = 5f }, 0);
-        }
-    }
-    
-    private static void AddToRadiances_Phase2(PlayMakerFSM fsm)
-    {
-        if (BossSequenceController.IsInSequence)
-        {
-            HKVocals.instance.LogDebug("Adiing ADB to Radiances_Phase2");
-            if (fsm.FsmName == "Phase Control")
-            {
-                fsm.AddFsmAction("Set Phase 2", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_2", "Enemy Dreams"));
-            }
-        }
-    }
-    
-    private static void AddToRadiances_Spawn(PlayMakerFSM fsm)
-    {
-        if (BossSequenceController.IsInSequence)
-        {
-            HKVocals.instance.LogDebug("Adiing ADB to Radiances_Spawn");
-            fsm.AddFsmAction("Flash Down", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_1", "Enemy Dreams") { waitTime = 5 });
-        }
-    }
-    
-    //todo: check this? it doesnt make sense
-    private static void AddToHornets(PlayMakerFSM fsm)
-    {
-        if ((!MiscUtils.GetCurrentSceneName().Contains("GG") && fsm.gameObject.name.Contains("1")) ||
-            (BossSequenceController.IsInSequence && fsm.gameObject.name.Contains("2")))
-        {
-            HKVocals.instance.LogDebug("Adiing ADB to Hornets");
-            string namePart = BossSequenceController.IsInSequence ? "GG" : "GREENPATH";
-            HealthManager hm = fsm.GetComponent<HealthManager>();
-            //AddHPDialogue(hm, new DreamDialogueAction(ABDKeyPrefix + "HORNET_" + namePart + "_1", "Enemy Dreams"), (3 * hm.hp) / 4);
-            //AddHPDialogue(hm, new DreamDialogueAction(ABDKeyPrefix + "HORNET_" + namePart + "_2", "Enemy Dreams"), hm.hp / 2);
-            //AddHPDialogue(hm, new DreamDialogueAction(ABDKeyPrefix + "HORNET_" + namePart + "_3", "Enemy Dreams"), hm.hp / 4);
-        }
-    }
-
-    private static IEnumerator OroDialogue(GameObject boss) {
+    private static IEnumerator OroDialogue(GameObject oro) {
+        GameObject mato = GameObject.Find("Mato");
         yield return new WaitForSeconds(1f);
-        DreamNailDialogue.InvokeAutomaticBossDialogue(boss, "ORO_1");
-        yield return new WaitForSeconds(AudioPlayer.GetAudioFor("$Oro$_ORO_1_0_1").length + 0.5f); // probably should automatically format keys like this
-        DreamNailDialogue.InvokeAutomaticBossDialogue(boss, "ORO_2");
-        yield return new WaitForSeconds(AudioPlayer.GetAudioFor("$Oro$_ORO_2_0_1").length + 0.5f);
-        DreamNailDialogue.InvokeAutomaticBossDialogue(boss, "MATO_2");
+        DreamNailDialogue.InvokeAutomaticBossDialogue(mato, "MATO_1");
+        yield return new WaitForSeconds(AudioPlayer.GetAudioFor("$Mato$_MATO_1_0_1").length + 0.5f); // probably should automatically format keys like this
+        DreamNailDialogue.InvokeAutomaticBossDialogue(oro, "ORO_ALT_2");
+        yield return new WaitForSeconds(AudioPlayer.GetAudioFor("$Oro$_ORO_ALT_2_0_1").length + 0.5f);
+        DreamNailDialogue.InvokeAutomaticBossDialogue(mato, "MATO_2");
     }
 
     private static void AddToSoulTyrant_Phase2(PlayMakerFSM fsm)
