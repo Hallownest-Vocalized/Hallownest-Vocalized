@@ -47,12 +47,6 @@ public static class AutomaticBossDialogue {
     }
 
     private static readonly Dictionary<FsmLocation, ABDStates> BossDialogueGoFsm = new Dictionary<FsmLocation, ABDStates> {
-        //{ ("Absolute Radiance", "Control"), AddToRadiances },
-        //{ ("Absolute Radiance", "Phase Control"), AddToRadiances_Phase2 },
-        //{ ("Radiance", "Control"), AddToRadiances },
-        //{ ("Radiance", "Phase Control"), AddToRadiances_Phase2 },
-        //{ ("Hornet Boss 1", "Control"), AddToHornets },
-        //{ ("Hornet Boss 2", "Control"), AddToHornets },
         { new FsmLocation(ANY_GO, "FalseyControl"), new ABDStates(new Dictionary<string, ABDLine> {
             { "Start Fall", new ABDLine(new string[] { "FALSE_KNIGHT_1" }, 1f, 5f )},
             { "Recover", new ABDLine(new string[] { "FALSE_KNIGHT_2", "FALSE_KNIGHT_3" }, 1f, 1f )},
@@ -127,12 +121,6 @@ public static class AutomaticBossDialogue {
 
     private static Dictionary<FsmLocation, float> LastHealthValues = new Dictionary<FsmLocation, float>();
     private static Dictionary<FsmLocation, float> MaxHealthValues = new Dictionary<FsmLocation, float>();
-
-    private static Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>> BossDialogueSceneFsm = new Dictionary<HKVocalsFsmData, Action<PlayMakerFSM>>
-    {
-        { new("GG_Radiance", "Boss Control", "Control"), AddToRadiances_Spawn },
-        { new("Dream_Final_Boss", "Boss Control", "Control"), AddToRadiances_Spawn },
-    };
 
     public static void Hook() { 
         OnHealthManager.AfterOrig.Start += InitHpListeners;
@@ -234,62 +222,6 @@ public static class AutomaticBossDialogue {
 
             return false;
         });
-    }
-
-    private static void AddToPaleLurker(PlayMakerFSM fsm)
-    {
-        HKVocals.instance.LogDebug("Adiing ADB to Pale Lurker");
-        DreamDialogueAction action = new DreamDialogueAction(new string[] { ABDKeyPrefix + "LURKER_1", ABDKeyPrefix + "LURKER_2", ABDKeyPrefix +"LURKER_3" }, "Enemy Dreams") { waitTime = 3f, convoMode = DreamDialogueAction.ConvoMode.Random, convoOccurances = new int[] { -1, 0 } };
-        fsm.InsertFsmMethod("Aleart Anim", () => action.convoOccurances[0] = 0, 0);
-        fsm.InsertFsmAction("Hop Antic", action, 0);
-    }
-
-    private static void AddToRadiances(PlayMakerFSM fsm)
-    {
-        if (BossSequenceController.IsInSequence)
-        {
-            HKVocals.instance.LogDebug("Adiing ADB to Radiances");
-            fsm.InsertFsmAction("Rage1 Start", new DreamDialogueAction(ABDKeyPrefix +"RADIANCE_3", "Enemy Dreams"), 0);
-            fsm.InsertFsmAction("Tendrils1", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_4", "Enemy Dreams") { waitTime = 1f }, 0);
-            fsm.InsertFsmAction("Arena 2 Start", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_5", "Enemy Dreams") { waitTime = 2f }, 0);
-            fsm.InsertFsmAction("Ascend Tele", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_6", "Enemy Dreams") { waitTime = 5f }, 0);
-        }
-    }
-    
-    private static void AddToRadiances_Phase2(PlayMakerFSM fsm)
-    {
-        if (BossSequenceController.IsInSequence)
-        {
-            HKVocals.instance.LogDebug("Adiing ADB to Radiances_Phase2");
-            if (fsm.FsmName == "Phase Control")
-            {
-                fsm.AddFsmAction("Set Phase 2", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_2", "Enemy Dreams"));
-            }
-        }
-    }
-    
-    private static void AddToRadiances_Spawn(PlayMakerFSM fsm)
-    {
-        if (BossSequenceController.IsInSequence)
-        {
-            HKVocals.instance.LogDebug("Adiing ADB to Radiances_Spawn");
-            fsm.AddFsmAction("Flash Down", new DreamDialogueAction(ABDKeyPrefix + "RADIANCE_1", "Enemy Dreams") { waitTime = 5 });
-        }
-    }
-    
-    //todo: check this? it doesnt make sense
-    private static void AddToHornets(PlayMakerFSM fsm)
-    {
-        if ((!MiscUtils.GetCurrentSceneName().Contains("GG") && fsm.gameObject.name.Contains("1")) ||
-            (BossSequenceController.IsInSequence && fsm.gameObject.name.Contains("2")))
-        {
-            HKVocals.instance.LogDebug("Adiing ADB to Hornets");
-            string namePart = BossSequenceController.IsInSequence ? "GG" : "GREENPATH";
-            HealthManager hm = fsm.GetComponent<HealthManager>();
-            //AddHPDialogue(hm, new DreamDialogueAction(ABDKeyPrefix + "HORNET_" + namePart + "_1", "Enemy Dreams"), (3 * hm.hp) / 4);
-            //AddHPDialogue(hm, new DreamDialogueAction(ABDKeyPrefix + "HORNET_" + namePart + "_2", "Enemy Dreams"), hm.hp / 2);
-            //AddHPDialogue(hm, new DreamDialogueAction(ABDKeyPrefix + "HORNET_" + namePart + "_3", "Enemy Dreams"), hm.hp / 4);
-        }
     }
 
     private static IEnumerator OroDialogue(GameObject oro) {
