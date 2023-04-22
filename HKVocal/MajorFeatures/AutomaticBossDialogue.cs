@@ -14,10 +14,10 @@ public static class AutomaticBossDialogue {
         public string go;
         public string fsm;
 
-        public FsmLocation(string go, string fsm) {
+        public FsmLocation(string go, string fsm, string scene = null) {
             this.go = go;
             this.fsm = fsm;
-            this.scene = null;
+            this.scene = scene;
         }
     }
 
@@ -108,7 +108,17 @@ public static class AutomaticBossDialogue {
         { new FsmLocation("Dream Mage Lord", "Dream Mage Lord"), new Dictionary<float, ABDLine> {
             { 2f / 3f, new ABDLine(new string[] { "MAGELORD_D_2" }) }, 
             { 1f / 3f, new ABDLine(new string[] { "MAGELORD_D_3" }) }
-        }}
+        }},
+        { new FsmLocation("Hornet Boss 1", "Hornet Boss 1", "Fungus1_04_boss"), new Dictionary<float, ABDLine> {
+            { 3f / 4f, new ABDLine(new string[] { "HORNET_GREENPATH_1" }) }, 
+            { 2f / 4f, new ABDLine(new string[] { "HORNET_GREENPATH_2" }) },
+            { 1f / 4f, new ABDLine(new string[] { "HORNET_GREENPATH_3" }) }
+        }},
+        { new FsmLocation("Hornet Boss 2", "Hornet Boss 2", "GG_Hornet_2"), new Dictionary<float, ABDLine> {
+            { 3f / 4f, new ABDLine(new string[] { "HORNET_GG_1" }) }, 
+            { 2f / 4f, new ABDLine(new string[] { "HORNET_GG_2" }) },
+            { 1f / 4f, new ABDLine(new string[] { "HORNET_GG_3" }) }
+        }},
     };
 
     private static Dictionary<FsmLocation, float> LastHealthValues = new Dictionary<FsmLocation, float>();
@@ -174,12 +184,12 @@ public static class AutomaticBossDialogue {
         if (fsm == null) return null;
 
         foreach (var entry in HealthTriggers) {
-            if (entry.Key.fsm == fsm.name && entry.Key.go == go.name) {
+            if (entry.Key.fsm == fsm.name && entry.Key.go == go.name && (entry.Key.scene == null || entry.Key.scene == go.scene.name)) {
                 return entry.Key;
             }
         }
 
-        HKVocals.instance.Log($"Found an HM/FSM with no matching trigger. GameObject: {go.name} FSM: {fsm.name}");
+        HKVocals.instance.LogDebug($"Found an HM/FSM with no matching trigger. GameObject: {go.name} FSM: {fsm.name} Scene: ${go.scene.name}");
 
         return null;
     }
