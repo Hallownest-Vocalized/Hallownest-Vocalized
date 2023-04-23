@@ -231,7 +231,7 @@ public static class AutomaticBossDialogue {
 
     private static IEnumerator OroDialogue(GameObject oro) {
         GameObject mato = GameObject.Find("Mato");
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(10f);
         DreamNailDialogue.InvokeAutomaticBossDialogue(mato, "MATO_1");
         yield return new WaitForSeconds(AudioPlayer.GetAudioFor("$Mato$_MATO_1_0_1").length + 0.5f); // probably should automatically format keys like this
         DreamNailDialogue.InvokeAutomaticBossDialogue(oro, "ORO_ALT_2");
