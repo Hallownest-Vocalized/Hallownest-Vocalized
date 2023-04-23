@@ -86,7 +86,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             var tmpStyle = MenuStyles.Instance.styles.First(x => x.styleObject.name.Contains("HKVStyle"));
             MenuStyles.Instance.SetStyle(MenuStyles.Instance.styles.ToList().IndexOf(tmpStyle), false);
 
-            InitAchievements();=
+            InitAchievements();
 
             Log("HKVocals initialized");
         }
@@ -143,28 +143,25 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
         }
         
     }
-    private void InitAchievements()
-    {
-        string json = @"[ 'smth']";
-        if(!_globalSettings.GotHJAchievement)
-        {
-            _globalSettings.FinishedHJDialoge = JsonConvert.DeserializeObject<List<string>>(json);
+    private void InitAchievements() {
+        if (_globalSettings.FinishedUIDialoge == null) {
+            _globalSettings.FinishedUIDialoge = JsonConvert.DeserializeObject<List<string>>(
+                System.Text.Encoding.Default.GetString(Satchel.AssemblyUtils.GetBytesFromResources("Resources.AchievementKeys.Inventory_KEYs.json")));
         }
-        if(!_globalSettings.GotUIAchievement)
-        {
-            _globalSettings.FinishedUIDialoge = JsonConvert.DeserializeObject<List<string>>(json);
+
+        if (_globalSettings.FinishedNPCDialoge == null) {
+            _globalSettings.FinishedNPCDialoge = JsonConvert.DeserializeObject<List<string>>(
+                System.Text.Encoding.Default.GetString(Satchel.AssemblyUtils.GetBytesFromResources("Resources.AchievementKeys.NPCs_KEYs.json")));
         }
-        if(!_globalSettings.GotNPCAchievement)
-        {
-           _globalSettings.FinishedNPCDialoge = JsonConvert.DeserializeObject<List<string>>(json);
+
+        if (_globalSettings.FinishedDNailDialoge == null) {
+            _globalSettings.FinishedDNailDialoge = JsonConvert.DeserializeObject<List<string>>(
+                System.Text.Encoding.Default.GetString(Satchel.AssemblyUtils.GetBytesFromResources("Resources.AchievementKeys.Dream_Nail_KEYs.json")));
         }
-        if(!_globalSettings.GotDNailAchievement)
-        {
-           _globalSettings.FinishedDNailDialoge = JsonConvert.DeserializeObject<List<string>>(json);
-        }
-        if(!_globalSettings.GotLoreTabletAchievement)
-        {
-           _globalSettings.FinishedLoreTabletDialoge = JsonConvert.DeserializeObject<List<string>>(json);
+
+        if (_globalSettings.FinishedLoreTabletDialoge == null) {
+            _globalSettings.FinishedLoreTabletDialoge = JsonConvert.DeserializeObject<List<string>>(
+                System.Text.Encoding.Default.GetString(Satchel.AssemblyUtils.GetBytesFromResources("Resources.AchievementKeys.Lore_Tablet_KEYs.json")));
         }
     }
     private static Sprite icon;

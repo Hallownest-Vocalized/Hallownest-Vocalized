@@ -19,7 +19,6 @@ public class GlobalSettings
     public bool GotLoreTabletAchievement = false;
     public List<string> FinishedUIDialoge; 
     public bool GotUIAchievement = false;
-    public List<string> FinishedHJDialoge; 
     public bool GotHJAchievement = false;
 }
 public class SaveSettings

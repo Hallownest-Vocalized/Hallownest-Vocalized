@@ -47,9 +47,14 @@ public static class AutomaticBossDialogue {
     }
 
     private static readonly Dictionary<FsmLocation, ABDStates> BossDialogueGoFsm = new Dictionary<FsmLocation, ABDStates> {
-        { new FsmLocation(ANY_GO, "FalseyControl"), new ABDStates(new Dictionary<string, ABDLine> {
+        { new FsmLocation("False Knight New", "FalseyControl"), new ABDStates(new Dictionary<string, ABDLine> {
             { "Start Fall", new ABDLine(new string[] { "FALSE_KNIGHT_1" }, 1f, 5f )},
             { "Recover", new ABDLine(new string[] { "FALSE_KNIGHT_2", "FALSE_KNIGHT_3" }, 1f, 1f )},
+        })},
+        
+        { new FsmLocation("False Knight Dream", "FalseyControl"), new ABDStates(new Dictionary<string, ABDLine> {
+            { "Start Fall", new ABDLine(new string[] { "FALSE_KNIGHT_D_1" }, 1f, 5f )},
+            { "Recover", new ABDLine(new string[] { "FALSE_KNIGHT_D_2", "FALSE_KNIGHT_D_3" }, 1f, 1f )},
         })},
 
         { new FsmLocation("Oro", "nailmaster"), new ABDStates(new Dictionary<string, ABDLine>(), new Dictionary<string, Func<GameObject, IEnumerator>> {

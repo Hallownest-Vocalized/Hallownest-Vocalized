@@ -156,6 +156,7 @@
 
     <ItemGroup>
         <EmbeddedResource Include="Resources\*" />
+        <EmbeddedResource Include="Resources\AchievementKeys\*" />
     </ItemGroup>
 
     <Target Name="CopyMod" AfterTargets="PostBuildEvent">
