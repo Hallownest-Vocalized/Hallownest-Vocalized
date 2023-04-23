@@ -236,6 +236,7 @@ public static class MuteOriginalAudio
         "GS_engine_room",
         "GS_engine_room_03",
         "GS_engine_room_04",
+        "Hunter_journal_02"
     };
 
     private static readonly List<string> ClipsToInclude = new()
@@ -315,6 +316,7 @@ public static class MuteOriginalAudio
         "nightmare_bg_eye_break_1",
         "nightmare_bg_eye_break_2",
         "spell_information_screen",
+        "mawlek_scream"
     };
 
     private class MuteAudioSourceData
