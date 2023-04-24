@@ -34,7 +34,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
         On.UIManager.Start += AddIcon;
         if (AudioLoaderAssemblyExists)
         {
-            SFCore.ItemHelper.unusedInit();
+            //SFCore.ItemHelper.unusedInit();
             SFCore.MenuStyleHelper.AddMenuStyleHook += MajorFeatures.MenuTheme.AddTheme;
             MajorFeatures.Achievements.Hook();
         }
