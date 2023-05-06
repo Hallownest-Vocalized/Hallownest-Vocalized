@@ -154,6 +154,7 @@ public static class MixerLoader
         { "Ruins1_29", Snapshots.Cave },
         { "Ruins1_31", Snapshots.Cave },
         { "Ruins1_32", Snapshots.Cave },
+        { "Ruins2_04", Snapshots.Cliffs },
         { "Ruins2_08", Snapshots.Cave },
         { "Ruins2_11", Snapshots.Arena },
         { "Ruins2_Watcher_Room", Snapshots.Arena },
@@ -208,6 +209,7 @@ public static class MixerLoader
         { "RestingGrounds_09", Snapshots.Cave },
         { "Mines_13", Snapshots.Cave },
         { "Mines_30", Snapshots.Cave },
+        { "Deepnest_09", Snapshots.Cave },
         { "Deepnest_14", Snapshots.Cave },
         { "Deepnest_30", Snapshots.Spa },
         { "Deepnest_33", Snapshots.Cave },
@@ -224,6 +226,7 @@ public static class MixerLoader
         { "Deepnest_East_17", Snapshots.Cave },
         { "Deepnest_East_Hornet", Snapshots.Arena },
         { "Abyss_04", Snapshots.Cave },
+        { "Abyss_05", Snapshots.Arena },
         { "Abyss_06_Core", Snapshots.Cave }, //todo: fix
         //{ "Abyss_06_Core", Snapshots.Cave FOR LORE TABLET },
         //{ "Abyss_06_Core", Snapshots.Arena FOR HORNET },
