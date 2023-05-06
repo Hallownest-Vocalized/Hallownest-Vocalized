@@ -13,6 +13,8 @@ public static class NPCDialogue
 
     public static event OnPlayNPCDialogueHandler OnPlayNPCDialogue;
 
+    public static List<int> CollectorVAs = new List<int>() {28, 30, 31};
+
     public static Dictionary<string, int> GrubVAs = new()
     {
         {"Crossroads_05", 1},
@@ -42,7 +44,10 @@ public static class NPCDialogue
         {"Ruins2_03", 25},
         {"Ruins_House_01", 26},
         {"Ruins2_07", 27},
-        {"Deepnest_East_11", 31},
+        //{"Ruins2_11", 28},
+        //{"Ruins2_11", 30},
+        //{"Ruins2_11", 31},
+        {"Deepnest_East_11", 29},
         {"Deepnest_East_14", 32},
         {"Hive_04", 33},
         {"Hive_03", 34},
@@ -103,7 +108,16 @@ public static class NPCDialogue
                 int VaNo;
                 foreach (KeyValuePair<string, int> scene in GrubVAs)
                 {
-                    if (scene.Key == MiscUtils.GetCurrentSceneName())
+                    if (MiscUtils.GetCurrentSceneName() == "Ruins2_11")
+                    {
+                        VaNo = CollectorVAs[Random.Range(0, 3)];
+                        HKVocals.instance.Log(CollectorVAs[0]);
+                        HKVocals.instance.Log(CollectorVAs[1]);
+                        HKVocals.instance.Log(CollectorVAs[2]);
+                        var DidPlayAudio = AudioPlayer.TryPlayAudioFor(convo + $"_{VaNo}", removeTime);
+                        break;
+                    }
+                    else if (scene.Key == MiscUtils.GetCurrentSceneName())
                     {
                         VaNo = scene.Value;
                         var DidPlayAudio = AudioPlayer.TryPlayAudioFor(convo + $"_{VaNo}", removeTime);
