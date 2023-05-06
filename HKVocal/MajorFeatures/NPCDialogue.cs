@@ -28,7 +28,7 @@ public static class NPCDialogue
         {"Mines_35", 11},
         {"Mines_19", 12},
         {"Mines_04", 13},
-        {"Mines_20", 14},
+        {"Mines_31", 14},
         {"Mines_16", 15},
         {"Mines_24", 16},
         {"Fungus2_18", 17},
