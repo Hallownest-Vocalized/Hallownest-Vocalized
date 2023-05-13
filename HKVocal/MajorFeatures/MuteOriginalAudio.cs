@@ -316,7 +316,16 @@ public static class MuteOriginalAudio
         "nightmare_bg_eye_break_1",
         "nightmare_bg_eye_break_2",
         "spell_information_screen",
-        "mawlek_scream"
+        "mawlek_scream",
+        "ruin_sentry_sword_1",
+        "Divine_eat_01",
+        "hatcher_give_birth",
+        "Divine_post_eat_sigh",
+        "Divine_poop_long",
+        "spider_zombie_shake",
+        "Divine_poop_end",
+        "Leg_Eater_angry_01",
+        "GS_engine_room_02",
     };
 
     private class MuteAudioSourceData
