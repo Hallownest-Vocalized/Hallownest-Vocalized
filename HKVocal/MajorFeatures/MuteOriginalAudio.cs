@@ -227,7 +227,6 @@ public static class MuteOriginalAudio
         "Hornet_Greenpath_01",
         "Salubra_Talk",
         "Mr_Mush_talk_03",
-        "Iselda_Shop_Open",
         "GS_standard_01",
         "GS_standard_02",
         "GS_standard_05",
@@ -326,6 +325,7 @@ public static class MuteOriginalAudio
         "Divine_poop_end",
         "Leg_Eater_angry_01",
         "GS_engine_room_02",
+        "Iselda_Shop_Open",
     };
 
     private class MuteAudioSourceData
