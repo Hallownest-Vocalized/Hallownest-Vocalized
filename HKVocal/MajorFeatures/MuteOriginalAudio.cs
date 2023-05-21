@@ -235,7 +235,8 @@ public static class MuteOriginalAudio
         "GS_engine_room",
         "GS_engine_room_03",
         "GS_engine_room_04",
-        "Hunter_journal_02"
+        "Hunter_journal_02",
+        "Relic_Dealer_04",
     };
 
     private static readonly List<string> ClipsToInclude = new()
