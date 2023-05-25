@@ -41,7 +41,7 @@ public static class AudioMenu
         //to make sure when go is cloned, it gets the value of the previous session not the value of the music slider
         VolumeSlider_MenuAudioSlider.UpdateTextValue(HKVocals._globalSettings.volume);
         VolumeSlider_Slider.value = HKVocals._globalSettings.volume;
-        
+
         GameObject HKVocalsSettings = Object.Instantiate(RefVanillaMenu.DefaultAudioSettingsButton, RefVanillaMenu.DefaultAudioSettingsButton.transform.parent);
         HKVocalsSettings.name = "HK Vocals Settings";
         HKVocalsSettings.transform.localPosition = Vector3.up * 335f;
@@ -52,5 +52,33 @@ public static class AudioMenu
         mb.proceed = true;
         mb.buttonType = UMenuButton.MenuButtonType.CustomSubmit;
         mb.submitAction = _ => ModMenu.GoToModMenu();
+        
+        //fix navigation
+        var musicSelectable = RefVanillaMenu.MusicVolumeSlider.GetComponent<Selectable>();
+        var hkvVolumeSelectable = VolumeSlider.GetComponent<Selectable>();
+        var hkvSettingsSelectable = HKVocalsSettings.GetComponent<Selectable>();
+        var defaultAudioSettingsSelectable = RefVanillaMenu.DefaultAudioSettingsButton.GetComponent<Selectable>();
+        
+        
+        musicSelectable.navigation = musicSelectable.navigation with { selectOnDown = hkvVolumeSelectable };
+
+        hkvVolumeSelectable.navigation = new Navigation()
+        {
+            selectOnUp = musicSelectable,
+            selectOnDown = hkvSettingsSelectable,
+            mode = Navigation.Mode.Explicit
+        };
+        
+        hkvSettingsSelectable.navigation = new Navigation()
+        {
+            selectOnUp = hkvVolumeSelectable,
+            selectOnDown = defaultAudioSettingsSelectable,
+            mode = Navigation.Mode.Explicit
+        };
+        
+        defaultAudioSettingsSelectable.navigation = defaultAudioSettingsSelectable.navigation with
+        {
+            selectOnUp = hkvSettingsSelectable,
+        };
     }
 }
