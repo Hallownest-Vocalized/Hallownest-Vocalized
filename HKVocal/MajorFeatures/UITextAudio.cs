@@ -3,7 +3,7 @@ using MonoMod.RuntimeDetour;
 namespace HKVocals.MajorFeatures;
 public class UITextAudio
 {
-    private static bool HunterNotesUnlocked = true;
+    private static bool HunterNotesUnlocked = false;
     public static bool OpenShopMenu = false;
     public static bool OpenInvMenu = false;
     public static bool ShopMenuClosed = true;
@@ -38,15 +38,31 @@ public class UITextAudio
 
         fsm.AddFsmMethod("Get Details", () =>
         {
-            if (HunterNotesUnlocked == true)
-            {
-                fsm.PlayUIText("Item Notes Convo", UIAudioType.Other);
-            }
-            else if (HunterNotesUnlocked == false)
-            {
-                fsm.PlayUIText("Item Desc Convo", UIAudioType.Other);
-            }
+            HKVocals.CoroutineHolder.StartCoroutine(HunterWait(fsm));
         });
+    }
+
+    static IEnumerator HunterWait(PlayMakerFSM fsm)
+    {
+        yield return new WaitForSeconds(0.3f);
+        HKVocals.CoroutineHolder.StartCoroutine(HunterCode(fsm));
+    }
+    
+    static IEnumerator HunterCode(PlayMakerFSM fsm)
+    {
+        var audio = "";
+
+        if (HunterNotesUnlocked == true)
+        {
+            audio = "Item Notes Convo";
+        }
+        else if (HunterNotesUnlocked == false)
+        {
+            audio = "Item Desc Convo";
+        }
+        
+        fsm.PlayUIText(audio, UIAudioType.Other);
+        yield return audio;
     }
 
     //public static void PlayEquipmentText(PlayMakerFSM fsmAction<GameObject> orig, GameObject newPaneGo)
