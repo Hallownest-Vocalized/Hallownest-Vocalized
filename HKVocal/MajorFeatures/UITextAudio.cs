@@ -23,12 +23,12 @@ public class UITextAudio
     
     public static void PlayCharmText(PlayMakerFSM fsm)
     {
-        fsm.AddFsmMethod("Change Text", () => { fsm.PlayUIText("Convo Desc", UIAudioType.Other); });
+        fsm.AddFsmMethod("Change Text", () => { MixerLoader.SetSnapshot(Snapshots.Room); fsm.PlayUIText("Convo Desc", UIAudioType.Other); });
     }
 
     public static void PlayInventoryText(PlayMakerFSM fsm)
     {
-        fsm.AddFsmMethod("Change Text", () => { fsm.PlayUIText("Convo Desc", UIAudioType.Other); });
+        fsm.AddFsmMethod("Change Text", () => { MixerLoader.SetSnapshot(Snapshots.Room); fsm.PlayUIText("Convo Desc", UIAudioType.Other); });
     }
 
     public static void PlayJournalText(PlayMakerFSM fsm)
@@ -61,6 +61,7 @@ public class UITextAudio
             audio = "Item Desc Convo";
         }
         
+        MixerLoader.SetSnapshot(Snapshots.Room);
         fsm.PlayUIText(audio, UIAudioType.Other);
         yield return audio;
     }
@@ -70,7 +71,7 @@ public class UITextAudio
     {
         // orig(newPaneGo);
         // PlayMakerFSM fsm = newPaneGo.FindGameObjectInChildren("Enemy List").LocateMyFSM("Item List Control Custom");
-        fsm.AddFsmMethod("Get Details", () => fsm.PlayUIText("Item Notes Convo", UIAudioType.Other));
+        fsm.AddFsmMethod("Get Details", () => { MixerLoader.SetSnapshot(Snapshots.Room); fsm.PlayUIText("Item Notes Convo", UIAudioType.Other); });
     }
 
 
