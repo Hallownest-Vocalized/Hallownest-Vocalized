@@ -15,7 +15,7 @@ namespace HKVocals.MajorFeatures
 
         private static string LanguageGetPatches(string key, string sheetTitle, string orig)
         {
-             if (key == "SHOP_DESC_NOTCH_4")
+            if (key == "SHOP_DESC_NOTCH_4")
                  return orig.Replace("more charms", "more of your charms");
             if (key == "HORNET_FOUNTAIN_1")
                 return "Again we meet little ghost.<page>I'm normally quite perceptive. You I underestimated, though I've since guessed the truth.<page>You've seen beyond this kingdom's bounds. Yours is resilience born of two voids.<page>It's no surprise then you've managed to reach the heart of this world. In doing so, you shall know the sacrifice that keeps it standing.";
