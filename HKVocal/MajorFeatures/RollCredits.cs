@@ -103,7 +103,9 @@ public static class RollCredits
  
         ScrollParent.FixFonts();
         ScrollParent.SetActive(true);
-        var scrollComp = ScrollParent.GetAddComponent<ScrollMainCredits>(); 
+        var scrollComp = ScrollParent.GetAddComponent<ScrollMainCredits>();
+        yield return null;
+        yield return null;
         yield return scrollComp.WaitForScrollEnd();
         ScrollParent.SetActive(false);
 
@@ -300,7 +302,19 @@ public class ScrollMainCredits : MonoBehaviour
 
     public IEnumerator WaitForScrollEnd()
     {
-        while (transform.position.y < RollCredits.ScrollMaxY)
+        var lastSection = transform.GetChild(transform.childCount - 1);
+        // there are 4 children in the last section, header, fluer, left&right side. We get the right side
+        var lastSectionMainText = lastSection.GetChild(lastSection.childCount - 1).GetComponent<RectTransform>();
+
+        float headerSize = 200;
+        float lastSectionHeight = lastSectionMainText.sizeDelta.y + headerSize; // we can use sizeDelta.y or rect.height
+        var endingPos =
+            lastSectionHeight *
+            lastSectionMainText.lossyScale.y; // if lossyScale.y gives wrong value we can manually scale height 
+
+        const float buffer = 100;
+        Modding.Logger.Log(lastSectionMainText.transform.position.y + " " +  endingPos);
+        while (lastSectionMainText.transform.position.y < endingPos + buffer)
         {
             yield return null;
         }
