@@ -103,6 +103,14 @@ public static class NPCDialogue
 
         float removeTime = convoNumber == 0 ? 3 / 5f : 3 / 4f;
         
+        if (args.self.currentConversation == "DREAM")
+        {
+            if (MiscUtils.GetCurrentSceneName() == "Room_Ouiji")
+            {
+                convo = "DREAM_JIJI" + $"_{args.self.currentPage - 1}";
+            }
+        }
+        
         if (args.self.currentConversation == "GRUB_BOTTLE_DREAM") 
         {
                 int VaNo;
