@@ -111,6 +111,13 @@ public static class NPCDialogue
             }
         }
         
+        HKVocals.instance.Log(args.self.currentConversation);
+
+        if (args.self.currentConversation == "WHITE_DEFENDER_OUTRO_1a" || args.self.currentConversation == "WHITE_DEFENDER_OUTRO_1b")
+        {
+            convo = args.self.currentConversation == "WHITE_DEFENDER_OUTRO_1a" ? "WHITE_DEFENDER_OUTRO_1A" : "WHITE_DEFENDER_OUTRO_1B";
+        }
+        
         if (args.self.currentConversation == "GRUB_BOTTLE_DREAM") 
         {
                 int VaNo;
