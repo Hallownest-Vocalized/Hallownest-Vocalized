@@ -61,6 +61,11 @@ public static class DreamNailDialogue
             orig = Language.Language.GetInternal(key, sheetTitle);
             isAutomaticBossDialogue = true;
         }
+
+        if (key == "FK_MACE_1")
+        {
+            AudioPlayer.TryPlayAudioFor($"$Mace Head Bug$_FK_MACE_{Random.Range(1, 5)}_0_1".ToUpper());
+        }
         
         // Make sure this is dreamnail text or ABD text
         if (lastDreamnailedEnemy == null && !isAutomaticBossDialogue) {
