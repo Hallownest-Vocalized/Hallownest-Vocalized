@@ -4,7 +4,7 @@
 
         <RootNamespace>HKVocals</RootNamespace>
         <AssemblyTitle>HKVocals</AssemblyTitle>
-        <AssemblyVersion>0.0.1.0</AssemblyVersion>
+        <AssemblyVersion>0.0.1.2</AssemblyVersion>
         <Deterministic>true</Deterministic>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <LangVersion>latest</LangVersion>
