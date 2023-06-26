@@ -115,7 +115,7 @@ public static class NPCDialogue
 
         if (args.self.currentConversation == "WHITE_DEFENDER_OUTRO_1a" || args.self.currentConversation == "WHITE_DEFENDER_OUTRO_1b")
         {
-            convo = args.self.currentConversation == "WHITE_DEFENDER_OUTRO_1a" ? "WHITE_DEFENDER_OUTRO_1A" : "WHITE_DEFENDER_OUTRO_1B";
+            convo = args.self.currentConversation == "WHITE_DEFENDER_OUTRO_1a" ? "WHITE_DEFENDER_OUTRO_1A_0" : "WHITE_DEFENDER_OUTRO_1B_0";
         }
         
         if (args.self.currentConversation == "GRUB_BOTTLE_DREAM") 
