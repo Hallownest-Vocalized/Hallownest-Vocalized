@@ -1,9 +1,21 @@
 ﻿namespace HKVocals;
 public static class AudioPlayer
 {
+    public static List<string> PaleCourtKeys = new()
+    {
+
+    };
+
     public static bool TryPlayAudioFor(string convName, float removeTime = 0f, AudioSource asrc = null)
     {
         HKVocals.instance.LogDebug($"Trying to play audio for {convName}");
+
+        if (PaleCourtKeys.Contains(convName) && HKVocals._globalSettings.paleCourt == false)
+        {
+            HKVocals.instance.LogWarn("Pale Court audio is not enabled!");
+            return false;
+        }
+
         if (HasAudioFor(convName))
         {
             if (removeTime != 0f)
