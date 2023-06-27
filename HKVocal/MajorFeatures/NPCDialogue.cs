@@ -126,9 +126,6 @@ public static class NPCDialogue
                     if (MiscUtils.GetCurrentSceneName() == "Ruins2_11")
                     {
                         VaNo = CollectorVAs[Random.Range(0, 3)];
-                        HKVocals.instance.Log(CollectorVAs[0]);
-                        HKVocals.instance.Log(CollectorVAs[1]);
-                        HKVocals.instance.Log(CollectorVAs[2]);
                         var DidPlayAudio = AudioPlayer.TryPlayAudioFor(convo + $"_{VaNo}", removeTime);
                         break;
                     }
