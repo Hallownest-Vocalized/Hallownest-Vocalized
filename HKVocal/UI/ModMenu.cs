@@ -74,7 +74,18 @@ public static class ModMenu
                     }
                 },
                 () => HKVocals._globalSettings.dampenAudio),
-            
+
+            new HorizontalOption("Pale Court",
+                "Should the pale court mod be voiced?",
+                new []{"On", "Off"},
+                i => HKVocals._globalSettings.paleCourt = i == 0,
+                () => HKVocals._globalSettings.paleCourt ? 0 : 1,
+                Id: "Pale Court")
+            {
+                // name subject to change idk exact name yet
+                isVisible = ModHooks.GetMod("Pale Court") is Mod
+            },
+
             new MenuButton("Join the HNVocals Discord!","",(_)=>
             {
                 Application.OpenURL("https://discord.gg/p72F2St3RF");
