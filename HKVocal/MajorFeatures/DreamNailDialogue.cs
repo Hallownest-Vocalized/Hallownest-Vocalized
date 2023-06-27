@@ -37,7 +37,10 @@ public static class DreamNailDialogue
 
     public static void InvokeAutomaticBossDialogue(GameObject boss, string key) {
         lastDreamnailedEnemy = boss;
-        FSMEditUtils.CreateDreamDialogue(AutomaticBossDialogue.ABDKeyPrefix + key, "Enemy Dreams");
+        if (HKVocals._globalSettings.automaticBossDialogue || HKVocals._globalSettings.dnDialogue)
+        {
+            FSMEditUtils.CreateDreamDialogue(AutomaticBossDialogue.ABDKeyPrefix + key, "Enemy Dreams");
+        }
     }
 
     private static string PlayDreamNailDialogue(string key, string sheetTitle, string orig) {
