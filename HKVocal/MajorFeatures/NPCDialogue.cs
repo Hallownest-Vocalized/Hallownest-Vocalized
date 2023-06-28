@@ -66,10 +66,19 @@ public static class NPCDialogue
 
     public static void Hook()
     {
+        ModHooks.LanguageGetHook += LanguageGet;
         OnDialogueBox.AfterOrig.ShowPage += PlayAudioForNPCDialogue;
         OnDialogueBox.BeforeOrig.HideText += _ => AudioPlayer.StopPlaying();
     }
 
+    private static string LanguageGet(string key, string sheetTitle, string orig)
+    {
+        if (key == "JINN_OFFER" && sheetTitle != "Prompts")
+        {
+            AudioPlayer.TryPlayAudioFor("JINN_OFFER_TALK_0", 3 / 5f);
+        }
+        return orig;
+    }
 
     private static void PlayAudioForNPCDialogue(OnDialogueBox.Delegates.Params_ShowPage args)
     {
@@ -116,6 +125,11 @@ public static class NPCDialogue
         if (args.self.currentConversation == "WHITE_DEFENDER_OUTRO_1a" || args.self.currentConversation == "WHITE_DEFENDER_OUTRO_1b")
         {
             convo = args.self.currentConversation == "WHITE_DEFENDER_OUTRO_1a" ? "WHITE_DEFENDER_OUTRO_1A_0" : "WHITE_DEFENDER_OUTRO_1B_0";
+        }
+        
+        if (args.self.currentConversation == "JINN_OFFER")
+        {
+            return;
         }
         
         if (args.self.currentConversation == "GRUB_BOTTLE_DREAM") 
