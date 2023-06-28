@@ -13,7 +13,7 @@ public static class NPCDialogue
 
     public static event OnPlayNPCDialogueHandler OnPlayNPCDialogue;
 
-    public static List<int> CollectorVAs = new List<int>() {28, 30, 31};
+    public static List<int> CollectorVAs = new List<int>() { 28, 30, 31 };
 
     public static Dictionary<string, int> GrubVAs = new()
     {
@@ -64,6 +64,17 @@ public static class NPCDialogue
         {"Fungus1_28", 45},
     };
 
+    public static List<string> DWInspects = new()
+    {
+        "ALADAR_INSPECT",
+        "GALIEN_INSPECT",
+        "HU_INSPECT",
+        "MARKOTH_INSPECT",
+        "MUMCAT_INSPECT",
+        "NOEYES_INSPECT",
+        "XERO_INSPECT",
+    };
+
     public static void Hook()
     {
         ModHooks.LanguageGetHook += LanguageGet;
@@ -111,6 +122,11 @@ public static class NPCDialogue
         string convo = args.self.currentConversation + "_" + convoNumber;
 
         float removeTime = convoNumber == 0 ? 3 / 5f : 3 / 4f;
+
+        if (DWInspects.Contains(args.self.currentConversation))
+        {
+            convo = PlayerData.instance.hasDreamNail == false ? args.self.currentConversation + "_ALT_0" : args.self.currentConversation + "_0";
+        }
         
         if (args.self.currentConversation == "DREAM")
         {
