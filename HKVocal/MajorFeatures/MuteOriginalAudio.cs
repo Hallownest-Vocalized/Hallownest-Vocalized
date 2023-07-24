@@ -68,6 +68,14 @@ public static class MuteOriginalAudio
             {
                 data.Mute();
             }
+
+            if (HKVocals._globalSettings.paleCourt == true)
+            {
+                if (PCClipsToMute.Contains(data.originalAudioSource.clip.name))
+                {
+                    data.Mute();
+                }
+            }
         });
     }
     
@@ -165,6 +173,16 @@ public static class MuteOriginalAudio
             ToMuteAudioSources[clip.name] = new(source);
             HKVocals.instance.LogDebug($"Storing audio for mute {clip.name}");
             return true;
+        }
+
+        if (HKVocals._globalSettings.paleCourt == true)
+        {
+            if (clip != null && PCClipsToMute.Contains(clip.name))
+            {
+                ToMuteAudioSources[clip.name] = new(source);
+                HKVocals.instance.LogDebug($"Storing audio for mute {clip.name}");
+                return true;
+            }
         }
 
         return false;
