@@ -4,12 +4,33 @@ namespace HKVocals;
 
 public static class FSMEditUtils
 {
+
+    public static string pcConvo = "";
+    
+    public static void Hook()
+    {
+        ModHooks.LanguageGetHook += LangKeys;
+    }
+    
     public static void CreateDreamDialogue(string convName, string sheetName)
     {
         PlayMakerFSM fsm = FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value.LocateMyFSM("Display");
         fsm.Fsm.GetFsmString("Convo Title").Value = convName;
         fsm.Fsm.GetFsmString("Sheet").Value = sheetName;
         fsm.SendEvent("DISPLAY DREAM MSG");
+    }
+    
+    private static string LangKeys(string key, string sheettitle, string orig)
+    {
+        if (key == "CHARM_DESC_10" && orig != "Unique charm bestowed by the King of Hallownest to his most loyal knight. Scratched and dirty, but still cared for.<br><br>Causes the bearer to emit a heroic odour.")
+        {
+            pcConvo = "CHARM_DESC_PC_10_0";
+        }
+        else if (key == "CHARM_DESC_10")
+        {
+            pcConvo = "CHARM_DESC_10_0";
+        }
+        return orig;
     }
 
     public static void PlayUIText(this PlayMakerFSM fsm, string audiokey, UIAudioType audioType)
@@ -61,9 +82,9 @@ public static class FSMEditUtils
                 }
             }
             
-            if (fsm.FsmVariables.GetFsmString(audiokey).Value == "CHARM_DESC_10" && fsm.FsmVariables.GetFsmString(audiokey).Name != "Unique charm bestowed by the King of Hallownest to his most loyal knight. Scratched and dirty, but still cared for.<br><br>Causes the bearer to emit a heroic odour.")
+            if (fsm.FsmVariables.GetFsmString(audiokey).Value == "CHARM_DESC_10" && pcConvo == "CHARM_DESC_PC_10_0")
             {
-                AudioPlayer.TryPlayAudioFor("CHARM_DESC_PC_10_0");
+                AudioPlayer.TryPlayAudioFor(pcConvo);
             }
             else
             {
