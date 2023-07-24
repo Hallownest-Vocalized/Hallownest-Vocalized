@@ -60,7 +60,15 @@ public static class FSMEditUtils
                     MixerLoader.SetSnapshot(Snapshots.Room); //we want room effect on ui audio that's not in the shop
                 }
             }
-            AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
+            
+            if (fsm.FsmVariables.GetFsmString(audiokey).Value == "CHARM_DESC_10" && fsm.FsmVariables.GetFsmString(audiokey).Name != "Unique charm bestowed by the King of Hallownest to his most loyal knight. Scratched and dirty, but still cared for.<br><br>Causes the bearer to emit a heroic odour.")
+            {
+                AudioPlayer.TryPlayAudioFor("CHARM_DESC_PC_10_0");
+            }
+            else
+            {
+                AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
+            }
         }
     }
     

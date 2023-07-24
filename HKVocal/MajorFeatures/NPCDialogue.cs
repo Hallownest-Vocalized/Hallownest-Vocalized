@@ -16,7 +16,7 @@ public static class NPCDialogue
 
     public static List<int> CollectorVAs = new List<int>() {28, 30, 31};
 
-    public static string pcconvo = "";
+    public static string pcConvo = "";
 
     public static Dictionary<string, int> GrubVAs = new()
     {
@@ -79,11 +79,11 @@ public static class NPCDialogue
     {
         if (key == "SHEO_DREAM" && sheettitle == "Zote")
         {
-            pcconvo = "SHEO_DREAM_PC_0";
+            pcConvo = "SHEO_DREAM_PC_0";
         }
         else if (key == "SHEO_DREAM" && sheettitle == "Nailmasters")
         {
-            pcconvo = "SHEO_DREAM_0";
+            pcConvo = "SHEO_DREAM_0";
         }
         return orig;
     }
@@ -158,7 +158,7 @@ public static class NPCDialogue
 
         if (args.self.currentConversation == "SHEO_DREAM")
         {
-            convo = pcconvo;
+            convo = pcConvo;
         }
 
         #endregion
