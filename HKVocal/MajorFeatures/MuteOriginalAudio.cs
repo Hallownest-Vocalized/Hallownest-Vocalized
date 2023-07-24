@@ -238,6 +238,39 @@ public static class MuteOriginalAudio
         "Hunter_journal_02",
         "Relic_Dealer_04",
     };
+    
+    private static readonly List<string> PCClipsToMute = new ()
+    {
+        "DryyaVoiceConvo1",
+        "DryyaVoiceConvo2",
+        "DryyaVoiceConvo3",
+        "DTalk1",
+        "DTalk2",
+        "DTalk3",
+        "DTalk4",
+        "DTalk5",
+        "DTalk6",
+        "DTalk7",
+        "IsmaAudTalkHi",
+        "IsmaAudTalk1",
+        "IsmaAudTalkCharm",
+        "IsmaAudTalkBye",
+        "IsmaAudTalk3", 
+        "IsmaAudTalk5",
+        "IsmaAudTalk6",
+        "Nailmsith_talk_03",
+        "Nailmsith_talk_04",
+        "Nailmsith_talk_05",
+        "ZAudTalk1",
+        "ZAudTalk2",
+        "ZAudTalk3",
+        "ZAudTalk4",
+        "ZAudTalk1B",
+        "sheo_1",
+        "sheo_2",
+        "smith_1",
+        "smith_2",
+    };
 
     private static readonly List<string> ClipsToInclude = new()
     {

@@ -1,4 +1,5 @@
-﻿using Satchel;
+﻿using GlobalEnums;
+using Satchel;
 
 namespace HKVocals.MajorFeatures;
 
@@ -14,6 +15,8 @@ public static class NPCDialogue
     public static event OnPlayNPCDialogueHandler OnPlayNPCDialogue;
 
     public static List<int> CollectorVAs = new List<int>() {28, 30, 31};
+
+    public static string pcconvo = "";
 
     public static Dictionary<string, int> GrubVAs = new()
     {
@@ -68,9 +71,23 @@ public static class NPCDialogue
     {
         OnDialogueBox.AfterOrig.ShowPage += PlayAudioForNPCDialogue;
         OnDialogueBox.BeforeOrig.HideText += _ => AudioPlayer.StopPlaying();
+        
+        ModHooks.LanguageGetHook += LangKeys;
     }
-
-
+    
+    private static string LangKeys(string key, string sheettitle, string orig)
+    {
+        if (key == "SHEO_DREAM" && sheettitle == "Zote")
+        {
+            pcconvo = "SHEO_DREAM_PC_0";
+        }
+        else if (key == "SHEO_DREAM" && sheettitle == "Nailmasters")
+        {
+            pcconvo = "SHEO_DREAM_0";
+        }
+        return orig;
+    }
+    
     private static void PlayAudioForNPCDialogue(OnDialogueBox.Delegates.Params_ShowPage args)
     {
         //DialogueBox is a component of DialogueManager/Text
@@ -136,6 +153,15 @@ public static class NPCDialogue
                     }
                 }
         }
+        
+        #region PaleCourt
+
+        if (args.self.currentConversation == "SHEO_DREAM")
+        {
+            convo = pcconvo;
+        }
+
+        #endregion
 
         //this controls scroll lock and autoscroll
         DidPlayAudioOnDialogueBox = AudioPlayer.TryPlayAudioFor(convo, removeTime);
