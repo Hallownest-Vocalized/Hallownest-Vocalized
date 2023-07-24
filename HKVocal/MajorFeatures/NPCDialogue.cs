@@ -161,6 +161,22 @@ public static class NPCDialogue
             convo = pcConvo;
         }
 
+        switch (args.self.currentConversation)
+        {
+            case "CC_OUTRO_1a":
+                convo = "CC_OUTRO_1A_0";
+                break;
+            case "CC_OUTRO_1b":
+                convo = "CC_OUTRO_1B_0";
+                break;
+            case "RCC_OUTRO_1a":
+                convo = "RCC_OUTRO_1A_0";
+                break;
+            case "RCC_OUTRO_1b":
+                convo = "RCC_OUTRO_1B_0";
+                break;
+        }
+
         #endregion
 
         //this controls scroll lock and autoscroll
