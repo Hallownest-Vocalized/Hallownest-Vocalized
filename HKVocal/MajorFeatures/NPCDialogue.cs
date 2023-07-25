@@ -115,7 +115,23 @@ public static class NPCDialogue
                 MixerLoader.SetSnapshot(Snapshots.Dream);
             }
         }
-         
+        
+        if (args.self.currentConversation is "TUT_TAB_01" or "TUT_TAB_02" or "TUT_TAB_02_1" or "TUT_TAB_03")
+        {
+            MixerLoader.SetSnapshot(Snapshots.Cave);
+        }
+        if (args.self.currentConversation is "CLIFF_TAB_02" or "CLIFF_TAB_02_1")
+        {
+            MixerLoader.SetSnapshot(Snapshots.Room);
+        }
+        if (args.self.currentConversation is "ABYSS_TUT_TAB_01" or "ABYSS_TUT_TAB_01_1")
+        {
+            MixerLoader.SetSnapshot(Snapshots.Cave);
+        }
+        if (args.self.currentConversation == "SENSE_TAB_01")
+        {
+            MixerLoader.SetSnapshot(Snapshots.Arena);
+        }
 
         //convos start at _0 but page numbers start from 1
         int convoNumber = args.self.currentPage - 1;
