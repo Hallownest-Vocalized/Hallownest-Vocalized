@@ -35,7 +35,9 @@ public static class FSMEditUtils
         {
             if (UITextAudio.OpenShopMenu)
             {
+                UITextAudio.AudioQueued = true;
                 yield return new WaitForSeconds(1f);
+                UITextAudio.AudioQueued = false;
                 UITextAudio.OpenShopMenu = false;
             }
             else if (UITextAudio.OpenInvMenu)
@@ -47,7 +49,9 @@ public static class FSMEditUtils
             } 
             else
             {
+                UITextAudio.AudioQueued = true;
                 yield return new WaitForSeconds(0.3f);
+                UITextAudio.AudioQueued = false;
             }
             
             
