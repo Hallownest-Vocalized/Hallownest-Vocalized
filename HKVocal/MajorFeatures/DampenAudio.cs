@@ -72,7 +72,7 @@ public static class DampenAudio
     }
     
 
-    private static void StartDampingAudioNormal()
+    public static void StartDampingAudioNormal()
     {
         DampenValue = DampenValueNormal;
         if (HKVocals._globalSettings.dampenAudio)
