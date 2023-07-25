@@ -60,7 +60,15 @@ public static class FSMEditUtils
                     MixerLoader.SetSnapshot(Snapshots.Room); //we want room effect on ui audio that's not in the shop
                 }
             }
-            AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
+
+            if (audioType == UIAudioType.Shop && HKVocals._globalSettings.shopAudio == true)
+            {
+                AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
+            } 
+            else if (audioType == UIAudioType.Other && HKVocals._globalSettings.invAudio == true)
+            {
+                AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
+            }
         }
     }
     

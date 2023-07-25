@@ -11,6 +11,8 @@ public class GlobalSettings
     public bool scrollLock = false;
     public bool dampenAudio = false;
     public bool settingsOpened = false;
+    public bool shopAudio = true;
+    public bool invAudio = true;
     public List<string> FinishedNPCDialoge;
     public bool GotNPCAchievement = false;
     public List<string> FinishedDNailDialoge;
