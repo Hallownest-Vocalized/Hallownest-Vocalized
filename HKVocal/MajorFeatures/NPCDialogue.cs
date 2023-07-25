@@ -95,10 +95,6 @@ public static class NPCDialogue
         {
             pcConvo = "SHEO_DREAM_PC_0";
         }
-        else if (key == "SHEO_DREAM" && sheetTitle == "Nailmasters")
-        {
-            pcConvo = "SHEO_DREAM_0";
-        }
         return orig;
     }
     
@@ -195,13 +191,10 @@ public static class NPCDialogue
         }
         
         #region PaleCourt
-
-        if (ModHooks.GetMod("Pale Court") is Mod)
+        
+        if (args.self.currentConversation == "SHEO_DREAM" && pcConvo == "SHEO_DREAM_PC_0" && ModHooks.GetMod("Pale Court") is Mod ) 
         {
-            if (args.self.currentConversation == "SHEO_DREAM")
-            {
-                convo = pcConvo;
-            }
+            convo = pcConvo;
         }
 
         switch (args.self.currentConversation)

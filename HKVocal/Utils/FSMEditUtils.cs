@@ -68,12 +68,12 @@ public static class FSMEditUtils
                 }
             }
 
-            if (ModHooks.GetMod("Pale Court") is Mod)
+
+            if (fsm.FsmVariables.GetFsmString(audiokey).Value == "CHARM_DESC_10" &&
+                FiveKnights.FiveKnights.Instance.SaveSettings.upgradedCharm_10 == true &&
+                ModHooks.GetMod("Pale Court") is Mod)
             {
-                if (fsm.FsmVariables.GetFsmString(audiokey).Value == "CHARM_DESC_10" && FiveKnights.FiveKnights.Instance.SaveSettings.upgradedCharm_10 == true)
-                {
-                    AudioPlayer.TryPlayAudioFor("CHARM_DESC_PC_10_0");
-                }
+                AudioPlayer.TryPlayAudioFor("CHARM_DESC_PC_10_0");
             }
             else
             {
