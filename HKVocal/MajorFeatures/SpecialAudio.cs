@@ -20,21 +20,6 @@ public static class SpecialAudio
         FSMEditData.AddGameObjectFsmEdit("Dreamer Plaque Inspect", "Conversation Control", PlayDreamerPlaqueDialogue);
         FSMEditData.AddGameObjectFsmEdit("Fountain Inspect", "Conversation Control", PlayTHKPlaqueDialogue);
         ModHooks.LanguageGetHook += AddSpecialAudioKeys;
-        
-        ModHooks.LanguageGetHook += LangKeys;
-    }
-    
-    private static string LangKeys(string key, string sheettitle, string orig)
-    {
-        if (key == "CHARM_DESC_10" && orig != "Unique charm bestowed by the King of Hallownest to his most loyal knight. Scratched and dirty, but still cared for.<br><br>Causes the bearer to emit a heroic odour.")
-        {
-            FSMEditUtils.pcConvo = "CHARM_DESC_PC_10_0";
-        }
-        else if (key == "CHARM_DESC_10")
-        {
-            FSMEditUtils.pcConvo = "CHARM_DESC_10_0";
-        }
-        return orig;
     }
 
     private static void LockSkippingMonomonIntro(On.AnimatorSequence.orig_Skip orig, AnimatorSequence self)
@@ -75,6 +60,15 @@ public static class SpecialAudio
         else if (key == "KING_SOUL_PICKUP_KING_FINAL_WORDS" && sheettitle == "Minor NPC")
         {
             orig = Language.Language.Get("KING_FINAL_WORDS", sheettitle);
+        }
+        
+        if (key == "CHARM_DESC_10" && orig != "Unique charm bestowed by the King of Hallownest to his most loyal knight. Scratched and dirty, but still cared for.<br><br>Causes the bearer to emit a heroic odour.")
+        {
+            FSMEditUtils.pcConvo = "CHARM_DESC_PC_10_0";
+        }
+        else if (key == "CHARM_DESC_10")
+        {
+            FSMEditUtils.pcConvo = "CHARM_DESC_10_0";
         }
 
         return orig;
