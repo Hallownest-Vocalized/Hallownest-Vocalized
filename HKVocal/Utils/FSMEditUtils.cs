@@ -63,10 +63,13 @@ public static class FSMEditUtils
                     MixerLoader.SetSnapshot(Snapshots.Room); //we want room effect on ui audio that's not in the shop
                 }
             }
-            
-            if (fsm.FsmVariables.GetFsmString(audiokey).Value == "CHARM_DESC_10" && FiveKnights.FiveKnights.Instance.SaveSettings.upgradedCharm_10 == true)
+
+            if (ModHooks.GetMod("Pale Court") is Mod)
             {
-                AudioPlayer.TryPlayAudioFor("CHARM_DESC_PC_10_0");
+                if (fsm.FsmVariables.GetFsmString(audiokey).Value == "CHARM_DESC_10" && FiveKnights.FiveKnights.Instance.SaveSettings.upgradedCharm_10 == true)
+                {
+                    AudioPlayer.TryPlayAudioFor("CHARM_DESC_PC_10_0");
+                }
             }
             else
             {
