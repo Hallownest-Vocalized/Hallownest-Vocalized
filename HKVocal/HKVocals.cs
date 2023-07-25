@@ -64,8 +64,6 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
             MajorFeatures.UITextAudio.Hook();
             MajorFeatures.RollCredits.Hook();
             MajorFeatures.Patches.Hook();
-            
-            FSMEditUtils.Hook();
 
             EasterEggs.EternalOrdeal.Hook();
             EasterEggs.SpecialGrub.Hook();
