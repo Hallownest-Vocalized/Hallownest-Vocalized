@@ -14,7 +14,7 @@ public static class NPCDialogue
 
     public static event OnPlayNPCDialogueHandler OnPlayNPCDialogue;
 
-    public static List<int> CollectorVAs = new List<int>() {28, 30, 31};
+    public static List<int> CollectorVAs = new List<int>() { 28, 30, 31 };
 
     public static string pcConvo = "";
 
@@ -67,21 +67,35 @@ public static class NPCDialogue
         {"Fungus1_28", 45},
     };
 
+    public static List<string> DWInspects = new()
+    {
+        "ALADAR_INSPECT",
+        "GALIEN_INSPECT",
+        "HU_INSPECT",
+        "MARKOTH_INSPECT",
+        "MUMCAT_INSPECT",
+        "NOEYES_INSPECT",
+        "XERO_INSPECT",
+    };
+
     public static void Hook()
     {
+        ModHooks.LanguageGetHook += LanguageGet;
         OnDialogueBox.AfterOrig.ShowPage += PlayAudioForNPCDialogue;
         OnDialogueBox.BeforeOrig.HideText += _ => AudioPlayer.StopPlaying();
-        
-        ModHooks.LanguageGetHook += LangKeys;
     }
     
-    private static string LangKeys(string key, string sheettitle, string orig)
+    private static string LanguageGet(string key, string sheetTitle, string orig)
     {
-        if (key == "SHEO_DREAM" && sheettitle == "Zote")
+        if (key == "JINN_OFFER" && sheetTitle != "Prompts")
+        {
+            AudioPlayer.TryPlayAudioFor("JINN_OFFER_TALK_0", 3 / 5f);
+        }
+        if (key == "SHEO_DREAM" && sheetTitle == "Zote")
         {
             pcConvo = "SHEO_DREAM_PC_0";
         }
-        else if (key == "SHEO_DREAM" && sheettitle == "Nailmasters")
+        else if (key == "SHEO_DREAM" && sheetTitle == "Nailmasters")
         {
             pcConvo = "SHEO_DREAM_0";
         }
@@ -112,13 +126,34 @@ public static class NPCDialogue
                 MixerLoader.SetSnapshot(Snapshots.Dream);
             }
         }
-         
+        
+        if (args.self.currentConversation is "TUT_TAB_01" or "TUT_TAB_02" or "TUT_TAB_02_1" or "TUT_TAB_03")
+        {
+            MixerLoader.SetSnapshot(Snapshots.Cave);
+        }
+        if (args.self.currentConversation is "CLIFF_TAB_02" or "CLIFF_TAB_02_1")
+        {
+            MixerLoader.SetSnapshot(Snapshots.Room);
+        }
+        if (args.self.currentConversation is "ABYSS_TUT_TAB_01" or "ABYSS_TUT_TAB_01_1")
+        {
+            MixerLoader.SetSnapshot(Snapshots.Cave);
+        }
+        if (args.self.currentConversation == "SENSE_TAB_01")
+        {
+            MixerLoader.SetSnapshot(Snapshots.Arena);
+        }
 
         //convos start at _0 but page numbers start from 1
         int convoNumber = args.self.currentPage - 1;
         string convo = args.self.currentConversation + "_" + convoNumber;
 
         float removeTime = convoNumber == 0 ? 3 / 5f : 3 / 4f;
+
+        if (DWInspects.Contains(args.self.currentConversation))
+        {
+            convo = PlayerData.instance.hasDreamNail == false ? args.self.currentConversation + "_ALT_0" : args.self.currentConversation + "_0";
+        }
         
         if (args.self.currentConversation == "DREAM")
         {
@@ -133,6 +168,11 @@ public static class NPCDialogue
         if (args.self.currentConversation == "WHITE_DEFENDER_OUTRO_1a" || args.self.currentConversation == "WHITE_DEFENDER_OUTRO_1b")
         {
             convo = args.self.currentConversation == "WHITE_DEFENDER_OUTRO_1a" ? "WHITE_DEFENDER_OUTRO_1A_0" : "WHITE_DEFENDER_OUTRO_1B_0";
+        }
+        
+        if (args.self.currentConversation == "JINN_OFFER")
+        {
+            return;
         }
         
         if (args.self.currentConversation == "GRUB_BOTTLE_DREAM") 

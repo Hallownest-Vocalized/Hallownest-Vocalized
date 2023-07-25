@@ -8,6 +8,7 @@ public class UITextAudio
     public static bool OpenInvMenu = false;
     public static bool ShopMenuClosed = true;
     public static bool InvMenuClosed = true;
+    public static bool AudioQueued = false;
     
     public static void Hook()
     {
@@ -20,14 +21,21 @@ public class UITextAudio
         FSMEditData.AddGameObjectFsmEdit("Enemy List", "Item List Control Custom", PlayEquipmentText);
         //new Hook(typeof(SFCore.ItemHelper).GetMethod("CreateEquipmentPane", BindingFlags.Static | BindingFlags.NonPublic), PlayEquipmentText);
     }
+    
+    static IEnumerator AudioStop()
+    {
+        yield return new WaitUntil(AudioPlayer.IsPlaying);
+        AudioPlayer.StopPlaying();
+    }
+    
     public static void PlayCharmText(PlayMakerFSM fsm)
     {
-        fsm.AddFsmMethod("Change Text", () => { MixerLoader.SetSnapshot(Snapshots.Dream); fsm.PlayUIText("Convo Desc", UIAudioType.Other); });
+        fsm.AddFsmMethod("Change Text", () => { MixerLoader.SetSnapshot(Snapshots.Cliffs); fsm.PlayUIText("Convo Desc", UIAudioType.Other); });
     }
 
     public static void PlayInventoryText(PlayMakerFSM fsm)
     {
-        fsm.AddFsmMethod("Change Text", () => { MixerLoader.SetSnapshot(Snapshots.Dream); fsm.PlayUIText("Convo Desc", UIAudioType.Other); });
+        fsm.AddFsmMethod("Change Text", () => { MixerLoader.SetSnapshot(Snapshots.Cliffs); fsm.PlayUIText("Convo Desc", UIAudioType.Other); });
     }
 
     public static void PlayJournalText(PlayMakerFSM fsm)
@@ -60,7 +68,7 @@ public class UITextAudio
             audio = "Item Desc Convo";
         }
         
-        MixerLoader.SetSnapshot(Snapshots.Dream);
+        MixerLoader.SetSnapshot(Snapshots.Cliffs);
         fsm.PlayUIText(audio, UIAudioType.Other);
         yield return audio;
     }
@@ -70,7 +78,7 @@ public class UITextAudio
     {
         // orig(newPaneGo);
         // PlayMakerFSM fsm = newPaneGo.FindGameObjectInChildren("Enemy List").LocateMyFSM("Item List Control Custom");
-        fsm.AddFsmMethod("Get Details", () => { MixerLoader.SetSnapshot(Snapshots.Dream); fsm.PlayUIText("Item Notes Convo", UIAudioType.Other); });
+        fsm.AddFsmMethod("Get Details", () => { MixerLoader.SetSnapshot(Snapshots.Cliffs); fsm.PlayUIText("Item Notes Convo", UIAudioType.Other); });
     }
 
 
@@ -79,13 +87,29 @@ public class UITextAudio
         //Checks when you open the shop keeper menu
         fsm.AddFsmMethod("Open Window", () => { OpenShopMenu = true; ShopMenuClosed = false; });
         //Checks when you close a shop keeper menu
-        fsm.AddFsmMethod("Down", () => { AudioPlayer.StopPlaying(); ShopMenuClosed = true; OpenShopMenu = false; });
+        fsm.AddFsmMethod("Down", () => { 
+            if (AudioQueued == true)
+            {
+                HKVocals.CoroutineHolder.StartCoroutine(AudioStop());
+            } 
+            AudioPlayer.StopPlaying(); 
+            ShopMenuClosed = true; 
+            OpenShopMenu = false; 
+        });
     }
 
     public static void InventoryOpenClose(PlayMakerFSM fsm)
     {
         fsm.AddFsmMethod("Open", () => { OpenInvMenu = true; InvMenuClosed = false; });
-        fsm.AddFsmMethod("Close", () => { AudioPlayer.StopPlaying(); InvMenuClosed = true; OpenInvMenu = false; });
+        fsm.AddFsmMethod("Close", () => {
+            if (AudioQueued == true)
+            {
+                HKVocals.CoroutineHolder.StartCoroutine(AudioStop());
+            }
+            AudioPlayer.StopPlaying();
+            InvMenuClosed = true;
+            OpenInvMenu = false;
+        });
     }
 
     public static void PlayShopText(PlayMakerFSM fsm)

@@ -9,7 +9,7 @@ public class GlobalSettings
     public bool dnDialogue = true;
     public bool automaticBossDialogue = false;
     public bool scrollLock = false;
-    public bool dampenAudio = true;
+    public bool dampenAudio = false;
     public bool paleCourt = false;
     public bool settingsOpened = false;
     public List<string> FinishedNPCDialoge;

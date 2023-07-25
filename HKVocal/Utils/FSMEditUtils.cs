@@ -60,7 +60,9 @@ public static class FSMEditUtils
             }
             else if (UITextAudio.OpenInvMenu)
             {
+                UITextAudio.AudioQueued = true;
                 yield return new WaitForSeconds(1f);
+                UITextAudio.AudioQueued = false;
                 UITextAudio.OpenInvMenu = false;
             } 
             else

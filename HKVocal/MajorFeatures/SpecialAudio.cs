@@ -96,6 +96,7 @@ public static class SpecialAudio
         {
             for (int i = 1; i < 6; i++)
             {
+                MixerLoader.SetSnapshot(Snapshots.Arena);
                 AudioPlayer.TryPlayAudioFor("DREAMERS_INSPECT_RG" + i);
                 yield return new WaitWhile(() => AudioPlayer.IsPlaying());
             }
@@ -108,13 +109,25 @@ public static class SpecialAudio
         }
         fsm.InsertCustomAction("Fade Up", () => dreamerCo = fsm.StartCoroutine(DreamerAudio()), 0);
         fsm.InsertCustomAction("Msg Down", Stop, 0);
-        fsm.AddCustomAction("Update Map?", () => AudioPlayer.TryPlayAudioFor("DREAMERS_INSPECT_RG6"));
+        fsm.AddCustomAction("Update Map?", () =>
+        {
+            MixerLoader.SetSnapshot(Snapshots.Arena);
+            AudioPlayer.TryPlayAudioFor("DREAMERS_INSPECT_RG6");
+        });
     }
 
     public static void PlayTHKPlaqueDialogue(PlayMakerFSM fsm)
     {
-        fsm.InsertCustomAction("Stop", () => AudioPlayer.TryPlayAudioFor("RUINS_FOUNTAIN"), 0);
+        fsm.InsertCustomAction("Stop", () =>
+        {
+            MixerLoader.SetSnapshot(Snapshots.Cliffs);
+            AudioPlayer.TryPlayAudioFor("RUINS_FOUNTAIN");
+        }, 0);
         fsm.InsertCustomAction("Fade Down", () => AudioPlayer.StopPlaying(), 0);
-        fsm.AddCustomAction("Update Map?", () => AudioPlayer.TryPlayAudioFor("PROMPT_MAP_BLACKEGG"));
+        fsm.AddCustomAction("Update Map?", () =>
+        {
+            MixerLoader.SetSnapshot(Snapshots.Cliffs);
+            AudioPlayer.TryPlayAudioFor("PROMPT_MAP_BLACKEGG");
+        });
     }
 }
