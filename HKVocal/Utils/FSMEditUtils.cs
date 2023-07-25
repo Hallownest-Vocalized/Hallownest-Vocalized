@@ -4,7 +4,6 @@ namespace HKVocals;
 
 public static class FSMEditUtils
 {
-    public static string pcConvo = "";
 
     public static void CreateDreamDialogue(string convName, string sheetName)
     {
@@ -65,9 +64,9 @@ public static class FSMEditUtils
                 }
             }
             
-            if (fsm.FsmVariables.GetFsmString(audiokey).Value == "CHARM_DESC_10" && pcConvo == "CHARM_DESC_PC_10_0")
+            if (fsm.FsmVariables.GetFsmString(audiokey).Value == "CHARM_DESC_10" && FiveKnights.FiveKnights.Instance.SaveSettings.upgradedCharm_10 == true)
             {
-                AudioPlayer.TryPlayAudioFor(pcConvo);
+                AudioPlayer.TryPlayAudioFor("CHARM_DESC_PC_10_0");
             }
             else
             {

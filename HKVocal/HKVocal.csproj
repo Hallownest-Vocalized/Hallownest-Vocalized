@@ -31,6 +31,9 @@
         <Reference Include="FrogCore">
             <HintPath>$(HollowKnightFolder)\Mods\FrogCore\FrogCore.dll</HintPath>
         </Reference>
+        <Reference Include="PaleCourt">
+          <HintPath>$(HollowKnightFolder)\Mods\Pale Court\PaleCourt.dll</HintPath>
+        </Reference>
         <Reference Include="SFCore">
             <HintPath>$(HollowKnightFolder)\Mods\SFCore\SFCore.dll</HintPath>
         </Reference>
