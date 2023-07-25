@@ -196,9 +196,12 @@ public static class NPCDialogue
         
         #region PaleCourt
 
-        if (args.self.currentConversation == "SHEO_DREAM")
+        if (ModHooks.GetMod("Pale Court") is Mod)
         {
-            convo = pcConvo;
+            if (args.self.currentConversation == "SHEO_DREAM")
+            {
+                convo = pcConvo;
+            }
         }
 
         switch (args.self.currentConversation)

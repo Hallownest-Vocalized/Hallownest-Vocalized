@@ -75,14 +75,6 @@ public static class ModMenu
                 },
                 () => HKVocals._globalSettings.dampenAudio),
 
-            Blueprints.HorizontalBoolOption("Pale Court",
-                "Should the pale court mod be voiced? (require's pale court mod)",
-                i =>
-                {
-                    HKVocals._globalSettings.paleCourt = i;
-                },
-                () => HKVocals._globalSettings.paleCourt),
-
             new MenuButton("Join the HNVocals Discord!","",(_)=>
             {
                 Application.OpenURL("https://discord.gg/p72F2St3RF");
