@@ -4,7 +4,8 @@ namespace HKVocals;
 
 public static class FSMEditUtils
 {
-
+    private static bool PCUpgradedCharm10() => FiveKnights.FiveKnights.Instance.SaveSettings.upgradedCharm_10;
+    
     public static void CreateDreamDialogue(string convName, string sheetName)
     {
         PlayMakerFSM fsm = FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value.LocateMyFSM("Display");
@@ -69,16 +70,21 @@ public static class FSMEditUtils
             }
 
 
-            if (fsm.FsmVariables.GetFsmString(audiokey).Value == "CHARM_DESC_10" &&
-                FiveKnights.FiveKnights.Instance.SaveSettings.upgradedCharm_10 == true &&
-                ModHooks.GetMod("Pale Court") is Mod)
+            if (ModHooks.GetMod("Pale Court") is Mod)
             {
-                AudioPlayer.TryPlayAudioFor("CHARM_DESC_PC_10_0");
+                if (fsm.FsmVariables.GetFsmString(audiokey).Value == "CHARM_DESC_10" && PCUpgradedCharm10())
+                {
+                    AudioPlayer.TryPlayAudioFor("CHARM_DESC_PC_10_0");
+                }
+                else
+                {
+                    AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
+                }  
             }
             else
             {
                 AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
-            }
+            }  
         }
     }
     
