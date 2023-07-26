@@ -5,3 +5,4 @@ Osmi
 SFCore
 FrogCore
 Hallownest-Vocalized-AudioLoader
+Pale Court
