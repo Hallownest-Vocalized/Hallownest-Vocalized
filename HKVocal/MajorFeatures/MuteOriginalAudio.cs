@@ -64,18 +64,19 @@ public static class MuteOriginalAudio
         ToMuteAudioSources.Values.ForEach(data =>
         {
             //we wanna make sure that audiosource is not playing something else
-            if (ClipsToMute.Contains(data.originalAudioSource.clip.name))
+            //if (ClipsToMute.Contains(data.originalAudioSource.clip.name))
+            if (AudioAPI.CustomMuteList.Contains(data.originalAudioSource.clip.name))
             {
                 data.Mute();
             }
 
-            if (HKVocals._globalSettings.paleCourt == true)
+            /*if (HKVocals._globalSettings.paleCourt == true)
             {
                 if (PCClipsToMute.Contains(data.originalAudioSource.clip.name))
                 {
                     data.Mute();
                 }
-            }
+            }*/
         });
     }
     
@@ -168,14 +169,15 @@ public static class MuteOriginalAudio
     private static bool StoreAudioSourceToMute(AudioSource source) => StoreAudioSourceToMute(source, source.clip);
     private static bool StoreAudioSourceToMute(AudioSource source, AudioClip clip)
     {
-        if (clip != null && ClipsToMute.Contains(clip.name))
+        //if (clip != null && ClipsToMute.Contains(clip.name))
+        if (clip != null && AudioAPI.CustomMuteList.Contains(clip.name))
         {
             ToMuteAudioSources[clip.name] = new(source);
             HKVocals.instance.LogDebug($"Storing audio for mute {clip.name}");
             return true;
         }
 
-        if (HKVocals._globalSettings.paleCourt == true)
+        /*if (HKVocals._globalSettings.paleCourt == true)
         {
             if (clip != null && PCClipsToMute.Contains(clip.name))
             {
@@ -183,7 +185,7 @@ public static class MuteOriginalAudio
                 HKVocals.instance.LogDebug($"Storing audio for mute {clip.name}");
                 return true;
             }
-        }
+        }*/
 
         return false;
     }
@@ -213,6 +215,8 @@ public static class MuteOriginalAudio
     #endregion
 
     // we need to stop these from playing when voice actor (VA) is speaking
+    /*
+    Moved to Audio Loaders
     private static readonly List<string> ClipsToMute = new ()
     {
         "Salubra_Laugh_Loop",
@@ -288,7 +292,7 @@ public static class MuteOriginalAudio
         "sheo_2",
         "smith_1",
         "smith_2",
-    };
+    };*/
 
     private static readonly List<string> ClipsToInclude = new()
     {
