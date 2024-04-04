@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 public static class AutomaticBossDialogue {
 
-    // DN Dialogue prefix to allow for distinguishing of automatic and player-actived dialogue
+    // DN Dialogue prefix to allow for distinguishing of automatic and player-activated dialogue
     public const string ABDKeyPrefix = "HKVocals_ABD_";
     private const string ANY_GO = "*";
 
@@ -48,13 +48,13 @@ public static class AutomaticBossDialogue {
 
     private static readonly Dictionary<FsmLocation, ABDStates> BossDialogueGoFsm = new Dictionary<FsmLocation, ABDStates> {
         { new FsmLocation("False Knight New", "FalseyControl"), new ABDStates(new Dictionary<string, ABDLine> {
-            { "Start Fall", new ABDLine(new string[] { "FALSE_KNIGHT_1" }, 1f, 5f )},
-            { "Recover", new ABDLine(new string[] { "FALSE_KNIGHT_2", "FALSE_KNIGHT_3" }, 1f, 1f )},
+            { "Start Fall", new ABDLine(["FALSE_KNIGHT_1"], 1f, 5f )},
+            { "Recover", new ABDLine(["FALSE_KNIGHT_2", "FALSE_KNIGHT_3"], 1f, 1f )},
         })},
         
         { new FsmLocation("False Knight Dream", "FalseyControl"), new ABDStates(new Dictionary<string, ABDLine> {
-            { "Start Fall", new ABDLine(new string[] { "FALSE_KNIGHT_D_1" }, 1f, 5f )},
-            { "Recover", new ABDLine(new string[] { "FALSE_KNIGHT_D_2", "FALSE_KNIGHT_D_3" }, 1f, 1f )},
+            { "Start Fall", new ABDLine(["FALSE_KNIGHT_D_1"], 1f, 5f )},
+            { "Recover", new ABDLine(["FALSE_KNIGHT_D_2", "FALSE_KNIGHT_D_3"], 1f, 1f )},
         })},
 
         { new FsmLocation("Oro", "nailmaster"), new ABDStates(new Dictionary<string, ABDLine>(), new Dictionary<string, Func<GameObject, IEnumerator>> {
@@ -62,65 +62,70 @@ public static class AutomaticBossDialogue {
         }) },
 
         { new FsmLocation("Jar Collector", "Control"), new ABDStates(new Dictionary<string, ABDLine> {
-            { "Slam", new ABDLine(new string[] { "JAR_COLLECTOR_1", "JAR_COLLECTOR_2", "JAR_COLLECTOR_3" }, 0.4f ) }
+            { "Slam", new ABDLine(["JAR_COLLECTOR_1", "JAR_COLLECTOR_2", "JAR_COLLECTOR_3"], 0.4f ) }
         })},
 
         { new FsmLocation("Dream Mage Lord Phase2", "Mage Lord 2"), new ABDStates(new Dictionary<string, ABDLine> {
-            { "Music", new ABDLine(new string[] { "MAGELORD_D_1" } ) }
+            { "Music", new ABDLine(["MAGELORD_D_1"] ) }
         })},
 
         { new FsmLocation("Grey Prince", "Control"), new ABDStates(new Dictionary<string, ABDLine> {
-            { "Jump", new ABDLine(new string[] { "GREY_PRINCE_1", "GREY_PRINCE_2", "GREY_PRINCE_3", "GREY_PRINCE_4", "GREY_PRINCE_5" }, 0.2f )},
-            { "Spit Dir", new ABDLine(new string[] { "GREY_PRINCE_1", "GREY_PRINCE_2", "GREY_PRINCE_3", "GREY_PRINCE_4", "GREY_PRINCE_5" }, 0.2f )}
+            { "Jump", new ABDLine(["GREY_PRINCE_1", "GREY_PRINCE_2", "GREY_PRINCE_3", "GREY_PRINCE_4", "GREY_PRINCE_5"], 0.2f )},
+            { "Spit Dir", new ABDLine(["GREY_PRINCE_1", "GREY_PRINCE_2", "GREY_PRINCE_3", "GREY_PRINCE_4", "GREY_PRINCE_5"], 0.2f )}
         })},
+
+        { new FsmLocation("Dung Defender", "Dung Defender"), new ABDStates(new Dictionary<string, ABDLine>(), new Dictionary<string, Func<GameObject, IEnumerator>> {
+            { "Wake", DungDefenderDialogue }
+        }) },
 
         // Absolute Radiance
 
         { new FsmLocation("Absolute Radiance", "Control"), new ABDStates(new Dictionary<string, ABDLine> {
-            { "Set Arena 1", new ABDLine(new string[] { "RADIANCE_1" }, 1f, 5f )},
-            { "Rage1 Tele", new ABDLine(new string[] { "RADIANCE_3" } )},
-            { "Tendrils1", new ABDLine(new string[] { "RADIANCE_4" } )},
-            { "Arena 2 Start", new ABDLine(new string[] { "RADIANCE_5" }, 1f, 2f )},
-            { "Scream", new ABDLine(new string[] { "RADIANCE_6" }, 1f, 5f )}
+            { "Set Arena 1", new ABDLine(["RADIANCE_1"], 1f, 5f )},
+            { "Rage1 Tele", new ABDLine(["RADIANCE_3"] )},
+            { "Tendrils1", new ABDLine(["RADIANCE_4"] )},
+            { "Arena 2 Start", new ABDLine(["RADIANCE_5"], 1f, 2f )},
+            { "Scream", new ABDLine(["RADIANCE_6"], 1f, 5f )}
         })},
 
         { new FsmLocation("Absolute Radiance", "Phase Control"), new ABDStates(new Dictionary<string, ABDLine> {
-            { "Set Phase 2", new ABDLine(new string[] { "RADIANCE_2" } )}
+            { "Set Phase 2", new ABDLine(["RADIANCE_2"] )}
         })},
 
         // Radiance
 
         { new FsmLocation("Radiance", "Control"), new ABDStates(new Dictionary<string, ABDLine> {
-            { "Set Arena 1", new ABDLine(new string[] { "RADIANCE_1" }, 1f, 5f )},
-            { "Rage1 Tele", new ABDLine(new string[] { "RADIANCE_3" } )},
-            { "Tendrils1", new ABDLine(new string[] { "RADIANCE_4" } )},
-            { "Arena 2 Start", new ABDLine(new string[] { "RADIANCE_5" }, 1f, 2f )},
-            { "Ascend Tele", new ABDLine(new string[] { "RADIANCE_6" }, 1f, 5f )}
+            { "Set Arena 1", new ABDLine(["RADIANCE_1"], 1f, 5f )},
+            { "Rage1 Tele", new ABDLine(["RADIANCE_3"] )},
+            { "Tendrils1", new ABDLine(["RADIANCE_4"] )},
+            { "Arena 2 Start", new ABDLine(["RADIANCE_5"], 1f, 2f )},
+            { "Ascend Tele", new ABDLine(["RADIANCE_6"], 1f, 5f )}
         })},
 
         { new FsmLocation("Radiance", "Phase Control"), new ABDStates(new Dictionary<string, ABDLine> {
-            { "Set Phase 2", new ABDLine(new string[] { "RADIANCE_2" } )}
+            { "Set Phase 2", new ABDLine(["RADIANCE_2"] )}
         })}
+
 
     };
 
     private static readonly Dictionary<FsmLocation, Dictionary<float, ABDLine>> HealthTriggers = new Dictionary<FsmLocation, Dictionary<float, ABDLine>> {
         { new FsmLocation("Dream Mage Lord", "Dream Mage Lord"), new Dictionary<float, ABDLine> {
-            { 2f / 3f, new ABDLine(new string[] { "MAGELORD_D_2" }) }, 
-            { 1f / 3f, new ABDLine(new string[] { "MAGELORD_D_3" }) }
+            { 2f / 3f, new ABDLine(["MAGELORD_D_2"]) }, 
+            { 1f / 3f, new ABDLine(["MAGELORD_D_3"]) }
         }},
         { new FsmLocation("Hornet Boss 1", "Hornet Boss 1", "Fungus1_04_boss"), new Dictionary<float, ABDLine> {
-            { 3f / 4f, new ABDLine(new string[] { "HORNET_GREENPATH_1" }) }, 
-            { 2f / 4f, new ABDLine(new string[] { "HORNET_GREENPATH_2" }) },
-            { 1f / 4f, new ABDLine(new string[] { "HORNET_GREENPATH_3" }) }
+            { 3f / 4f, new ABDLine(["HORNET_GREENPATH_1"]) }, 
+            { 2f / 4f, new ABDLine(["HORNET_GREENPATH_2"]) },
+            { 1f / 4f, new ABDLine(["HORNET_GREENPATH_3"]) }
         }},
         { new FsmLocation("Hornet Boss 2", "Hornet Boss 2", "GG_Hornet_2"), new Dictionary<float, ABDLine> {
-            { 3f / 4f, new ABDLine(new string[] { "HORNET_GG_1" }) }, 
-            { 2f / 4f, new ABDLine(new string[] { "HORNET_GG_2" }) },
-            { 1f / 4f, new ABDLine(new string[] { "HORNET_GG_3" }) }
+            { 3f / 4f, new ABDLine(["HORNET_GG_1"]) }, 
+            { 2f / 4f, new ABDLine(["HORNET_GG_2"]) },
+            { 1f / 4f, new ABDLine(["HORNET_GG_3"]) }
         }},
         { new FsmLocation("Oro", "Oro"), new Dictionary<float, ABDLine> {
-            { 0.3f, new ABDLine(new string[] { "ORO_1" }) }
+            { 0.3f, new ABDLine(["ORO_1"]) }
         }}
     };
 
@@ -239,10 +244,13 @@ public static class AutomaticBossDialogue {
         DreamNailDialogue.InvokeAutomaticBossDialogue(mato, "MATO_2");
     }
 
-    private static void AddToSoulTyrant_Phase2(PlayMakerFSM fsm)
-    {
-        HKVocals.instance.LogDebug("Adiing ADB to Soul Tyrant Phase 2");
-        //i chose music cuz its after the wait and its just when tyrant dives
-        fsm.InsertFsmAction("Music", new DreamDialogueAction(ABDKeyPrefix + "MAGELORD_D_1","Enemy Dreams"), 0);
+    private static IEnumerator DungDefenderDialogue(GameObject boss) {
+        yield return new WaitForSeconds(5f);
+        DreamNailDialogue.InvokeAutomaticBossDialogue(boss, "DUNG_DEF_1");
+        yield return new WaitForSeconds(AudioPlayer.GetAudioFor("$Dung Defender$_DUNG_DEF_1_0_1").length + 4f);
+        DreamNailDialogue.InvokeAutomaticBossDialogue(boss, "DUNG_DEF_2");
+        yield return new WaitForSeconds(AudioPlayer.GetAudioFor("$Dung Defender$_DUNG_DEF_2_0_1").length + 4f);
+        DreamNailDialogue.InvokeAutomaticBossDialogue(boss, "DUNG_DEF_3");
     }
+
 }
