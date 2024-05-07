@@ -7,43 +7,33 @@ public static class AutomaticBossDialogue {
     public const string ABDKeyPrefix = "HKVocals_ABD_";
     private const string ANY_GO = "*";
 
-    private static List<Func<HealthManager, bool>> HpListeners = new List<Func<HealthManager, bool>>();
-
-    struct FsmLocation {
-        public string scene;
-        public string go;
-        public string fsm;
-
-        public FsmLocation(string go, string fsm, string scene = null) {
-            this.go = go;
-            this.fsm = fsm;
-            this.scene = scene;
-        }
+    struct FsmLocation(string go, string fsm, string scene = null) {
+        public string scene = scene;
+        public string go = go;
+        public string fsm = fsm;
     }
 
-    struct ABDLine {
-        public string[] lines;
-        public float chance;
-        public float wait;
-
-        public ABDLine(string[] lines, float chance = 1f, float wait = 0) {
-            this.lines = lines;
-            this.chance = chance;
-            this.wait = wait;
-        }
+    struct GenericBoss(string go, string key, bool requiresDreamNail = false) {
+        public string go = go;
+        public string key = key;
+        public bool requiresDreamNail = requiresDreamNail;
     }
 
-    struct ABDStates {
-        public Dictionary<string, ABDLine> dialogueStates;
-        public Dictionary<string, Func<GameObject, IEnumerator>> coroutineStates;
-        public Action<GameObject> init;
+    struct ABDLine(string[] lines, float chance = 1f, float wait = 0) {
+        public string[] lines = lines;
+        public float chance = chance;
+        public float wait = wait;
+    }
 
-        public ABDStates(Dictionary<string, ABDLine> dialogueStates, Dictionary<string, Func<GameObject,IEnumerator>> coroutineStates = null, Action<GameObject> init = null) {
-            this.dialogueStates = dialogueStates;
-            this.coroutineStates = coroutineStates;
-            
-            this.init = init;
-        }    
+    struct ABDStates(Dictionary<string, ABDLine> dialogueStates, Dictionary<string, Func<GameObject, IEnumerator>> coroutineStates = null, Action<GameObject> init = null) {
+        public Dictionary<string, ABDLine> dialogueStates = dialogueStates;
+        public Dictionary<string, Func<GameObject, IEnumerator>> coroutineStates = coroutineStates;
+        public Action<GameObject> init = init;
+    }
+
+    public enum BossClassification {
+        Normal,
+        RequiresDreamNail
     }
 
     private static readonly Dictionary<FsmLocation, ABDStates> BossDialogueGoFsm = new Dictionary<FsmLocation, ABDStates> {
@@ -109,7 +99,7 @@ public static class AutomaticBossDialogue {
 
     };
 
-    private static readonly Dictionary<FsmLocation, Dictionary<float, ABDLine>> HealthTriggers = new Dictionary<FsmLocation, Dictionary<float, ABDLine>> {
+    private static readonly Dictionary<FsmLocation, Dictionary<float, ABDLine>> HealthTriggers = new() {
         { new FsmLocation("Dream Mage Lord", "Dream Mage Lord"), new Dictionary<float, ABDLine> {
             { 2f / 3f, new ABDLine(["MAGELORD_D_2"]) }, 
             { 1f / 3f, new ABDLine(["MAGELORD_D_3"]) }
@@ -129,10 +119,55 @@ public static class AutomaticBossDialogue {
         }}
     };
 
-    private static Dictionary<FsmLocation, float> LastHealthValues = new Dictionary<FsmLocation, float>();
-    private static Dictionary<FsmLocation, float> MaxHealthValues = new Dictionary<FsmLocation, float>();
+    // Generic bosses (Play lines at 75%, 50%, 25% HP)
+    // From the GameObject name only
+    private static readonly List<GenericBoss> GenericBosses = [
+        new GenericBoss("Hive Knight", "HIVE_KNIGHT", true),
+        new GenericBoss("Mawlek Body", "MAWLEK", true),
+        new GenericBoss("Fluke Mother", "FLUKEMOTHER", true),
+        new GenericBoss("Lobster", "GENERIC", true),
+        new GenericBoss("Giant Fly", "GRUZMOTHER", true),
+        new GenericBoss("Mega Moss Charger", "GENERIC", true),
+        new GenericBoss("Mage Knight", "MAGE_KNIGHT", true),
+        new GenericBoss("Mega Jellyfish", "MEGAJELLYFISH", true),
 
-    public static void Hook() { 
+        new GenericBoss("Mega Zombie Beam Miner", "ZOMBIE_MEGA_MINER"),
+        new GenericBoss("Lancer", "ZOMBIE"),
+        new GenericBoss("Sly Boss", "SLY"),
+        new GenericBoss("Grimm Boss", "GRIMM"),
+        new GenericBoss("Nightmare Grimm Boss", "NIGHTMARE_GRIMM"),
+        new GenericBoss("Sheo Boss", "SHEO"),
+        new GenericBoss("Mantis Traitor Lord", "MANTIS_TRAITOR"),
+        new GenericBoss("Zote Boss", "ZOTE")
+    ];
+
+    private static readonly Dictionary<FsmLocation, float> LastHealthValues = [];
+    private static readonly Dictionary<FsmLocation, float> MaxHealthValues = [];
+
+    public static void Hook() {     
+        // Add all the generic bosses to HealthTriggers
+        foreach (var boss in GenericBosses) {
+            // Get all dialogue
+            var keys = HallownestVocalizedAudioLoaderMod.AudioNames.FindAll(s => s.StartsWith(boss.key.ToUpper()));
+            int lineCount = Math.Min(keys.Count, 3);
+
+            var lines = new Dictionary<float, ABDLine>();
+
+            for (int i = 0; i < lineCount; i ++) {
+                var keyIndex = Random.Range(0, keys.Count);
+
+                float percentage = (i + 1f) / (lineCount + 1f);
+                lines[percentage] = new ABDLine([ keys[keyIndex] ]);
+
+                keys.RemoveAt(keyIndex);
+            }
+            
+            HealthTriggers.Add(
+                new FsmLocation(boss.go, ""), // Empty FSM name for generic bosses
+                lines
+            );
+        }
+
         OnHealthManager.AfterOrig.Start += InitHpListeners;
         OnHealthManager.AfterOrig.TakeDamage += CheckHpListeners;
 
@@ -158,10 +193,8 @@ public static class AutomaticBossDialogue {
                 );
             }
 
-            if (pair.Value.init != null) {
-                // @TODO: This might not work for every location
-                pair.Value.init(GameObject.Find(pair.Key.go));
-            }
+            // @TODO: This might not work for every location
+            pair.Value.init?.Invoke(GameObject.Find(pair.Key.go));
         }
     }
 
@@ -186,6 +219,9 @@ public static class AutomaticBossDialogue {
         if (fsm == null) return null;
 
         foreach (var entry in HealthTriggers) {
+            // Generic boss check (empty FSM)
+            if (entry.Key.fsm == "" && go.name == entry.Key.go) return entry.Key;
+
             if (entry.Key.fsm == fsm.name && entry.Key.go == go.name && (entry.Key.scene == null || entry.Key.scene == go.scene.name)) {
                 return entry.Key;
             }
@@ -196,8 +232,8 @@ public static class AutomaticBossDialogue {
         return null;
     }
 
-    private static void InitHpListeners(OnHealthManager.Delegates.Params_Start args) {
-
+    private static void InitHpListeners(OnHealthManager.Delegates.Params_Start args) {        
+        // Otherwise, use the manual health trigger registration
         var location = GetHealthTrigger(args.self);
         if (location == null) return;
 
@@ -217,21 +253,31 @@ public static class AutomaticBossDialogue {
         float currentHpPercent = (float) args.self.hp / (float) MaxHealthValues[trigger];
 
         foreach (var entry in HealthTriggers[trigger]) {
-            if (lastHpPercent > entry.Key && currentHpPercent <= entry.Key) PlayABDLine(entry.Value, args.self.gameObject);
+            if (lastHpPercent > entry.Key && currentHpPercent <= entry.Key) {
+                // Health has gone below a threshold, so play the line
+                // However, one edge case: if it's a generic boss with
+                // requiresDreamNail set to true and the player doesn't
+                // have the DN, don't play
+
+                // We should probably have a lookup table for boss gos
+                var matchingGenericBosses = GenericBosses.Where(boss => boss.go == trigger.go);
+                if (matchingGenericBosses.Count() == 0) {
+                    // Not a generic boss, play
+                    PlayABDLine(entry.Value, args.self.gameObject);
+                } else {
+                    var genericBoss = matchingGenericBosses.First();
+
+                    if (
+                        (genericBoss.requiresDreamNail && PlayerData.instance.hasDreamNail) ||
+                        (!genericBoss.requiresDreamNail)
+                    ) {
+                        PlayABDLine(entry.Value, args.self.gameObject);
+                    }
+                }
+            }
         }
 
         LastHealthValues[trigger] = args.self.hp;
-    }
-    
-    private static void AddHPDialogue(HealthManager hm, string key, int hpBenchmark) {
-        HpListeners.Add(hmInstance => {
-            if (hmInstance == hm && hmInstance.hp < hpBenchmark) {
-                DreamNailDialogue.InvokeAutomaticBossDialogue(hm.gameObject, key);
-                return true;
-            }
-
-            return false;
-        });
     }
 
     private static IEnumerator OroDialogue(GameObject oro) {
