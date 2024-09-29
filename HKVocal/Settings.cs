@@ -22,6 +22,7 @@ public class GlobalSettings
     public List<string> FinishedUIDialoge; 
     public bool GotUIAchievement = false;
     public bool GotHJAchievement = false;
+    public bool ForceMenuTheme = false;
 }
 public class SaveSettings
 {
