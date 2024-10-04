@@ -9,7 +9,7 @@ public static class StyleLoader
 
     public static void LoadAssetBundle()
     {
-        styleBundle = AssetBundle.LoadFromMemory(AssemblyUtils.GetBytesFromResources("Resources.stylebundle"));
+        styleBundle = AssetBundle.LoadFromMemory(SystemInfo.operatingSystemFamily == OperatingSystemFamily.Linux ? AssemblyUtils.GetBytesFromResources("Resources.stylebundlelinux") : AssemblyUtils.GetBytesFromResources("Resources.stylebundle"));
         loaded = true;
     }
 }
