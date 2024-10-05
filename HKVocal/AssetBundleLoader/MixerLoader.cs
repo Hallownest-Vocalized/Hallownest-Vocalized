@@ -135,6 +135,8 @@ public static class MixerLoader
         { "Crossroads_11_alt", Snapshots.Cave },
         { "Crossroads_33", Snapshots.Cave },
         { "Crossroads_45", Snapshots.Cave },
+        { "Crossroads_46", Snapshots.Cave },
+        { "Crossroads_46b", Snapshots.Cave },
         { "Crossroads_ShamanTemple", Snapshots.Cave },
         { "Crossroads_47", Snapshots.Cave },
         { "Crossroads_50", Snapshots.Cave },
@@ -225,6 +227,9 @@ public static class MixerLoader
         { "Deepnest_East_10", Snapshots.Cave }, 
         { "Deepnest_East_17", Snapshots.Cave },
         { "Deepnest_East_Hornet", Snapshots.Arena },
+        { "Abyss_03", Snapshots.Cave },
+        { "Abyss_03_b", Snapshots.Cave },
+        { "Abyss_03_c", Snapshots.Cave },
         { "Abyss_04", Snapshots.Cave },
         { "Abyss_05", Snapshots.Arena },
         { "Abyss_06_Core", Snapshots.Cave }, //todo: fix
