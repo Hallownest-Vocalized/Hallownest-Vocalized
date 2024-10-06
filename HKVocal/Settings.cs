@@ -12,6 +12,8 @@ public class GlobalSettings
     public bool dampenAudio = false;
     //public bool paleCourt = false;
     public bool settingsOpened = false;
+    public bool shopAudio = true;
+    public bool invAudio = true;
     public List<string> FinishedNPCDialoge;
     public bool GotNPCAchievement = false;
     public List<string> FinishedDNailDialoge;
@@ -21,6 +23,7 @@ public class GlobalSettings
     public List<string> FinishedUIDialoge; 
     public bool GotUIAchievement = false;
     public bool GotHJAchievement = false;
+    public bool ForceMenuTheme = false;
 }
 public class SaveSettings
 {

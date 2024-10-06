@@ -50,10 +50,9 @@ public static class Achievements
                 _ => orig
         };
     }
-
     private static void Aluba(OnEnemyDreamnailReaction.Delegates.Params_RecieveDreamImpact args)
     {
-        if (args.self.gameObject.name == "Aluba")
+        if (args.self.gameObject.name == "Lazy Flyer Enemy")
         {
             GameManager.instance.AwardAchievement("AlubafarDreamnail");
         }

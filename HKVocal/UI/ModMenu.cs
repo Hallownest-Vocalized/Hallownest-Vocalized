@@ -75,6 +75,22 @@ public static class ModMenu
                 },
                 () => HKVocals._globalSettings.dampenAudio),
 
+            Blueprints.HorizontalBoolOption("Shop",
+                "Should shops be voiced?",
+                i =>
+                {
+                    HKVocals._globalSettings.shopAudio = i;
+                },
+                () => HKVocals._globalSettings.shopAudio),
+            
+            Blueprints.HorizontalBoolOption("Inventory",
+                "Should the inventory be voiced?",
+                i =>
+                {
+                    HKVocals._globalSettings.invAudio = i;
+                },
+                () => HKVocals._globalSettings.invAudio),
+            
             new MenuButton("Join the HNVocals Discord!","",(_)=>
             {
                 Application.OpenURL("https://discord.gg/p72F2St3RF");

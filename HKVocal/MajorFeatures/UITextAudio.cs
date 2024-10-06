@@ -85,9 +85,21 @@ public class UITextAudio
     public static void ShopMenuOpenClose(PlayMakerFSM fsm)
     {
         //Checks when you open the shop keeper menu
-        fsm.AddFsmMethod("Open Window", () => { OpenShopMenu = true; ShopMenuClosed = false; });
+        fsm.AddFsmMethod("Open Window", () => {
+            if (HKVocals._globalSettings.dampenAudio == true)
+            {
+                DampenAudio.StartDampingAudioNormal();
+            }
+            OpenShopMenu = true; 
+            ShopMenuClosed = false; 
+        });
+        
         //Checks when you close a shop keeper menu
-        fsm.AddFsmMethod("Down", () => { 
+        fsm.AddFsmMethod("Down", () => {
+            if (HKVocals._globalSettings.dampenAudio == true)
+            {
+                DampenAudio.ForceStopDampenAudio();
+            }
             if (AudioQueued == true)
             {
                 HKVocals.CoroutineHolder.StartCoroutine(AudioStop());
@@ -100,8 +112,20 @@ public class UITextAudio
 
     public static void InventoryOpenClose(PlayMakerFSM fsm)
     {
-        fsm.AddFsmMethod("Open", () => { OpenInvMenu = true; InvMenuClosed = false; });
+        fsm.AddFsmMethod("Open", () => {
+            if (HKVocals._globalSettings.dampenAudio == true)
+            {
+                DampenAudio.StartDampingAudioNormal();
+            }
+            OpenInvMenu = true; 
+            InvMenuClosed = false; 
+        });
+        
         fsm.AddFsmMethod("Close", () => {
+            if (HKVocals._globalSettings.dampenAudio == true)
+            {
+                DampenAudio.ForceStopDampenAudio();
+            }
             if (AudioQueued == true)
             {
                 HKVocals.CoroutineHolder.StartCoroutine(AudioStop());

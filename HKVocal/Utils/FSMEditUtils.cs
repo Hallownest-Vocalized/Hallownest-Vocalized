@@ -69,22 +69,14 @@ public static class FSMEditUtils
                 }
             }
 
-
-            /*if (ModHooks.GetMod("Pale Court") is Mod)
-            {
-                if (fsm.FsmVariables.GetFsmString(audiokey).Value == "CHARM_DESC_10" && PCUpgradedCharm10())
-                {
-                    AudioPlayer.TryPlayAudioFor("CHARM_DESC_PC_10_0");
-                }
-                else
-                {
-                    AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
-                }  
-            }
-            else*/
+            if (audioType == UIAudioType.Shop && HKVocals._globalSettings.shopAudio == true)
             {
                 AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
-            }  
+            } 
+            else if (audioType == UIAudioType.Other && HKVocals._globalSettings.invAudio == true)
+            {
+                AudioPlayer.TryPlayAudioFor(fsm.FsmVariables.GetFsmString(audiokey).Value + "_0");
+            }
         }
     }
     

@@ -117,7 +117,7 @@ public static class RollCredits
                 {
                     HKVocals.CoroutineHolder.StartCoroutine(GameManager.instance.ReturnToMainMenu(GameManager.ReturnToMainMenuSaveModes.DontSave));
                 }
-                else if (Input.GetKeyDown(KeyCode.O))
+                if (Input.GetKeyDown(KeyCode.O))
                 {
                     doWantToLoadVanillaCredits = true;
                     GameManager.instance.LoadScene("End_Credits");
