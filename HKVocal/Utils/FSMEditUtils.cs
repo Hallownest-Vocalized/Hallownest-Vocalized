@@ -4,6 +4,8 @@ namespace HKVocals;
 
 public static class FSMEditUtils
 {
+    //private static bool PCUpgradedCharm10() => FiveKnights.FiveKnights.Instance.SaveSettings.upgradedCharm_10;
+    
     public static void CreateDreamDialogue(string convName, string sheetName)
     {
         PlayMakerFSM fsm = FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value.LocateMyFSM("Display");
@@ -16,6 +18,12 @@ public static class FSMEditUtils
     {
         //when the UI updates and new text has to be played, no other text can be selected so it makes sense to stop all audio
         AudioPlayer.StopPlaying();
+
+        /*if (AudioPlayer.PaleCourtKeys.Contains(audiokey) && HKVocals._globalSettings.paleCourt == false)
+        {
+            HKVocals.instance.LogWarn("Pale Court audio is not enabled!");
+            return;
+        }*/
 
         if (UITextRoutine != null)
         {

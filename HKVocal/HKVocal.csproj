@@ -22,7 +22,6 @@
     <ItemGroup>
         <Reference Include="Assembly-CSharp">
             <HintPath>$(HollowKnightFolder)\Assembly-CSharp.dll</HintPath>
-            <Private>false</Private>
         </Reference>
         <Reference Include="Core.FsmUtil">
             <HintPath>$(HollowKnightFolder)\Mods\Core.FsmUtil\Core_FsmUtil.dll</HintPath>
@@ -33,9 +32,6 @@
         </Reference>
         <Reference Include="SFCore">
             <HintPath>$(HollowKnightFolder)\Mods\SFCore\SFCore.dll</HintPath>
-        </Reference>
-        <Reference Include="Hallownest-Vocalized-AudioLoader">
-            <HintPath>$(HollowKnightFolder)\Mods\Hallownest-Vocalized-AudioLoader\Hallownest-Vocalized-AudioLoader.dll</HintPath>
         </Reference>
         <Reference Include="HKMirror">
             <HintPath>$(HollowKnightFolder)\Mods\HKMirror\HKMirror.dll</HintPath>

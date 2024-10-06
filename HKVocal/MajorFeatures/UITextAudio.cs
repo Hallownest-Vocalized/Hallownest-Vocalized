@@ -12,12 +12,12 @@ public class UITextAudio
     
     public static void Hook()
     {
-        FSMEditData.AddGameObjectFsmEdit("Enemy List", "Item List Control", PlayJournalText );
-        FSMEditData.AddGameObjectFsmEdit ("Inv", "Update Text", PlayInventoryText );
-        FSMEditData.AddGameObjectFsmEdit ("Charms", "Update Text", PlayCharmText );
-        FSMEditData.AddGameObjectFsmEdit ("Item List", "Item List Control", PlayShopText );
-        FSMEditData.AddGameObjectFsmEdit ("Shop Menu", "shop_control", ShopMenuOpenClose );
-        FSMEditData.AddGameObjectFsmEdit ("Inventory", "Inventory Control", InventoryOpenClose );
+        FSMEditData.AddGameObjectFsmEdit("Enemy List", "Item List Control", PlayJournalText);
+        FSMEditData.AddGameObjectFsmEdit("Inv", "Update Text", PlayInventoryText);
+        FSMEditData.AddGameObjectFsmEdit("Charms", "Update Text", PlayCharmText);
+        FSMEditData.AddGameObjectFsmEdit("Item List", "Item List Control", PlayShopText);
+        FSMEditData.AddGameObjectFsmEdit("Shop Menu", "shop_control", ShopMenuOpenClose);
+        FSMEditData.AddGameObjectFsmEdit("Inventory", "Inventory Control", InventoryOpenClose);
         FSMEditData.AddGameObjectFsmEdit("Enemy List", "Item List Control Custom", PlayEquipmentText);
         //new Hook(typeof(SFCore.ItemHelper).GetMethod("CreateEquipmentPane", BindingFlags.Static | BindingFlags.NonPublic), PlayEquipmentText);
     }

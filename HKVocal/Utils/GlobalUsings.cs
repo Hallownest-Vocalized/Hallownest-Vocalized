@@ -19,7 +19,7 @@ global using HKMirror.Reflection.InstanceClasses;
 global using HKMirror.Reflection.SingletonClasses;
 global using HKMirror.Hooks.OnHooks;
 global using HKMirror.Hooks.ILHooks;
-global using HallownestVocalizedAudioLoader;
+//global using HallownestVocalizedAudioLoader;
 global using UnityEngine.SceneManagement;
 global using Modding;
 global using USceneManager = UnityEngine.SceneManagement.SceneManager;

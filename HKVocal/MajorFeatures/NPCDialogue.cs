@@ -1,4 +1,5 @@
-﻿using Satchel;
+﻿using GlobalEnums;
+using Satchel;
 
 namespace HKVocals.MajorFeatures;
 
@@ -14,6 +15,8 @@ public static class NPCDialogue
     public static event OnPlayNPCDialogueHandler OnPlayNPCDialogue;
 
     public static List<int> CollectorVAs = new List<int>() { 28, 30, 31 };
+
+    public static string pcConvo = "";
 
     public static Dictionary<string, int> GrubVAs = new()
     {
@@ -81,16 +84,20 @@ public static class NPCDialogue
         OnDialogueBox.AfterOrig.ShowPage += PlayAudioForNPCDialogue;
         OnDialogueBox.BeforeOrig.HideText += _ => AudioPlayer.StopPlaying();
     }
-
+    
     private static string LanguageGet(string key, string sheetTitle, string orig)
     {
         if (key == "JINN_OFFER" && sheetTitle != "Prompts")
         {
             AudioPlayer.TryPlayAudioFor("JINN_OFFER_TALK_0", 3 / 5f);
         }
+        if (key == "SHEO_DREAM" && sheetTitle == "Zote")
+        {
+            pcConvo = "SHEO_DREAM_PC_0";
+        }
         return orig;
     }
-
+    
     private static void PlayAudioForNPCDialogue(OnDialogueBox.Delegates.Params_ShowPage args)
     {
         //DialogueBox is a component of DialogueManager/Text
@@ -182,6 +189,31 @@ public static class NPCDialogue
                     }
                 }
         }
+        
+        #region PaleCourt
+        
+        if (args.self.currentConversation == "SHEO_DREAM" && pcConvo == "SHEO_DREAM_PC_0" && ModHooks.GetMod("Pale Court") is Mod ) 
+        {
+            convo = pcConvo;
+        }
+
+        switch (args.self.currentConversation)
+        {
+            case "CC_OUTRO_1a":
+                convo = "CC_OUTRO_1A_0";
+                break;
+            case "CC_OUTRO_1b":
+                convo = "CC_OUTRO_1B_0";
+                break;
+            case "RCC_OUTRO_1a":
+                convo = "RCC_OUTRO_1A_0";
+                break;
+            case "RCC_OUTRO_1b":
+                convo = "RCC_OUTRO_1B_0";
+                break;
+        }
+
+        #endregion
 
         //this controls scroll lock and autoscroll
         DidPlayAudioOnDialogueBox = AudioPlayer.TryPlayAudioFor(convo, removeTime);

@@ -10,6 +10,7 @@ public class GlobalSettings
     public bool automaticBossDialogue = false;
     public bool scrollLock = false;
     public bool dampenAudio = false;
+    //public bool paleCourt = false;
     public bool settingsOpened = false;
     public bool shopAudio = true;
     public bool invAudio = true;

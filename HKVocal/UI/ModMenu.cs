@@ -74,7 +74,7 @@ public static class ModMenu
                     }
                 },
                 () => HKVocals._globalSettings.dampenAudio),
-            
+
             Blueprints.HorizontalBoolOption("Shop",
                 "Should shops be voiced?",
                 i =>

@@ -1,9 +1,21 @@
 ﻿namespace HKVocals;
 public static class AudioPlayer
 {
+    /*public static List<string> PaleCourtKeys = new()
+    {
+
+    };*/
+
     public static bool TryPlayAudioFor(string convName, float removeTime = 0f, AudioSource asrc = null)
     {
         HKVocals.instance.LogDebug($"Trying to play audio for {convName}");
+
+        /*if (PaleCourtKeys.Contains(convName) && HKVocals._globalSettings.paleCourt == false)
+        {
+            HKVocals.instance.LogWarn("Pale Court audio is not enabled!");
+            return false;
+        }*/
+
         if (HasAudioFor(convName))
         {
             if (removeTime != 0f)
@@ -94,6 +106,6 @@ public static class AudioPlayer
 
     public static bool IsPlaying() => HKVocals.instance.audioSource.isPlaying;
     public static void StopPlaying() => HKVocals.instance.audioSource.Stop();
-    public static bool HasAudioFor(string convName) => HallownestVocalizedAudioLoaderMod.AudioNames.Contains(convName);
-    public static AudioClip GetAudioFor(string convName) => HallownestVocalizedAudioLoaderMod.AudioBundle.LoadAsset<AudioClip>(convName);
+    public static bool HasAudioFor(string convName) => AudioAPI.HasAudioFor(convName);
+    public static AudioClip GetAudioFor(string convName) => AudioAPI.GetAudioFor(convName);
 }

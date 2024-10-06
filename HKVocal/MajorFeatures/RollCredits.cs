@@ -1,3 +1,5 @@
+/*
+// Moved to Audio Loader
 using GlobalEnums;
 using Satchel;
 using Image = UnityEngine.UI.Image;
@@ -33,7 +35,7 @@ public static class RollCredits
                 GameManagerR.SetState(GameState.CUTSCENE);
                 UIManagerR.SetState(UIState.CUTSCENE);
                 var aSource = CreditsParent.gameObject.AddComponent<AudioSource>();
-                aSource.clip = HallownestVocalizedAudioLoaderMod.AudioBundle.LoadAsset<AudioClip>("Creditaudio");
+                //aSource.clip = HallownestVocalizedAudioLoaderMod.AudioBundle.LoadAsset<AudioClip>("Creditaudio");
                 aSource.mute = false;
                 aSource.bypassEffects = false;
                 aSource.bypassListenerEffects = false;
@@ -305,4 +307,4 @@ public class ScrollMainCredits : MonoBehaviour
             yield return null;
         }
     }
-}
+}*/
