@@ -148,7 +148,7 @@ public static class AutomaticBossDialogue {
         // Add all the generic bosses to HealthTriggers
         foreach (var boss in GenericBosses) {
             // Get all dialogue
-            var keys = HallownestVocalizedAudioLoaderMod.AudioNames.FindAll(s => s.StartsWith(boss.key.ToUpper()));
+            var keys = AudioAPI.AudioNames.FindAll(s => s.StartsWith(boss.key.ToUpper()));
             int lineCount = Math.Min(keys.Count, 3);
 
             var lines = new Dictionary<float, ABDLine>();

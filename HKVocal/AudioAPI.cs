@@ -4,6 +4,7 @@ public static class AudioAPI
 {
     public static readonly string[] AudioExtensions = new string[] {".mp3", ".wav"};
     private static Dictionary<int, List<IAudioProvider>> AudioProviders = new();
+    public static List<string> AudioNames { get; } = new();
     public static IAudioProvider[] OrderedProviers {get; private set;} = new IAudioProvider[0];
     public static string[] CachedAudioNames = new string[0];
     public static bool ShouldUpdateOrderedProviders {get; private set;} = false;
