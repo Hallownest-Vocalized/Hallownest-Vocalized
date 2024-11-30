@@ -24,6 +24,7 @@ public class GlobalSettings
     public bool GotUIAchievement = false;
     public bool GotHJAchievement = false;
     public bool ForceMenuTheme = false;
+    public bool DevMode = false;
 }
 public class SaveSettings
 {
