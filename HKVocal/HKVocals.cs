@@ -43,7 +43,7 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
         }
     }
     
-    private static string Version = "0.0.1.2";
+    private static string Version = "0.0.1.4";
     public override string GetVersion() => $"{Version}"; // + (AudioLoaderAssemblyExists ? "" : $"ERROR: Missing Hallownest Vocalized AudioLoader"); // No longer depend on original-project audio
 
     public override void Initialize()
