@@ -1,7 +1,6 @@
-using Language;
 using Satchel;
-using UnityEngine.Audio;
 using Newtonsoft.Json;
+using System.Globalization;
 
 namespace HKVocals;
 
@@ -168,11 +167,79 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
                 System.Text.Encoding.Default.GetString(Satchel.AssemblyUtils.GetBytesFromResources("Resources.AchievementKeys.Lore_Tablet_KEYs.json")));
         }
     }
-    //private static Sprite icon;
+    
     private void AddIcon(On.UIManager.orig_Start orig, UIManager self)
     {
         orig(self);
 
+        if (CultureInfo.CurrentCulture.Name != "en-US")
+        {
+
+            Object.Destroy(self.transform.Find("UICanvas/MainMenuScreen/MainMenuButtons/StartGameButton").gameObject);
+            Object.Destroy(self.transform.Find("UICanvas/MainMenuScreen/MainMenuButtons/OptionsButton").gameObject);
+            Object.Destroy(self.transform.Find("UICanvas/MainMenuScreen/MainMenuButtons/AchievementsButton")
+                .gameObject);
+            Object.Destroy(self.transform.Find("UICanvas/MainMenuScreen/MainMenuButtons/ExtrasButton").gameObject);
+
+            var quit = self.transform.Find("UICanvas/MainMenuScreen/MainMenuButtons/QuitGameButton").gameObject;
+            quit.transform.position = new Vector3(quit.transform.position.x, quit.transform.position.y, -20);
+
+            var text = Object.Instantiate(quit, quit.transform.parent.parent);
+            text.RemoveComponent<MenuButtonQuitListCondition>();
+            text.RemoveComponent<UnityEngine.EventSystems.EventTrigger>();
+            text.RemoveComponent<AutoLocalizeTextUI>();
+            text.RemoveComponent<UnityEngine.UI.MenuButton>();
+
+            Object.Instantiate(text.transform.GetChild(0), text.transform);
+            //Object.Instantiate(text.transform.GetChild(0), text.transform);
+
+            text.transform.GetChild(0).GetComponent<UnityEngine.UI.Text>().text = "Set your system language";
+            text.transform.GetChild(0).GetComponent<UnityEngine.UI.Text>().fontSize = 40;
+            text.transform.GetChild(0).GetComponent<RectTransform>().transform.position =
+                new Vector3(quit.transform.position.x, 4, -20);
+            text.transform.GetChild(0).GetComponent<RectTransform>().transform.localPosition = new Vector3(0,
+                text.transform.localPosition.y - 35, text.transform.localPosition.z);
+
+            text.transform.GetChild(1).GetComponent<UnityEngine.UI.Text>().text = "to English (US) to play.";
+            text.transform.GetChild(1).GetComponent<UnityEngine.UI.Text>().fontSize = 40;
+            text.transform.GetChild(1).GetComponent<RectTransform>().transform.position =
+                new Vector3(quit.transform.position.x, 4, -20);
+            text.transform.GetChild(1).GetComponent<RectTransform>().transform.localPosition = new Vector3(0,
+                text.transform.localPosition.y - 35 - 75, text.transform.localPosition.z);
+
+            text.transform.position = new Vector3(quit.transform.position.x, 4, -20);
+            text.transform.localPosition = new Vector3(0, 0, text.transform.localPosition.z);
+
+            // stop sign
+
+            Sprite icon = AssemblyUtils.GetSpriteFromResources("Resources.stop.png");
+
+            var stop = self.transform.Find("UICanvas/MainMenuScreen/TeamCherryLogo/Hidden_Dreams_Logo").gameObject;
+
+            var stopClone = Object.Instantiate(stop, stop.transform.parent);
+            stopClone.SetActive(true);
+
+            stopClone.transform.position = new Vector3(14, 15 - 1.5f - 0.25f, -20);
+            stopClone.transform.SetScaleX(175f / 4f);
+            stopClone.transform.SetScaleY(175f / 4f);
+
+            stopClone.GetComponent<SpriteRenderer>().sprite = icon;
+
+            // backdrop
+
+            GameObject blackBox = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            blackBox.transform.position = new Vector3(14.5f + 0.10f, 9 - 0.15f - 0.25f + 1, -19);
+            blackBox.transform.localScale = new Vector3(5f, 7f + 0.50f - 2, 1);
+            Material blackMaterial = new Material(Shader.Find("Standard"));
+            blackMaterial.color = Color.black;
+
+            Renderer renderer = blackBox.GetComponent<Renderer>();
+            renderer.material = blackMaterial;
+
+            blackBox.transform.SetParent(stopClone.transform.parent.parent);
+            blackBox.transform.localPosition = new Vector3(0, 35, blackBox.transform.localPosition.z);
+        }
+        
         if (!Icon) return;
 
         var dlc = self.transform.Find("UICanvas/MainMenuScreen/TeamCherryLogo/Hidden_Dreams_Logo").gameObject;
