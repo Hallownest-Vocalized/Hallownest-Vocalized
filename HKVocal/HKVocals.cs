@@ -172,7 +172,11 @@ public sealed class HKVocals: Mod, IGlobalSettings<GlobalSettings>, ILocalSettin
     {
         orig(self);
 
-        if (CultureInfo.CurrentCulture.Name != "en-US")
+        var lang = SystemInfo.operatingSystemFamily == OperatingSystemFamily.Linux
+            ? Environment.GetEnvironmentVariable("LANG")
+            : CultureInfo.CurrentCulture.Name;
+
+        if (lang.Contains("en-US"))
         {
 
             Object.Destroy(self.transform.Find("UICanvas/MainMenuScreen/MainMenuButtons/StartGameButton").gameObject);
