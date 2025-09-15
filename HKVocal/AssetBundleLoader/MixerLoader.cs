@@ -314,6 +314,7 @@ public static class MixerLoader
         { "GG_Wyrm", Snapshots.Arena },
         { "GG_Unn", Snapshots.Arena },
         { "GG_Unlock_Wastes", Snapshots.Cliffs },
+        { "hidden_reward_room", Snapshots.Cave }
     };
 }
 
