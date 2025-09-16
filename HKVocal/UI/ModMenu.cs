@@ -71,6 +71,7 @@ public static class ModMenu
                 "Should audio be dampened when audio is played?",
                 i =>
                 {
+                    if (HKVocals._globalSettings.dampenLocked) return;
                     HKVocals._globalSettings.dampenAudio = i;
                     if (!HKVocals._globalSettings.dampenAudio)
                     {

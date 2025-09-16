@@ -19,13 +19,59 @@ public static class AudioMenu
 
         VolumeSlider.transform.localPosition = Vector3.right * 303f;
         VolumeSlider.name = "HK Vocals Slider";
+        
+        GameObject masterVolSlider = GameObject.Find("_UIManager/UICanvas/AudioMenuScreen/Content/MasterVolume/MasterSlider");
+        GameObject soundVolSlider = GameObject.Find("_UIManager/UICanvas/AudioMenuScreen/Content/SoundVolume/SoundSlider");
+        GameObject musicVolSlider = GameObject.Find("_UIManager/UICanvas/AudioMenuScreen/Content/MusicVolume/MusicSlider");
 
+        int[] volumes = [
+            int.Parse(masterVolSlider.Find("MasterVolValue").GetComponent<Text>().text), 
+            int.Parse(soundVolSlider.Find("SoundValue").GetComponent<Text>().text), 
+            int.Parse(musicVolSlider.Find("MusicValue").GetComponent<Text>().text)
+        ];
+
+        if (volumes.Any(v => v > HKVocals._globalSettings.volume) || volumes.Any(v => v < 9))
+        {
+            HKVocals._globalSettings.dampenLocked = true;
+            HKVocals._globalSettings.dampenAudio = false;
+        }
+        else
+        {
+            HKVocals._globalSettings.dampenLocked = false;
+        }
+        
         Action<float> StoreValue = f =>
         {
             VolumeSlider_MenuAudioSlider.UpdateTextValue(f);
             HKVocals._globalSettings.volume = (int)f;
             MixerLoader.SetMixerVolume();
+            
+            if (volumes.Any(v => v > (int)f))
+            {
+                HKVocals._globalSettings.dampenLocked = true;
+                HKVocals._globalSettings.dampenAudio = false;
+            }
+            else
+            {
+                HKVocals._globalSettings.dampenLocked = false;
+            }
         };
+        
+        foreach (GameObject slider in new[] {masterVolSlider, soundVolSlider, musicVolSlider})
+        {
+            slider.GetComponent<Slider>().onValueChanged.AddListener(f =>
+            {
+                if (f < 9)
+                {
+                    HKVocals._globalSettings.dampenLocked = true;
+                    HKVocals._globalSettings.dampenAudio = false;
+                }
+                else
+                {
+                    HKVocals._globalSettings.dampenLocked = false;
+                }
+            });
+        }
 
         // stuff to happen whenever slider is moved
         var SliderEvent = new Slider.SliderEvent();
